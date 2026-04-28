@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
+  BadgeDollarSign,
   Flag,
   MapPin,
   QrCode,
@@ -13,25 +14,25 @@ import {
 const challengeTypes = [
   {
     name: "Hole-in-One",
-    detail: "Premium jackpot-style rounds where every shot has a clear prize story.",
+    detail: "Take your shot at a headline prize with a chance to win $10,000.",
   },
   {
     name: "Closest to the Pin",
-    detail: "Fast, social contests built for quick turns and live leaderboard movement.",
+    detail: "Stick it tight, climb the leaderboard, and make every wedge count.",
   },
   {
     name: "Longest Drive",
-    detail: "Power challenges that turn a single bay into a venue-wide spectacle.",
+    detail: "Post the longest drive of the week and take home the payout.",
   },
 ];
 
 const steps = [
-  "Scan the QR code at the bay",
-  "Choose the active challenge",
-  "Create a player profile",
-  "Pay the entry fee",
-  "Play while staff runs the simulator",
-  "Post results to the leaderboard",
+  "Scan the QR code",
+  "Pick your challenge",
+  "Create your player profile",
+  "Pay $20 to enter",
+  "Play your shots",
+  "Win cash and climb the board",
 ];
 
 export default function Home() {
@@ -63,8 +64,8 @@ export default function Home() {
               <Link href="/leaderboard" className="hover:text-white">
                 Leaderboard
               </Link>
-              <Link href="/dashboard" className="hover:text-white">
-                Admin
+              <Link href="/play" className="hover:text-white">
+                Play now
               </Link>
             </nav>
           </header>
@@ -72,28 +73,28 @@ export default function Home() {
           <div className="grid flex-1 items-center gap-12 py-16 lg:grid-cols-[minmax(0,0.95fr)_minmax(340px,0.55fr)]">
             <div className="max-w-3xl">
               <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-bold text-[#c8f7a5] backdrop-blur">
-                <Flag size={16} /> Real-money golf challenges for simulator bays
+                <Flag size={16} /> Pay. Play. Win.
               </p>
               <h1 className="text-5xl font-black leading-[0.98] tracking-normal sm:text-6xl lg:text-7xl">
-                Turn every bay into a live PinSeekers challenge.
+                Take your shot at $10,000.
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-white/78">
-                Players scan a QR code, pick a contest, pay their entry, and
-                compete while staff runs the simulator. Results are entered
-                manually first, so the business flow works before automation.
+                Scan the QR code at your bay, enter a live golf challenge, and
+                compete for real payouts. Closest to the pin, longest drive, or
+                a hole-in-one shot that could change your night.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/play"
                   className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#c8f03f] px-6 text-sm font-black text-[#17200d] shadow-lg shadow-black/20 transition hover:bg-[#d7ff53]"
                 >
-                  Start player signup <ArrowRight size={18} />
+                  Enter a challenge <ArrowRight size={18} />
                 </Link>
                 <Link
-                  href="/dashboard"
+                  href="/leaderboard"
                   className="inline-flex h-12 items-center justify-center rounded-md border border-white/24 px-6 text-sm font-bold text-white transition hover:bg-white/10"
                 >
-                  Open admin dashboard
+                  View leaderboard
                 </Link>
               </div>
             </div>
@@ -102,11 +103,11 @@ export default function Home() {
               <div className="flex items-center justify-between border-b border-white/12 pb-4">
                 <div>
                   <p className="text-sm font-bold text-[#c8f7a5]">
-                    Active Bay
+                    Featured Prize
                   </p>
-                  <h2 className="mt-1 text-2xl font-black">Minneapolis 03</h2>
+                  <h2 className="mt-1 text-2xl font-black">Hole-in-One Jackpot</h2>
                 </div>
-                <QrCode className="text-[#c8f7a5]" size={34} />
+                <BadgeDollarSign className="text-[#c8f7a5]" size={36} />
               </div>
               <div className="mt-5 grid grid-cols-2 gap-3">
                 <div className="rounded-md bg-white/8 p-4">
@@ -114,9 +115,15 @@ export default function Home() {
                   <p className="mt-1 text-3xl font-black">$20</p>
                 </div>
                 <div className="rounded-md bg-white/8 p-4">
-                  <p className="text-sm text-white/60">Prize pool</p>
-                  <p className="mt-1 text-3xl font-black">$1,240</p>
+                  <p className="text-sm text-white/60">Top prize</p>
+                  <p className="mt-1 text-3xl font-black">$10K</p>
                 </div>
+              </div>
+              <div className="mt-3 rounded-md bg-[#c8f03f] p-4 text-[#17200d]">
+                <p className="text-sm font-black uppercase tracking-[0.12em]">
+                  Longest drive of the week
+                </p>
+                <p className="mt-1 text-2xl font-black">Winner gets paid</p>
               </div>
               <ol className="mt-5 space-y-3">
                 {steps.slice(0, 4).map((step, index) => (
@@ -142,12 +149,12 @@ export default function Home() {
             How it works
           </p>
           <h2 className="mt-4 text-4xl font-black leading-tight">
-            A simple POC flow built around the venue floor.
+            Scan in, swing big, chase the board.
           </h2>
           <p className="mt-5 text-lg leading-8 text-[#53605a]">
-            PinSeekers starts with a QR-powered player flow and a staff-driven
-            operations flow. That keeps payments, entries, and leaderboards
-            testable before simulator integrations are introduced.
+            No app hunt. No confusing signup. The QR code at your bay takes you
+            straight to the live challenges, the entry fee, and the leaderboard
+            everyone in the venue is watching.
           </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -167,9 +174,11 @@ export default function Home() {
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
               <p className="text-sm font-black uppercase tracking-[0.16em] text-[#7c8d34]">
-                Challenge types
+                Pick your shot
               </p>
-              <h2 className="mt-4 text-4xl font-black">Three contests to launch.</h2>
+              <h2 className="mt-4 text-4xl font-black">
+                Three ways to get paid.
+              </h2>
             </div>
             <Link
               href="/play"
@@ -197,19 +206,20 @@ export default function Home() {
       <section className="mx-auto grid max-w-7xl gap-8 px-6 py-20 sm:px-10 lg:grid-cols-2 lg:px-12">
         <div className="rounded-lg bg-[#18211f] p-8 text-white">
           <MapPin className="text-[#c8f03f]" size={34} />
-          <h2 className="mt-5 text-3xl font-black">Location and bay aware.</h2>
+          <h2 className="mt-5 text-3xl font-black">Your bay, your challenge.</h2>
           <p className="mt-4 leading-8 text-white/74">
-            Every QR code can be tied to a venue, bay, and active challenge, so
-            players land in the right contest without searching through a list.
+            Scan the code where you are playing and jump into the active
+            challenge for that location. Your entry is tied to the right bay,
+            contest, and leaderboard.
           </p>
         </div>
         <div className="rounded-lg border border-[#ded6c8] bg-white p-8">
           <QrCode className="text-[#7c8d34]" size={34} />
-          <h2 className="mt-5 text-3xl font-black">QR code to paid entry.</h2>
+          <h2 className="mt-5 text-3xl font-black">Pay $20. Play for more.</h2>
           <p className="mt-4 leading-8 text-[#53605a]">
-            The QR flow captures profile details, collects the $20 entry fee
-            through Stripe, creates the entry record, and queues the player for
-            staff-run simulator play.
+            Choose the contest, enter your profile, pay the entry, and take
+            your swings. Staff records the official result so the leaderboard
+            updates cleanly.
           </p>
         </div>
       </section>
@@ -218,17 +228,17 @@ export default function Home() {
         <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.16em]">
-              Player signup
+              Pay. Play. Win.
             </p>
             <h2 className="mt-3 text-4xl font-black">
-              Ready to take your shot?
+              The next payout could be yours.
             </h2>
           </div>
           <Link
             href="/play"
             className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#17200d] px-6 text-sm font-black text-white transition hover:bg-[#263616]"
           >
-            <UserPlus size={18} /> Sign up and pay <WalletCards size={18} />
+            <UserPlus size={18} /> Enter for $20 <WalletCards size={18} />
           </Link>
         </div>
       </section>
