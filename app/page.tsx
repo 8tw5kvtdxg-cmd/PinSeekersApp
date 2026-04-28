@@ -1,65 +1,237 @@
 import Image from "next/image";
+import Link from "next/link";
+import {
+  ArrowRight,
+  Flag,
+  MapPin,
+  QrCode,
+  Trophy,
+  UserPlus,
+  WalletCards,
+} from "lucide-react";
+
+const challengeTypes = [
+  {
+    name: "Hole-in-One",
+    detail: "Premium jackpot-style rounds where every shot has a clear prize story.",
+  },
+  {
+    name: "Closest to the Pin",
+    detail: "Fast, social contests built for quick turns and live leaderboard movement.",
+  },
+  {
+    name: "Longest Drive",
+    detail: "Power challenges that turn a single bay into a venue-wide spectacle.",
+  },
+];
+
+const steps = [
+  "Scan the QR code at the bay",
+  "Choose the active challenge",
+  "Create a player profile",
+  "Pay the entry fee",
+  "Play while staff runs the simulator",
+  "Post results to the leaderboard",
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+    <main className="min-h-screen bg-[#f8f4ec] text-[#18211f]">
+      <section className="relative isolate min-h-[88vh] overflow-hidden bg-[#101816] text-white">
         <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
+          src="/pinseekers-hero.png"
+          alt="Indoor golf simulator bay at a PinSeekers challenge venue"
+          fill
           priority
+          className="object-cover"
+          sizes="100vw"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,18,15,0.92)_0%,rgba(8,18,15,0.74)_42%,rgba(8,18,15,0.22)_100%)]" />
+
+        <div className="relative mx-auto flex min-h-[88vh] max-w-7xl flex-col px-6 py-6 sm:px-10 lg:px-12">
+          <header className="flex items-center justify-between">
+            <Link href="/" className="text-xl font-black tracking-[0.12em]">
+              PINSEEKERS
+            </Link>
+            <nav className="hidden items-center gap-7 text-sm font-semibold text-white/78 md:flex">
+              <Link href="#how-it-works" className="hover:text-white">
+                How it works
+              </Link>
+              <Link href="/locations" className="hover:text-white">
+                Locations
+              </Link>
+              <Link href="/leaderboard" className="hover:text-white">
+                Leaderboard
+              </Link>
+              <Link href="/dashboard" className="hover:text-white">
+                Admin
+              </Link>
+            </nav>
+          </header>
+
+          <div className="grid flex-1 items-center gap-12 py-16 lg:grid-cols-[minmax(0,0.95fr)_minmax(340px,0.55fr)]">
+            <div className="max-w-3xl">
+              <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-bold text-[#c8f7a5] backdrop-blur">
+                <Flag size={16} /> Real-money golf challenges for simulator bays
+              </p>
+              <h1 className="text-5xl font-black leading-[0.98] tracking-normal sm:text-6xl lg:text-7xl">
+                Turn every bay into a live PinSeekers challenge.
+              </h1>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-white/78">
+                Players scan a QR code, pick a contest, pay their entry, and
+                compete while staff runs the simulator. Results are entered
+                manually first, so the business flow works before automation.
+              </p>
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/play"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#c8f03f] px-6 text-sm font-black text-[#17200d] shadow-lg shadow-black/20 transition hover:bg-[#d7ff53]"
+                >
+                  Start player signup <ArrowRight size={18} />
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex h-12 items-center justify-center rounded-md border border-white/24 px-6 text-sm font-bold text-white transition hover:bg-white/10"
+                >
+                  Open admin dashboard
+                </Link>
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-white/18 bg-[#0d1513]/78 p-5 shadow-2xl shadow-black/40 backdrop-blur">
+              <div className="flex items-center justify-between border-b border-white/12 pb-4">
+                <div>
+                  <p className="text-sm font-bold text-[#c8f7a5]">
+                    Active Bay
+                  </p>
+                  <h2 className="mt-1 text-2xl font-black">Minneapolis 03</h2>
+                </div>
+                <QrCode className="text-[#c8f7a5]" size={34} />
+              </div>
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                <div className="rounded-md bg-white/8 p-4">
+                  <p className="text-sm text-white/60">Entry</p>
+                  <p className="mt-1 text-3xl font-black">$20</p>
+                </div>
+                <div className="rounded-md bg-white/8 p-4">
+                  <p className="text-sm text-white/60">Prize pool</p>
+                  <p className="mt-1 text-3xl font-black">$1,240</p>
+                </div>
+              </div>
+              <ol className="mt-5 space-y-3">
+                {steps.slice(0, 4).map((step, index) => (
+                  <li key={step} className="flex items-center gap-3 text-sm">
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#c8f03f] text-xs font-black text-[#17200d]">
+                      {index + 1}
+                    </span>
+                    <span className="text-white/82">{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="how-it-works"
+        className="mx-auto grid max-w-7xl gap-12 px-6 py-20 sm:px-10 lg:grid-cols-[0.7fr_1fr] lg:px-12"
+      >
+        <div>
+          <p className="text-sm font-black uppercase tracking-[0.16em] text-[#57705d]">
+            How it works
+          </p>
+          <h2 className="mt-4 text-4xl font-black leading-tight">
+            A simple POC flow built around the venue floor.
+          </h2>
+          <p className="mt-5 text-lg leading-8 text-[#53605a]">
+            PinSeekers starts with a QR-powered player flow and a staff-driven
+            operations flow. That keeps payments, entries, and leaderboards
+            testable before simulator integrations are introduced.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {steps.map((step, index) => (
+            <div key={step} className="rounded-lg border border-[#ded6c8] bg-white p-5">
+              <p className="text-sm font-black text-[#7c8d34]">
+                STEP {index + 1}
+              </p>
+              <h3 className="mt-3 text-xl font-black">{step}</h3>
+            </div>
+          ))}
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="bg-white py-20">
+        <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-12">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+            <div>
+              <p className="text-sm font-black uppercase tracking-[0.16em] text-[#7c8d34]">
+                Challenge types
+              </p>
+              <h2 className="mt-4 text-4xl font-black">Three contests to launch.</h2>
+            </div>
+            <Link
+              href="/play"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white transition hover:bg-[#2a3935]"
+            >
+              Join a challenge <ArrowRight size={17} />
+            </Link>
+          </div>
+
+          <div className="mt-9 grid gap-5 md:grid-cols-3">
+            {challengeTypes.map((challenge) => (
+              <article
+                key={challenge.name}
+                className="rounded-lg border border-[#e4ddcf] bg-[#fbf8f1] p-6"
+              >
+                <Trophy className="text-[#7c8d34]" size={30} />
+                <h3 className="mt-5 text-2xl font-black">{challenge.name}</h3>
+                <p className="mt-3 leading-7 text-[#59655f]">{challenge.detail}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto grid max-w-7xl gap-8 px-6 py-20 sm:px-10 lg:grid-cols-2 lg:px-12">
+        <div className="rounded-lg bg-[#18211f] p-8 text-white">
+          <MapPin className="text-[#c8f03f]" size={34} />
+          <h2 className="mt-5 text-3xl font-black">Location and bay aware.</h2>
+          <p className="mt-4 leading-8 text-white/74">
+            Every QR code can be tied to a venue, bay, and active challenge, so
+            players land in the right contest without searching through a list.
+          </p>
+        </div>
+        <div className="rounded-lg border border-[#ded6c8] bg-white p-8">
+          <QrCode className="text-[#7c8d34]" size={34} />
+          <h2 className="mt-5 text-3xl font-black">QR code to paid entry.</h2>
+          <p className="mt-4 leading-8 text-[#53605a]">
+            The QR flow captures profile details, collects the $20 entry fee
+            through Stripe, creates the entry record, and queues the player for
+            staff-run simulator play.
+          </p>
+        </div>
+      </section>
+
+      <section className="bg-[#c8f03f] px-6 py-16 text-[#17200d] sm:px-10 lg:px-12">
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-sm font-black uppercase tracking-[0.16em]">
+              Player signup
+            </p>
+            <h2 className="mt-3 text-4xl font-black">
+              Ready to take your shot?
+            </h2>
+          </div>
+          <Link
+            href="/play"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#17200d] px-6 text-sm font-black text-white transition hover:bg-[#263616]"
+          >
+            <UserPlus size={18} /> Sign up and pay <WalletCards size={18} />
+          </Link>
+        </div>
+      </section>
+    </main>
   );
 }

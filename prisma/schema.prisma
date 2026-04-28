@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ChallengeType {
+  HOLE_IN_ONE
+  CLOSEST_TO_PIN
+  LONGEST_DRIVE
+}
+
+enum ChallengeStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum EntryStatus {
+  PENDING_PAYMENT
+  PAID
+  READY
+  IN_PROGRESS
+  COMPLETED
+  DISQUALIFIED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+enum PrizeStatus {
+  AVAILABLE
+  AWARDED
+  PAID_OUT
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  entries  Entry[]
+  payments Payment[]
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  address   String?
+  city      String?
+  state     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bays       Bay[]
+  challenges Challenge[]
+}
+
+model Bay {
+  id         String   @id @default(cuid())
+  name       String
+  qrCodeUrl  String?
+  isActive   Boolean  @default(true)
+  locationId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  location   Location    @relation(fields: [locationId], references: [id])
+  challenges Challenge[]
+  entries    Entry[]
+
+  @@unique([locationId, name])
+}
+
+model Challenge {
+  id          String          @id @default(cuid())
+  name        String
+  type        ChallengeType
+  status      ChallengeStatus @default(DRAFT)
+  entryFee    Int             @default(2000)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  locationId  String
+  bayId       String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  location    Location      @relation(fields: [locationId], references: [id])
+  bay         Bay?          @relation(fields: [bayId], references: [id])
+  entries     Entry[]
+  leaderboard Leaderboard?
+  prizes      Prize[]
+}
+
+model Entry {
+  id          String      @id @default(cuid())
+  status      EntryStatus @default(PENDING_PAYMENT)
+  entryNumber Int?
+  userId      String
+  challengeId String
+  bayId       String?
+  paymentId   String?     @unique
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id])
+  challenge Challenge @relation(fields: [challengeId], references: [id])
+  bay       Bay?      @relation(fields: [bayId], references: [id])
+  payment   Payment?  @relation(fields: [paymentId], references: [id])
+  shots     Shot[]
+
+  @@index([challengeId, status])
+}
+
+model Shot {
+  id                String   @id @default(cuid())
+  entryId           String
+  shotNumber        Int
+  carryYards        Decimal? @db.Decimal(7, 2)
+  totalYards        Decimal? @db.Decimal(7, 2)
+  distanceToPinInch Decimal? @db.Decimal(8, 2)
+  isHoleInOne       Boolean  @default(false)
+  notes             String?
+  enteredBy         String?
+  createdAt         DateTime @default(now())
+
+  entry Entry @relation(fields: [entryId], references: [id])
+
+  @@unique([entryId, shotNumber])
+}
+
+model Leaderboard {
+  id          String   @id @default(cuid())
+  challengeId String   @unique
+  standings   Json
+  updatedAt   DateTime @updatedAt
+
+  challenge Challenge @relation(fields: [challengeId], references: [id])
+}
+
+model Payment {
+  id                     String        @id @default(cuid())
+  userId                 String
+  amount                 Int
+  currency               String        @default("usd")
+  status                 PaymentStatus @default(PENDING)
+  stripeCheckoutSessionId String?       @unique
+  stripePaymentIntentId   String?       @unique
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+
+  user  User   @relation(fields: [userId], references: [id])
+  entry Entry?
+}
+
+model Prize {
+  id          String      @id @default(cuid())
+  challengeId String
+  name        String
+  value       Int?
+  status      PrizeStatus @default(AVAILABLE)
+  winnerId    String?
+  awardedAt   DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  challenge Challenge @relation(fields: [challengeId], references: [id])
+}
