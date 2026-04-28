@@ -4,7 +4,7 @@ import { ClipboardList, Flag, PencilLine } from "lucide-react";
 const queue = [
   { player: "Jordan Smith", challenge: "Closest to the Pin", status: "Paid entry" },
   { player: "Taylor Kim", challenge: "Longest Drive", status: "Ready for staff" },
-  { player: "Avery Jones", challenge: "Hole-in-One", status: "Awaiting shots" },
+  { player: "Avery Jones", challenge: "Closest to the Pin", status: "Awaiting shots" },
 ];
 
 export default function DashboardPage() {

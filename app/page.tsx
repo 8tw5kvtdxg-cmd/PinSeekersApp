@@ -13,12 +13,9 @@ import {
 
 const challengeTypes = [
   {
-    name: "Hole-in-One",
-    detail: "Take your shot at a headline prize with a chance to win $10,000.",
-  },
-  {
     name: "Closest to the Pin",
-    detail: "Stick it tight, climb the leaderboard, and make every wedge count.",
+    detail:
+      "Stick it tight, climb the leaderboard, and take your shot at the $10,000 hole-in-one prize.",
   },
   {
     name: "Longest Drive",
@@ -80,8 +77,8 @@ export default function Home() {
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-white/78">
                 Scan the QR code at your bay, enter a live golf challenge, and
-                compete for real payouts. Closest to the pin, longest drive, or
-                a hole-in-one shot that could change your night.
+                compete for real payouts. Closest to the Pin includes the
+                hole-in-one jackpot. Longest Drive brings the weekly payout.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Link
@@ -105,7 +102,7 @@ export default function Home() {
                   <p className="text-sm font-bold text-[#c8f7a5]">
                     Featured Prize
                   </p>
-                  <h2 className="mt-1 text-2xl font-black">Hole-in-One Jackpot</h2>
+                  <h2 className="mt-1 text-2xl font-black">Closest to the Pin</h2>
                 </div>
                 <BadgeDollarSign className="text-[#c8f7a5]" size={36} />
               </div>
@@ -121,9 +118,9 @@ export default function Home() {
               </div>
               <div className="mt-3 rounded-md bg-[#c8f03f] p-4 text-[#17200d]">
                 <p className="text-sm font-black uppercase tracking-[0.12em]">
-                  Longest drive of the week
+                  Hole-in-one bonus
                 </p>
-                <p className="mt-1 text-2xl font-black">Winner gets paid</p>
+                <p className="mt-1 text-2xl font-black">Chance to win $10,000</p>
               </div>
               <ol className="mt-5 space-y-3">
                 {steps.slice(0, 4).map((step, index) => (
@@ -177,7 +174,7 @@ export default function Home() {
                 Pick your shot
               </p>
               <h2 className="mt-4 text-4xl font-black">
-                Three ways to get paid.
+                Two ways to get paid.
               </h2>
             </div>
             <Link
@@ -188,7 +185,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="mt-9 grid gap-5 md:grid-cols-3">
+          <div className="mt-9 grid gap-5 md:grid-cols-2">
             {challengeTypes.map((challenge) => (
               <article
                 key={challenge.name}

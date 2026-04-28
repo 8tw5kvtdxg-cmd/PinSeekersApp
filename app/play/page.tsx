@@ -3,7 +3,7 @@ import { CheckCircle2, CreditCard, QrCode, UserPlus } from "lucide-react";
 
 const signupSteps = [
   "QR code identifies the location, bay, and active challenge.",
-  "Player chooses Hole-in-One, Closest to the Pin, or Longest Drive.",
+  "Player chooses Closest to the Pin or Longest Drive.",
   "Profile details are captured before checkout.",
   "$20 payment creates a pending challenge entry.",
 ];
@@ -36,8 +36,8 @@ export default function PlayPage() {
         </section>
 
         <section className="rounded-lg border border-[#ded6c8] bg-white p-6 shadow-xl shadow-[#18211f]/8">
-          <div className="grid gap-4 sm:grid-cols-3">
-            {["Hole-in-One", "Closest to the Pin", "Longest Drive"].map((name) => (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {["Closest to the Pin + Hole-in-One", "Longest Drive"].map((name) => (
               <button
                 key={name}
                 className="min-h-28 rounded-md border border-[#ded6c8] bg-[#fbf8f1] p-4 text-left text-lg font-black transition hover:border-[#7c8d34]"
