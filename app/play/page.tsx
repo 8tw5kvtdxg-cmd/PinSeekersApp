@@ -54,7 +54,7 @@ export default function PlayPage() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <span className="rounded-full bg-white px-4 py-2 text-sm font-bold text-[#53605a]">
-              Location: Minneapolis
+              Location: San Antonio
             </span>
             <span className="rounded-full bg-white px-4 py-2 text-sm font-bold text-[#53605a]">
               Bay: 03

@@ -6,18 +6,18 @@ const leaderboards = [
     title: "Closest to the Pin",
     resultLabel: "Distance",
     rows: [
-      { rank: 1, player: "Maya Chen", location: "Minneapolis", result: "2 ft 8 in" },
-      { rank: 2, player: "Jordan Smith", location: "Madison", result: "4 ft 1 in" },
-      { rank: 3, player: "Avery Jones", location: "Des Moines", result: "5 ft 6 in" },
+      { rank: 1, player: "Maya Chen", location: "San Antonio", result: "2 ft 8 in" },
+      { rank: 2, player: "Jordan Smith", location: "Austin", result: "4 ft 1 in" },
+      { rank: 3, player: "Avery Jones", location: "Dallas", result: "5 ft 6 in" },
     ],
   },
   {
     title: "Longest Drive",
     resultLabel: "Distance",
     rows: [
-      { rank: 1, player: "Evan Brooks", location: "Minneapolis", result: "319 yd" },
-      { rank: 2, player: "Taylor Kim", location: "Omaha", result: "312 yd" },
-      { rank: 3, player: "Sam Rivera", location: "Madison", result: "305 yd" },
+      { rank: 1, player: "Evan Brooks", location: "Houston", result: "319 yd" },
+      { rank: 2, player: "Taylor Kim", location: "San Antonio", result: "312 yd" },
+      { rank: 3, player: "Sam Rivera", location: "Austin", result: "305 yd" },
     ],
   },
 ];
