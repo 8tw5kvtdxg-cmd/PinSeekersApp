@@ -40,7 +40,7 @@ export default function LeaderboardPage() {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-8">
+        <div className="mt-10 grid gap-8 xl:grid-cols-2">
           {leaderboards.map((leaderboard) => (
             <section
               key={leaderboard.title}
@@ -52,7 +52,7 @@ export default function LeaderboardPage() {
                   Weekly payout leaderboard
                 </p>
               </div>
-              <div className="grid grid-cols-[70px_1fr_1fr_130px] gap-4 bg-[#f2eadb] px-5 py-4 text-xs font-black uppercase tracking-[0.12em] text-[#53605a] sm:grid-cols-[80px_1.2fr_1fr_150px]">
+              <div className="grid grid-cols-[60px_1.1fr_1fr_105px] gap-3 bg-[#f2eadb] px-5 py-4 text-xs font-black uppercase tracking-[0.12em] text-[#53605a] sm:grid-cols-[70px_1.15fr_1fr_120px]">
                 <span>Rank</span>
                 <span>Player</span>
                 <span>Location</span>
@@ -61,7 +61,7 @@ export default function LeaderboardPage() {
               {leaderboard.rows.map((row) => (
                 <div
                   key={`${leaderboard.title}-${row.rank}`}
-                  className="grid grid-cols-[70px_1fr_1fr_130px] gap-4 border-t border-[#ece5d8] px-5 py-5 text-sm sm:grid-cols-[80px_1.2fr_1fr_150px] sm:text-base"
+                  className="grid grid-cols-[60px_1.1fr_1fr_105px] gap-3 border-t border-[#ece5d8] px-5 py-5 text-sm sm:grid-cols-[70px_1.15fr_1fr_120px] sm:text-base"
                 >
                   <span className="font-black">#{row.rank}</span>
                   <span className="font-bold">{row.player}</span>
