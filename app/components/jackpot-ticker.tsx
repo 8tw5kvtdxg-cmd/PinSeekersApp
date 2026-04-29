@@ -84,7 +84,7 @@ export function JackpotTicker({
           <p
             className={cn(
               "text-xs font-black uppercase tracking-[0.14em]",
-              isDark ? "text-[#c8f03f]" : "text-[#7c8d34]",
+              isDark ? "text-[#a8c878]" : "text-[#2f6b3f]",
             )}
           >
             Progressive jackpot
@@ -94,7 +94,7 @@ export function JackpotTicker({
         <span
           className={cn(
             "inline-flex size-10 shrink-0 items-center justify-center rounded-full",
-            isDark ? "bg-[#c8f03f] text-[#17200d]" : "bg-[#18211f] text-white",
+            isDark ? "bg-[#2f6b3f] text-white" : "bg-[#18211f] text-white",
           )}
         >
           <BadgeDollarSign size={22} />
@@ -115,13 +115,13 @@ export function JackpotTicker({
             <span
               className={cn(
                 "absolute inline-flex size-full animate-ping rounded-full opacity-75",
-                isCapped ? "bg-white/40" : "bg-[#c8f03f]",
+                isCapped ? "bg-white/40" : "bg-[#2f6b3f]",
               )}
             />
             <span
               className={cn(
                 "relative inline-flex size-2 rounded-full",
-                isCapped ? "bg-white/70" : "bg-[#7c8d34]",
+                isCapped ? "bg-white/70" : "bg-[#2f6b3f]",
               )}
             />
           </span>

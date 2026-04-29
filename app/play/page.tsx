@@ -41,7 +41,7 @@ export default function PlayPage() {
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.9fr_1.1fr]">
         <section>
-          <Link href="/" className="text-sm font-black uppercase tracking-[0.16em] text-[#7c8d34]">
+          <Link href="/" className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
             PinSeekers
           </Link>
           <h1 className="mt-10 text-4xl font-black sm:text-5xl">
@@ -66,13 +66,13 @@ export default function PlayPage() {
 
           <div className="mt-8 rounded-lg bg-[#18211f] p-6 text-white">
             <div className="flex items-center gap-3">
-              <QrCode className="text-[#c8f03f]" size={28} />
+              <QrCode className="text-[#2f6b3f]" size={28} />
               <h2 className="text-2xl font-black">What to do next</h2>
             </div>
             <ol className="mt-5 space-y-3">
               {signupSteps.map((step, index) => (
                 <li key={step} className="flex gap-3 text-sm leading-6 text-white/78">
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#c8f03f] text-xs font-black text-[#17200d]">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#2f6b3f] text-xs font-black text-white">
                     {index + 1}
                   </span>
                   <span>{step}</span>
@@ -84,7 +84,7 @@ export default function PlayPage() {
 
         <section className="rounded-lg border border-[#ded6c8] bg-white p-6 shadow-xl shadow-[#18211f]/8">
           <div className="mb-5">
-            <p className="text-sm font-black uppercase tracking-[0.16em] text-[#7c8d34]">
+            <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
               Select challenge
             </p>
             <h2 className="mt-2 text-2xl font-black">What are you playing?</h2>
@@ -98,9 +98,9 @@ export default function PlayPage() {
                   key={challenge.name}
                   aria-pressed={isSelected}
                   className={cn(
-                    "relative min-h-44 rounded-md border bg-[#fbf8f1] p-4 text-left transition hover:border-[#7c8d34] hover:bg-[#f5efdf] focus:outline-none focus:ring-2 focus:ring-[#7c8d34] focus:ring-offset-2",
+                    "relative min-h-44 rounded-md border bg-[#fbf8f1] p-4 text-left transition hover:border-[#2f6b3f] hover:bg-[#f5efdf] focus:outline-none focus:ring-2 focus:ring-[#2f6b3f] focus:ring-offset-2",
                     isSelected
-                      ? "border-[#7c8d34] bg-[#eef6cc] shadow-lg shadow-[#18211f]/12"
+                      ? "border-[#2f6b3f] bg-[#e3edd8] shadow-lg shadow-[#18211f]/12"
                       : "border-[#ded6c8]",
                   )}
                   type="button"
@@ -112,13 +112,13 @@ export default function PlayPage() {
                     </span>
                   ) : null}
                   <Trophy
-                    className={isSelected ? "text-[#18211f]" : "text-[#7c8d34]"}
+                    className={isSelected ? "text-[#18211f]" : "text-[#2f6b3f]"}
                     size={26}
                   />
                   <span className="mt-4 block pr-24 text-lg font-black">
                     {challenge.name}
                   </span>
-                  <span className="mt-2 block text-sm font-black text-[#7c8d34]">
+                  <span className="mt-2 block text-sm font-black text-[#2f6b3f]">
                     {challenge.prize}
                   </span>
                   <span className="mt-3 block text-sm leading-6 text-[#59655f]">
@@ -132,7 +132,7 @@ export default function PlayPage() {
           <form className="mt-6 grid gap-4">
             <input name="challenge" type="hidden" value={selectedChallenge} />
             <div>
-              <p className="text-sm font-black uppercase tracking-[0.16em] text-[#7c8d34]">
+              <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
                 Player info
               </p>
               <h2 className="mt-2 text-2xl font-black">Who is taking the shot?</h2>
@@ -140,14 +140,14 @@ export default function PlayPage() {
             <label className="grid gap-2 text-sm font-bold text-[#53605a]">
               Player name
               <input
-                className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#7c8d34]"
+                className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
                 placeholder="Jordan Smith"
               />
             </label>
             <label className="grid gap-2 text-sm font-bold text-[#53605a]">
               Email
               <input
-                className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#7c8d34]"
+                className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
                 placeholder="jordan@example.com"
                 type="email"
               />
@@ -173,8 +173,8 @@ export default function PlayPage() {
 
               return (
                 <div key={step} className="rounded-lg bg-[#18211f] p-5 text-white">
-                  <Icon className="text-[#c8f03f]" size={28} />
-                  <p className="mt-4 text-sm font-black text-[#c8f03f]">
+                  <Icon className="text-[#2f6b3f]" size={28} />
+                  <p className="mt-4 text-sm font-black text-[#2f6b3f]">
                     STEP {index + 1}
                   </p>
                   <p className="mt-2 leading-7 text-white/78">{step}</p>

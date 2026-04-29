@@ -11,18 +11,19 @@ import {
   WalletCards,
 } from "lucide-react";
 import { JackpotTicker } from "@/app/components/jackpot-ticker";
+import { jackpotSettings } from "@/lib/jackpots";
 
 const challengeTypes = [
   {
     name: "Closest to the Pin",
     detail:
-      "Stick it tight, climb the leaderboard, and take your shot at the $10,000 hole-in-one prize.",
-    weeklyRevenue: 3420,
+      "Stick it tight, climb the leaderboard, and chase the weekly progressive jackpot.",
+    jackpot: jackpotSettings.closestToPin,
   },
   {
     name: "Longest Drive",
     detail: "Post the longest drive of the week and take home the payout.",
-    weeklyRevenue: 2860,
+    jackpot: jackpotSettings.longestDrive,
   },
 ];
 
@@ -67,6 +68,9 @@ export default function Home() {
               <Link href="/leaderboard" className="hover:text-white">
                 Leaderboard
               </Link>
+              <Link href="/contact" className="hover:text-white">
+                Contact
+              </Link>
               <Link href="/play" className="hover:text-white">
                 Play now
               </Link>
@@ -75,7 +79,7 @@ export default function Home() {
 
           <div className="grid flex-1 items-center gap-12 py-16 lg:grid-cols-[minmax(0,0.95fr)_minmax(340px,0.55fr)]">
             <div className="max-w-3xl">
-              <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-bold text-[#c8f7a5] backdrop-blur">
+              <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-bold text-[#a8c878] backdrop-blur">
                 <Flag size={16} /> Pay. Play. Win.
               </p>
               <h1 className="text-5xl font-black leading-[0.98] tracking-normal sm:text-6xl lg:text-7xl">
@@ -89,7 +93,7 @@ export default function Home() {
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/play"
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#c8f03f] px-6 text-sm font-black text-[#17200d] shadow-lg shadow-black/20 transition hover:bg-[#d7ff53]"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-6 text-sm font-black text-white shadow-lg shadow-black/20 transition hover:bg-[#3f7f4c]"
                 >
                   Enter a challenge <ArrowRight size={18} />
                 </Link>
@@ -105,12 +109,12 @@ export default function Home() {
             <div className="rounded-lg border border-white/18 bg-[#0d1513]/78 p-5 shadow-2xl shadow-black/40 backdrop-blur">
               <div className="flex items-center justify-between border-b border-white/12 pb-4">
                 <div>
-                  <p className="text-sm font-bold text-[#c8f7a5]">
+                  <p className="text-sm font-bold text-[#a8c878]">
                     Featured Prize
                   </p>
                   <h2 className="mt-1 text-2xl font-black">Closest to the Pin</h2>
                 </div>
-                <BadgeDollarSign className="text-[#c8f7a5]" size={36} />
+                <BadgeDollarSign className="text-[#a8c878]" size={36} />
               </div>
               <div className="mt-5 grid grid-cols-2 gap-3">
                 <div className="rounded-md bg-white/8 p-4">
@@ -122,7 +126,7 @@ export default function Home() {
                   <p className="mt-1 text-3xl font-black">$10K</p>
                 </div>
               </div>
-              <div className="mt-3 rounded-md bg-[#c8f03f] p-4 text-[#17200d]">
+              <div className="mt-3 rounded-md bg-[#2f6b3f] p-4 text-white">
                 <p className="text-sm font-black uppercase tracking-[0.12em]">
                   Hole-in-one bonus
                 </p>
@@ -130,22 +134,22 @@ export default function Home() {
               </div>
               <div className="mt-3 grid gap-3">
                 <JackpotTicker
-                  label="Closest to the Pin weekly pot"
-                  initialWeeklyRevenue={3420}
-                  updateDelayMs={3000}
+                  label={jackpotSettings.closestToPin.label}
+                  initialWeeklyRevenue={jackpotSettings.closestToPin.weeklyRevenue}
+                  updateDelayMs={jackpotSettings.closestToPin.updateDelayMs}
                   variant="dark"
                 />
                 <JackpotTicker
-                  label="Longest Drive weekly pot"
-                  initialWeeklyRevenue={2860}
-                  updateDelayMs={9000}
+                  label={jackpotSettings.longestDrive.label}
+                  initialWeeklyRevenue={jackpotSettings.longestDrive.weeklyRevenue}
+                  updateDelayMs={jackpotSettings.longestDrive.updateDelayMs}
                   variant="dark"
                 />
               </div>
               <ol className="mt-5 space-y-3">
                 {steps.slice(0, 4).map((step, index) => (
                   <li key={step} className="flex items-center gap-3 text-sm">
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#c8f03f] text-xs font-black text-[#17200d]">
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#2f6b3f] text-xs font-black text-white">
                       {index + 1}
                     </span>
                     <span className="text-white/82">{step}</span>
@@ -162,7 +166,7 @@ export default function Home() {
         className="mx-auto grid max-w-7xl gap-12 px-6 py-20 sm:px-10 lg:grid-cols-[0.7fr_1fr] lg:px-12"
       >
         <div>
-          <p className="text-sm font-black uppercase tracking-[0.16em] text-[#57705d]">
+          <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
             How it works
           </p>
           <h2 className="mt-4 text-4xl font-black leading-tight">
@@ -177,7 +181,7 @@ export default function Home() {
         <div className="grid gap-3 sm:grid-cols-2">
           {steps.map((step, index) => (
             <div key={step} className="rounded-lg border border-[#ded6c8] bg-white p-5">
-              <p className="text-sm font-black text-[#7c8d34]">
+              <p className="text-sm font-black text-[#2f6b3f]">
                 STEP {index + 1}
               </p>
               <h3 className="mt-3 text-xl font-black">{step}</h3>
@@ -190,11 +194,11 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-12">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
-              <p className="text-sm font-black uppercase tracking-[0.16em] text-[#7c8d34]">
+              <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
                 Pick your shot
               </p>
               <h2 className="mt-4 text-4xl font-black">
-                Two ways to get paid.
+                Three ways to win.
               </h2>
             </div>
             <Link
@@ -205,30 +209,57 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="mt-9 grid gap-5 md:grid-cols-2">
-            {challengeTypes.map((challenge) => (
+          <div className="mt-9 grid gap-5 lg:grid-cols-[1.15fr_1fr]">
+            <article className="flex min-h-full flex-col rounded-lg border border-[#2f6b3f] bg-[#18211f] p-7 text-white shadow-xl shadow-[#18211f]/16">
+              <div className="flex items-start justify-between gap-4">
+                <Trophy className="text-[#a8c878]" size={36} />
+                <span className="rounded-full bg-[#2f6b3f] px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-white">
+                  Featured
+                </span>
+              </div>
+              <h3 className="mt-6 text-4xl font-black">Hole-in-One Prize</h3>
+              <p className="mt-4 text-lg leading-8 text-white/74">
+                One perfect swing can unlock the headline prize. Take your shot
+                at $10,000 while playing the Closest to the Pin challenge.
+              </p>
+              <div className="mt-auto pt-8">
+                <div className="rounded-lg bg-[#2f6b3f] p-5 text-white">
+                  <p className="text-xs font-black uppercase tracking-[0.14em]">
+                    Headline prize
+                  </p>
+                  <p className="mt-3 text-5xl font-black leading-none">
+                    $10,000
+                  </p>
+                </div>
+              </div>
+            </article>
+
+            <div className="grid gap-5">
+              {challengeTypes.map((challenge) => (
               <article
                 key={challenge.name}
-                className="rounded-lg border border-[#e4ddcf] bg-[#fbf8f1] p-6"
+                  className="flex min-h-[278px] flex-col rounded-lg border border-[#e4ddcf] bg-[#fbf8f1] p-6"
               >
-                <Trophy className="text-[#7c8d34]" size={30} />
+                <Trophy className="text-[#2f6b3f]" size={30} />
                 <h3 className="mt-5 text-2xl font-black">{challenge.name}</h3>
                 <p className="mt-3 leading-7 text-[#59655f]">{challenge.detail}</p>
-                <JackpotTicker
-                  className="mt-5"
-                  label={`${challenge.name} weekly pot`}
-                  initialWeeklyRevenue={challenge.weeklyRevenue}
-                  updateDelayMs={challenge.name === "Closest to the Pin" ? 3000 : 9000}
-                />
+                <div className="mt-auto pt-5">
+                  <JackpotTicker
+                    label={challenge.jackpot.label}
+                    initialWeeklyRevenue={challenge.jackpot.weeklyRevenue}
+                    updateDelayMs={challenge.jackpot.updateDelayMs}
+                  />
+                </div>
               </article>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-8 px-6 py-20 sm:px-10 lg:grid-cols-2 lg:px-12">
         <div className="rounded-lg bg-[#18211f] p-8 text-white">
-          <MapPin className="text-[#c8f03f]" size={34} />
+          <MapPin className="text-[#a8c878]" size={34} />
           <h2 className="mt-5 text-3xl font-black">Your bay, your challenge.</h2>
           <p className="mt-4 leading-8 text-white/74">
             Scan the code where you are playing and jump into the active
@@ -237,7 +268,7 @@ export default function Home() {
           </p>
         </div>
         <div className="rounded-lg border border-[#ded6c8] bg-white p-8">
-          <QrCode className="text-[#7c8d34]" size={34} />
+          <QrCode className="text-[#2f6b3f]" size={34} />
           <h2 className="mt-5 text-3xl font-black">Pay $20. Play for more.</h2>
           <p className="mt-4 leading-8 text-[#53605a]">
             Choose the contest, enter your profile, pay the entry, and take
@@ -247,7 +278,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[#c8f03f] px-6 py-16 text-[#17200d] sm:px-10 lg:px-12">
+      <section className="bg-[#2f6b3f] px-6 py-16 text-white sm:px-10 lg:px-12">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.16em]">

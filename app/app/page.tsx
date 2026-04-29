@@ -32,7 +32,7 @@ export default function AppHomePage() {
   return (
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
       <div className="mx-auto max-w-6xl">
-        <Link href="/" className="text-sm font-black uppercase tracking-[0.16em] text-[#7c8d34]">
+        <Link href="/" className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
           PinSeekers
         </Link>
         <div className="mt-10 max-w-3xl">
@@ -54,7 +54,7 @@ export default function AppHomePage() {
                 href={area.href}
                 className="rounded-lg border border-[#ded6c8] bg-white p-6 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#18211f]/10"
               >
-                <Icon className="text-[#7c8d34]" size={30} />
+                <Icon className="text-[#2f6b3f]" size={30} />
                 <h2 className="mt-5 text-2xl font-black">{area.title}</h2>
                 <p className="mt-3 leading-7 text-[#59655f]">{area.description}</p>
               </Link>

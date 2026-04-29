@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { Trophy } from "lucide-react";
 import { JackpotTicker } from "@/app/components/jackpot-ticker";
+import { jackpotSettings } from "@/lib/jackpots";
 
 const leaderboards = [
   {
     title: "Closest to the Pin",
     resultLabel: "Distance",
-    weeklyRevenue: 3420,
-    updateDelayMs: 3000,
+    jackpot: jackpotSettings.closestToPin,
     rows: [
       { rank: 1, player: "Maya Chen", location: "San Antonio", result: "2 ft 8 in" },
       { rank: 2, player: "Jordan Smith", location: "Austin", result: "4 ft 1 in" },
@@ -24,8 +24,7 @@ const leaderboards = [
   {
     title: "Longest Drive",
     resultLabel: "Distance",
-    weeklyRevenue: 2860,
-    updateDelayMs: 9000,
+    jackpot: jackpotSettings.longestDrive,
     rows: [
       { rank: 1, player: "Evan Brooks", location: "Houston", result: "319 yd" },
       { rank: 2, player: "Taylor Kim", location: "San Antonio", result: "312 yd" },
@@ -45,12 +44,12 @@ export default function LeaderboardPage() {
   return (
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
       <div className="mx-auto max-w-6xl">
-        <Link href="/" className="text-sm font-black uppercase tracking-[0.16em] text-[#7c8d34]">
+        <Link href="/" className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
           PinSeekers
         </Link>
         <div className="mt-10 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
-            <Trophy className="text-[#7c8d34]" size={34} />
+            <Trophy className="text-[#2f6b3f]" size={34} />
             <h1 className="mt-4 text-4xl font-black sm:text-5xl">Leaderboards</h1>
           </div>
           <p className="max-w-xl text-lg leading-8 text-[#53605a]">
@@ -73,9 +72,9 @@ export default function LeaderboardPage() {
               </div>
               <div className="border-b border-[#ece5d8] bg-[#fbf8f1] p-5">
                 <JackpotTicker
-                  label={`${leaderboard.title} weekly pot`}
-                  initialWeeklyRevenue={leaderboard.weeklyRevenue}
-                  updateDelayMs={leaderboard.updateDelayMs}
+                  label={leaderboard.jackpot.label}
+                  initialWeeklyRevenue={leaderboard.jackpot.weeklyRevenue}
+                  updateDelayMs={leaderboard.jackpot.updateDelayMs}
                 />
               </div>
               <div className="grid grid-cols-[60px_1.1fr_1fr_105px] gap-3 bg-[#f2eadb] px-5 py-4 text-xs font-black uppercase tracking-[0.12em] text-[#53605a] sm:grid-cols-[70px_1.15fr_1fr_120px]">
@@ -92,7 +91,7 @@ export default function LeaderboardPage() {
                   <span className="font-black">#{row.rank}</span>
                   <span className="font-bold">{row.player}</span>
                   <span className="text-[#53605a]">{row.location}</span>
-                  <span className="font-black text-[#7c8d34]">{row.result}</span>
+                  <span className="font-black text-[#2f6b3f]">{row.result}</span>
                 </div>
               ))}
             </section>

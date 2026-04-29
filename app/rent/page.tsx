@@ -21,14 +21,14 @@ export default function RentBayPage() {
       <div className="mx-auto max-w-6xl">
         <Link
           href="/"
-          className="text-sm font-black uppercase tracking-[0.16em] text-[#7c8d34]"
+          className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]"
         >
           PinSeekers
         </Link>
 
         <section className="mt-10 grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.16em] text-[#7c8d34]">
+            <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
               Rent a bay
             </p>
             <h1 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">
@@ -42,15 +42,15 @@ export default function RentBayPage() {
 
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               <div className="rounded-lg bg-white p-4">
-                <CalendarDays className="text-[#7c8d34]" size={26} />
+                <CalendarDays className="text-[#2f6b3f]" size={26} />
                 <p className="mt-3 text-sm font-black">Pick a date</p>
               </div>
               <div className="rounded-lg bg-white p-4">
-                <Clock className="text-[#7c8d34]" size={26} />
+                <Clock className="text-[#2f6b3f]" size={26} />
                 <p className="mt-3 text-sm font-black">Choose a time</p>
               </div>
               <div className="rounded-lg bg-white p-4">
-                <Users className="text-[#7c8d34]" size={26} />
+                <Users className="text-[#2f6b3f]" size={26} />
                 <p className="mt-3 text-sm font-black">Bring your group</p>
               </div>
             </div>
@@ -58,9 +58,9 @@ export default function RentBayPage() {
 
           <section className="rounded-lg border border-[#ded6c8] bg-white p-6 shadow-xl shadow-[#18211f]/8">
             <div className="flex items-center gap-3">
-              <Search className="text-[#7c8d34]" size={28} />
+              <Search className="text-[#2f6b3f]" size={28} />
               <div>
-                <p className="text-sm font-black uppercase tracking-[0.16em] text-[#7c8d34]">
+                <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
                   Location search
                 </p>
                 <h2 className="mt-1 text-2xl font-black">
@@ -73,7 +73,7 @@ export default function RentBayPage() {
               <label className="grid gap-2 text-sm font-bold text-[#53605a]">
                 City or location
                 <input
-                  className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#7c8d34]"
+                  className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
                   placeholder="Search San Antonio, Houston, Austin, or Dallas"
                 />
               </label>
@@ -81,14 +81,14 @@ export default function RentBayPage() {
                 <label className="grid gap-2 text-sm font-bold text-[#53605a]">
                   Date
                   <input
-                    className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#7c8d34]"
+                    className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
                     type="date"
                   />
                 </label>
                 <label className="grid gap-2 text-sm font-bold text-[#53605a]">
                   Party size
                   <input
-                    className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#7c8d34]"
+                    className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
                     min="1"
                     placeholder="4"
                     type="number"
@@ -111,7 +111,7 @@ export default function RentBayPage() {
               key={location.city}
               className="rounded-lg border border-[#ded6c8] bg-white p-5"
             >
-              <MapPin className="text-[#7c8d34]" size={30} />
+              <MapPin className="text-[#2f6b3f]" size={30} />
               <h2 className="mt-4 text-2xl font-black">{location.city}</h2>
               <p className="mt-2 text-sm font-bold text-[#53605a]">
                 {location.label}
@@ -120,7 +120,7 @@ export default function RentBayPage() {
                 Address, bay count, hours, and booking rules can be added when
                 this location is ready.
               </p>
-              <button className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-[#ded6c8] px-4 text-sm font-black transition hover:border-[#7c8d34] hover:bg-[#fbf8f1]">
+              <button className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-[#ded6c8] px-4 text-sm font-black transition hover:border-[#2f6b3f] hover:bg-[#fbf8f1]">
                 View bays <ArrowRight size={17} />
               </button>
             </article>
