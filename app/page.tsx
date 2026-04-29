@@ -10,16 +10,19 @@ import {
   UserPlus,
   WalletCards,
 } from "lucide-react";
+import { JackpotTicker } from "@/app/components/jackpot-ticker";
 
 const challengeTypes = [
   {
     name: "Closest to the Pin",
     detail:
       "Stick it tight, climb the leaderboard, and take your shot at the $10,000 hole-in-one prize.",
+    weeklyRevenue: 3420,
   },
   {
     name: "Longest Drive",
     detail: "Post the longest drive of the week and take home the payout.",
+    weeklyRevenue: 2860,
   },
 ];
 
@@ -122,6 +125,18 @@ export default function Home() {
                 </p>
                 <p className="mt-1 text-2xl font-black">Chance to win $10,000</p>
               </div>
+              <div className="mt-3 grid gap-3">
+                <JackpotTicker
+                  label="Closest to the Pin weekly pot"
+                  initialWeeklyRevenue={3420}
+                  variant="dark"
+                />
+                <JackpotTicker
+                  label="Longest Drive weekly pot"
+                  initialWeeklyRevenue={2860}
+                  variant="dark"
+                />
+              </div>
               <ol className="mt-5 space-y-3">
                 {steps.slice(0, 4).map((step, index) => (
                   <li key={step} className="flex items-center gap-3 text-sm">
@@ -194,6 +209,11 @@ export default function Home() {
                 <Trophy className="text-[#7c8d34]" size={30} />
                 <h3 className="mt-5 text-2xl font-black">{challenge.name}</h3>
                 <p className="mt-3 leading-7 text-[#59655f]">{challenge.detail}</p>
+                <JackpotTicker
+                  className="mt-5"
+                  label={`${challenge.name} weekly pot`}
+                  initialWeeklyRevenue={challenge.weeklyRevenue}
+                />
               </article>
             ))}
           </div>

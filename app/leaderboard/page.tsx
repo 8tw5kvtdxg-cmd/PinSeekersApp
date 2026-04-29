@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { Trophy } from "lucide-react";
+import { JackpotTicker } from "@/app/components/jackpot-ticker";
 
 const leaderboards = [
   {
     title: "Closest to the Pin",
     resultLabel: "Distance",
+    weeklyRevenue: 3420,
     rows: [
       { rank: 1, player: "Maya Chen", location: "San Antonio", result: "2 ft 8 in" },
       { rank: 2, player: "Jordan Smith", location: "Austin", result: "4 ft 1 in" },
@@ -14,6 +16,7 @@ const leaderboards = [
   {
     title: "Longest Drive",
     resultLabel: "Distance",
+    weeklyRevenue: 2860,
     rows: [
       { rank: 1, player: "Evan Brooks", location: "Houston", result: "319 yd" },
       { rank: 2, player: "Taylor Kim", location: "San Antonio", result: "312 yd" },
@@ -51,6 +54,12 @@ export default function LeaderboardPage() {
                 <p className="text-sm font-bold text-white/68">
                   Weekly payout leaderboard
                 </p>
+              </div>
+              <div className="border-b border-[#ece5d8] bg-[#fbf8f1] p-5">
+                <JackpotTicker
+                  label={`${leaderboard.title} weekly pot`}
+                  initialWeeklyRevenue={leaderboard.weeklyRevenue}
+                />
               </div>
               <div className="grid grid-cols-[60px_1.1fr_1fr_105px] gap-3 bg-[#f2eadb] px-5 py-4 text-xs font-black uppercase tracking-[0.12em] text-[#53605a] sm:grid-cols-[70px_1.15fr_1fr_120px]">
                 <span>Rank</span>
