@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import {
   BadgeDollarSign,
   CheckCircle2,
@@ -7,6 +10,7 @@ import {
   Trophy,
   UserPlus,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const signupSteps = [
   "Choose one of the live challenges at this bay.",
@@ -31,6 +35,8 @@ const challenges = [
 ];
 
 export default function PlayPage() {
+  const [selectedChallenge, setSelectedChallenge] = useState(challenges[0].name);
+
   return (
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.9fr_1.1fr]">
@@ -84,26 +90,47 @@ export default function PlayPage() {
             <h2 className="mt-2 text-2xl font-black">What are you playing?</h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            {challenges.map((challenge) => (
-              <button
-                key={challenge.name}
-                className="min-h-44 rounded-md border border-[#ded6c8] bg-[#fbf8f1] p-4 text-left transition hover:border-[#7c8d34] hover:bg-[#f5efdF]"
-              >
-                <Trophy className="text-[#7c8d34]" size={26} />
-                <span className="mt-4 block text-lg font-black">
-                  {challenge.name}
-                </span>
-                <span className="mt-2 block text-sm font-black text-[#7c8d34]">
-                  {challenge.prize}
-                </span>
-                <span className="mt-3 block text-sm leading-6 text-[#59655f]">
-                  {challenge.description}
-                </span>
-              </button>
-            ))}
+            {challenges.map((challenge) => {
+              const isSelected = selectedChallenge === challenge.name;
+
+              return (
+                <button
+                  key={challenge.name}
+                  aria-pressed={isSelected}
+                  className={cn(
+                    "relative min-h-44 rounded-md border bg-[#fbf8f1] p-4 text-left transition hover:border-[#7c8d34] hover:bg-[#f5efdf] focus:outline-none focus:ring-2 focus:ring-[#7c8d34] focus:ring-offset-2",
+                    isSelected
+                      ? "border-[#7c8d34] bg-[#eef6cc] shadow-lg shadow-[#18211f]/12"
+                      : "border-[#ded6c8]",
+                  )}
+                  type="button"
+                  onClick={() => setSelectedChallenge(challenge.name)}
+                >
+                  {isSelected ? (
+                    <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-[#18211f] px-3 py-1 text-xs font-black text-white">
+                      <CheckCircle2 size={14} /> Selected
+                    </span>
+                  ) : null}
+                  <Trophy
+                    className={isSelected ? "text-[#18211f]" : "text-[#7c8d34]"}
+                    size={26}
+                  />
+                  <span className="mt-4 block pr-24 text-lg font-black">
+                    {challenge.name}
+                  </span>
+                  <span className="mt-2 block text-sm font-black text-[#7c8d34]">
+                    {challenge.prize}
+                  </span>
+                  <span className="mt-3 block text-sm leading-6 text-[#59655f]">
+                    {challenge.description}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           <form className="mt-6 grid gap-4">
+            <input name="challenge" type="hidden" value={selectedChallenge} />
             <div>
               <p className="text-sm font-black uppercase tracking-[0.16em] text-[#7c8d34]">
                 Player info
