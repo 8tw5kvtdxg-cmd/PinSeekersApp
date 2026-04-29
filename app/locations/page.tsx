@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MapPin, QrCode } from "lucide-react";
+import { ArrowRight, MapPin, QrCode } from "lucide-react";
 
 const locations = [
   { city: "San Antonio", bay: "Bay 01" },
@@ -25,6 +25,12 @@ export default function LocationsPage() {
             Austin, and Dallas. Each bay QR code sends players to the right
             live challenge for that location.
           </p>
+          <Link
+            href="/rent"
+            className="mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#c8f03f] px-6 text-sm font-black text-[#17200d] transition hover:bg-[#d7ff53]"
+          >
+            Rent a bay <ArrowRight size={18} />
+          </Link>
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-4">

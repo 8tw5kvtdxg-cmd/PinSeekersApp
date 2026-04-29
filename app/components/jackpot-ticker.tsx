@@ -8,12 +8,14 @@ type JackpotTickerProps = {
   label: string;
   initialWeeklyRevenue: number;
   className?: string;
+  updateDelayMs?: number;
   variant?: "light" | "dark";
 };
 
 const JACKPOT_RATE = 0.1;
-const JACKPOT_CAP = 500;
+const JACKPOT_CAP = 1500;
 const ENTRY_FEE = 20;
+const UPDATE_INTERVAL_MS = 15000;
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -25,12 +27,13 @@ export function JackpotTicker({
   label,
   initialWeeklyRevenue,
   className,
+  updateDelayMs = 0,
   variant = "light",
 }: JackpotTickerProps) {
   const [weeklyRevenue, setWeeklyRevenue] = useState(initialWeeklyRevenue);
 
   useEffect(() => {
-    const interval = window.setInterval(() => {
+    const increaseJackpot = () => {
       setWeeklyRevenue((currentRevenue) => {
         const currentJackpot = currentRevenue * JACKPOT_RATE;
 
@@ -40,10 +43,23 @@ export function JackpotTicker({
 
         return currentRevenue + ENTRY_FEE;
       });
-    }, 2600);
+    };
 
-    return () => window.clearInterval(interval);
-  }, []);
+    let interval: number | undefined;
+
+    const timeout = window.setTimeout(() => {
+      increaseJackpot();
+      interval = window.setInterval(increaseJackpot, UPDATE_INTERVAL_MS);
+    }, updateDelayMs);
+
+    return () => {
+      window.clearTimeout(timeout);
+
+      if (interval) {
+        window.clearInterval(interval);
+      }
+    };
+  }, [updateDelayMs]);
 
   const jackpot = useMemo(
     () => Math.min(weeklyRevenue * JACKPOT_RATE, JACKPOT_CAP),
@@ -109,13 +125,8 @@ export function JackpotTicker({
               )}
             />
           </span>
-          {isCapped ? "Capped" : "Accumulating"}
         </span>
       </div>
-
-      <p className={cn("mt-3 text-sm leading-6", isDark ? "text-white/68" : "text-[#59655f]")}>
-        10% of weekly entry revenue, capped at $500.
-      </p>
     </div>
   );
 }

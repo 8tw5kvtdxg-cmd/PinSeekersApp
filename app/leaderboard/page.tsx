@@ -7,20 +7,36 @@ const leaderboards = [
     title: "Closest to the Pin",
     resultLabel: "Distance",
     weeklyRevenue: 3420,
+    updateDelayMs: 3000,
     rows: [
       { rank: 1, player: "Maya Chen", location: "San Antonio", result: "2 ft 8 in" },
       { rank: 2, player: "Jordan Smith", location: "Austin", result: "4 ft 1 in" },
       { rank: 3, player: "Avery Jones", location: "Dallas", result: "5 ft 6 in" },
+      { rank: 4, player: "Nico Alvarez", location: "Houston", result: "6 ft 2 in" },
+      { rank: 5, player: "Priya Shah", location: "Austin", result: "7 ft 4 in" },
+      { rank: 6, player: "Marcus Reed", location: "San Antonio", result: "8 ft 1 in" },
+      { rank: 7, player: "Lena Ortiz", location: "Dallas", result: "9 ft 5 in" },
+      { rank: 8, player: "Caleb Moore", location: "Houston", result: "10 ft 3 in" },
+      { rank: 9, player: "Tessa Grant", location: "Austin", result: "11 ft 8 in" },
+      { rank: 10, player: "Owen Blake", location: "San Antonio", result: "12 ft 6 in" },
     ],
   },
   {
     title: "Longest Drive",
     resultLabel: "Distance",
     weeklyRevenue: 2860,
+    updateDelayMs: 9000,
     rows: [
       { rank: 1, player: "Evan Brooks", location: "Houston", result: "319 yd" },
       { rank: 2, player: "Taylor Kim", location: "San Antonio", result: "312 yd" },
       { rank: 3, player: "Sam Rivera", location: "Austin", result: "305 yd" },
+      { rank: 4, player: "Drew Carter", location: "Dallas", result: "301 yd" },
+      { rank: 5, player: "Andre Wilson", location: "Houston", result: "298 yd" },
+      { rank: 6, player: "Miles Bennett", location: "Austin", result: "294 yd" },
+      { rank: 7, player: "Chris Nguyen", location: "San Antonio", result: "291 yd" },
+      { rank: 8, player: "Logan Price", location: "Dallas", result: "287 yd" },
+      { rank: 9, player: "Isaac Torres", location: "Houston", result: "284 yd" },
+      { rank: 10, player: "Ben Walker", location: "Austin", result: "281 yd" },
     ],
   },
 ];
@@ -59,6 +75,7 @@ export default function LeaderboardPage() {
                 <JackpotTicker
                   label={`${leaderboard.title} weekly pot`}
                   initialWeeklyRevenue={leaderboard.weeklyRevenue}
+                  updateDelayMs={leaderboard.updateDelayMs}
                 />
               </div>
               <div className="grid grid-cols-[60px_1.1fr_1fr_105px] gap-3 bg-[#f2eadb] px-5 py-4 text-xs font-black uppercase tracking-[0.12em] text-[#53605a] sm:grid-cols-[70px_1.15fr_1fr_120px]">

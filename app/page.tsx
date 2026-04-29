@@ -61,6 +61,9 @@ export default function Home() {
               <Link href="/locations" className="hover:text-white">
                 Locations
               </Link>
+              <Link href="/rent" className="hover:text-white">
+                Rent a bay
+              </Link>
               <Link href="/leaderboard" className="hover:text-white">
                 Leaderboard
               </Link>
@@ -129,11 +132,13 @@ export default function Home() {
                 <JackpotTicker
                   label="Closest to the Pin weekly pot"
                   initialWeeklyRevenue={3420}
+                  updateDelayMs={3000}
                   variant="dark"
                 />
                 <JackpotTicker
                   label="Longest Drive weekly pot"
                   initialWeeklyRevenue={2860}
+                  updateDelayMs={9000}
                   variant="dark"
                 />
               </div>
@@ -213,6 +218,7 @@ export default function Home() {
                   className="mt-5"
                   label={`${challenge.name} weekly pot`}
                   initialWeeklyRevenue={challenge.weeklyRevenue}
+                  updateDelayMs={challenge.name === "Closest to the Pin" ? 3000 : 9000}
                 />
               </article>
             ))}
