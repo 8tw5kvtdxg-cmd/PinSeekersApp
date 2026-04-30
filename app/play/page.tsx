@@ -16,7 +16,7 @@ const signupSteps = [
   "Choose one of the live challenges at this bay.",
   "Enter your name and email so your score can be posted.",
   "Pay the $20 entry fee to lock in your spot.",
-  "Show staff your entry, take your shots, and watch the leaderboard.",
+  "The selected challenge will launch on your bay screen and you can begin the challenge.",
 ];
 
 const challenges = [
