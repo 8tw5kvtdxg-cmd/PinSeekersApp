@@ -49,8 +49,10 @@ export default function PlayPage() {
           </h1>
           <p className="mt-5 text-lg leading-8 text-[#53605a]">
             Pick your contest, add your player info, and pay the $20 entry fee.
-            Once you are entered, staff will help start your simulator round and
-            record your official result.
+            Once you are entered, the selected challenge will launch on your bay
+            screen and you can begin the challenge. Once you finish your shots,
+            the leaderboard will update so you know where you are positioned
+            among the other players. May the golf gods be with you. Good luck!
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <span className="rounded-full bg-white px-4 py-2 text-sm font-bold text-[#53605a]">
