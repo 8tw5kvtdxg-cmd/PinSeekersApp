@@ -53,33 +53,7 @@ export default function Home() {
         />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,18,15,0.92)_0%,rgba(8,18,15,0.74)_42%,rgba(8,18,15,0.22)_100%)]" />
 
-        <div className="relative mx-auto flex min-h-[88vh] max-w-7xl flex-col px-6 py-6 sm:px-10 lg:px-12">
-          <header className="flex items-center justify-between">
-            <Link href="/" className="text-xl font-black tracking-[0.12em]">
-              PINSEEKERS
-            </Link>
-            <nav className="hidden items-center gap-7 text-sm font-semibold text-white/78 md:flex">
-              <Link href="#how-it-works" className="hover:text-white">
-                How it works
-              </Link>
-              <Link href="/locations" className="hover:text-white">
-                Locations
-              </Link>
-              <Link href="/rent" className="hover:text-white">
-                Rent a bay
-              </Link>
-              <Link href="/leaderboard" className="hover:text-white">
-                Leaderboard
-              </Link>
-              <Link href="/contact" className="hover:text-white">
-                Contact
-              </Link>
-              <Link href="/play" className="hover:text-white">
-                Play now
-              </Link>
-            </nav>
-          </header>
-
+        <div className="relative mx-auto flex min-h-[88vh] max-w-7xl flex-col px-6 py-10 sm:px-10 lg:px-12">
           <div className="grid flex-1 items-center gap-12 py-16 lg:grid-cols-[minmax(0,0.95fr)_minmax(340px,0.55fr)]">
             <div className="max-w-3xl">
               <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-bold text-[#a8c878] backdrop-blur">
