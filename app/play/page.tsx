@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import {
-  BadgeDollarSign,
+  ArrowRight,
   CheckCircle2,
   CreditCard,
+  LogIn,
   QrCode,
   Trophy,
   UserPlus,
@@ -167,23 +168,40 @@ export default function PlayPage() {
           </form>
         </section>
 
-        <section className="lg:col-span-2">
-          <div className="grid gap-4 md:grid-cols-4">
-            {signupSteps.map((step, index) => {
-              const icons = [CheckCircle2, UserPlus, CreditCard, BadgeDollarSign];
-              const Icon = icons[index];
+        <section className="grid gap-4 lg:col-span-2 md:grid-cols-2">
+          <Link
+            href="/account#login"
+            className="rounded-lg border border-[#ded6c8] bg-white p-6 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#18211f]/10"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <LogIn className="text-[#2f6b3f]" size={30} />
+                <h2 className="text-2xl font-black">Login</h2>
+              </div>
+              <ArrowRight className="text-[#2f6b3f]" size={24} />
+            </div>
+            <p className="mt-4 leading-7 text-[#59655f]">
+              Returning players can use saved account and payment details to
+              enter this challenge faster.
+            </p>
+          </Link>
 
-              return (
-                <div key={step} className="rounded-lg bg-[#18211f] p-5 text-white">
-                  <Icon className="text-[#2f6b3f]" size={28} />
-                  <p className="mt-4 text-sm font-black text-[#2f6b3f]">
-                    STEP {index + 1}
-                  </p>
-                  <p className="mt-2 leading-7 text-white/78">{step}</p>
-                </div>
-              );
-            })}
-          </div>
+          <Link
+            href="/account#create"
+            className="rounded-lg border border-[#2f6b3f] bg-[#18211f] p-6 text-white transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#18211f]/16"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <UserPlus className="text-[#a8c878]" size={30} />
+                <h2 className="text-2xl font-black">Create an account</h2>
+              </div>
+              <ArrowRight className="text-[#a8c878]" size={24} />
+            </div>
+            <p className="mt-4 leading-7 text-white/74">
+              New players can save shot history, track leaderboard status, and
+              unlock repeat-player rewards.
+            </p>
+          </Link>
         </section>
       </div>
     </main>

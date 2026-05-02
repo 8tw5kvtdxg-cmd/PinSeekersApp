@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, ClipboardList, MapPin, Trophy } from "lucide-react";
+import { ArrowRight, ClipboardList, MapPin, Trophy, UserPlus } from "lucide-react";
 
 const areas = [
   {
@@ -13,6 +13,12 @@ const areas = [
     title: "Leaderboard",
     description: "Challenge standings after staff enters simulator results.",
     icon: Trophy,
+  },
+  {
+    href: "/account",
+    title: "Player account",
+    description: "Create an account, login, view shot history, standings, and payment settings.",
+    icon: UserPlus,
   },
   {
     href: "/locations",
