@@ -23,7 +23,7 @@ const playAction = { href: "/play", label: "Play now", icon: Trophy };
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const isActive = (href: string) => {
     if (href === "/#how-it-works") {
@@ -39,6 +39,7 @@ export function SiteHeader() {
         <Link
           href="/"
           className="text-xl font-black tracking-[0.12em]"
+          onClick={() => setIsOpen(false)}
         >
           PINSEEKERS
         </Link>
@@ -51,6 +52,7 @@ export function SiteHeader() {
                 "inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#a8c878] px-4 text-sm font-black text-[#101816] shadow-lg shadow-black/20 transition hover:bg-[#c1df8d]",
                 pathname === playAction.href && "ring-2 ring-white/70",
               )}
+              onClick={() => setIsOpen(false)}
             >
               <Trophy size={17} /> {playAction.label}
             </Link>
@@ -70,6 +72,7 @@ export function SiteHeader() {
                       : "border border-white/18 bg-white/8 text-white hover:bg-white/14",
                     pathname === "/account" && "ring-1 ring-[#a8c878]/70",
                   )}
+                  onClick={() => setIsOpen(false)}
                 >
                   <Icon size={17} /> {item.label}
                 </Link>
@@ -104,6 +107,7 @@ export function SiteHeader() {
                   "transition hover:text-white",
                   isActive(item.href) && "text-[#a8c878]",
                 )}
+                onClick={() => setIsOpen(false)}
               >
                 {item.label}
               </Link>
@@ -114,6 +118,7 @@ export function SiteHeader() {
                 "inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#a8c878] px-4 text-sm font-black text-[#101816] transition hover:bg-[#c1df8d] sm:hidden",
                 pathname === playAction.href && "ring-2 ring-white/70",
               )}
+              onClick={() => setIsOpen(false)}
             >
               <Trophy size={17} /> {playAction.label}
             </Link>
@@ -132,6 +137,7 @@ export function SiteHeader() {
                         ? "bg-[#2f6b3f] text-white hover:bg-[#3f7f4c]"
                         : "border border-white/18 bg-white/8 text-white hover:bg-white/14",
                     )}
+                    onClick={() => setIsOpen(false)}
                   >
                     <Icon size={17} /> {item.label}
                   </Link>
