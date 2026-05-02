@@ -180,20 +180,22 @@ export default function AccountPage() {
 
               {mode === "create" ? (
                 <label className="grid gap-2 text-sm font-bold text-[#53605a]">
-                  Full name
+                  Username
                   <input
                     className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-                    placeholder="Jordan Smith"
+                    placeholder="jordan-smith"
                   />
                 </label>
               ) : null}
 
               <label className="grid gap-2 text-sm font-bold text-[#53605a]">
-                Email
+                {mode === "create" ? "Email" : "Email/Username"}
                 <input
                   className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-                  placeholder="jordan@example.com"
-                  type="email"
+                  placeholder={
+                    mode === "create" ? "jordan@example.com" : "jordan@example.com or jordan-smith"
+                  }
+                  type={mode === "create" ? "email" : "text"}
                 />
               </label>
               <label className="grid gap-2 text-sm font-bold text-[#53605a]">
