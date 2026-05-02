@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import {
-  ArrowRight,
   CheckCircle2,
   CreditCard,
   LogIn,
@@ -37,6 +36,8 @@ const challenges = [
 
 export default function PlayPage() {
   const [selectedChallenge, setSelectedChallenge] = useState(challenges[0].name);
+  const [accountMode, setAccountMode] = useState<"create" | "login">("create");
+  const [isAccountReady, setIsAccountReady] = useState(false);
 
   return (
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
@@ -85,7 +86,7 @@ export default function PlayPage() {
           </div>
         </section>
 
-        <section className="rounded-lg border border-[#ded6c8] bg-white p-6 shadow-xl shadow-[#18211f]/8">
+        <section className="rounded-lg border border-[#ded6c8] bg-white p-6 shadow-xl shadow-[#18211f]/8 lg:mt-14">
           <div className="mb-5">
             <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
               Select challenge
@@ -132,31 +133,126 @@ export default function PlayPage() {
             })}
           </div>
 
-          <form className="mt-6 grid gap-4">
+          <div className="mt-6 grid gap-4">
             <input name="challenge" type="hidden" value={selectedChallenge} />
             <div>
               <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
                 Player info
               </p>
-              <h2 className="mt-2 text-2xl font-black">Who is taking the shot?</h2>
+              <h2 className="mt-2 text-2xl font-black">
+                {isAccountReady
+                  ? "Your account is ready."
+                  : "Login or create an account to enter."}
+              </h2>
             </div>
-            <label className="grid gap-2 text-sm font-bold text-[#53605a]">
-              Player name
-              <input
-                className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-                placeholder="Jordan Smith"
-              />
-            </label>
-            <label className="grid gap-2 text-sm font-bold text-[#53605a]">
-              Email
-              <input
-                className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-                placeholder="jordan@example.com"
-                type="email"
-              />
-            </label>
+
+            {isAccountReady ? (
+              <div className="rounded-md bg-[#e3edd8] p-5">
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="text-[#2f6b3f]" size={26} />
+                  <h3 className="text-xl font-black">
+                    {selectedChallenge} selected
+                  </h3>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-[#405047]">
+                  Your player account is loaded for San Antonio - Bay 03. Finish
+                  payment to lock in this entry and launch the session.
+                </p>
+              </div>
+            ) : (
+              <>
+                <p className="text-sm leading-6 text-[#6b756f]">
+                  Use your account to save shot history, track leaderboard
+                  status, and keep payment details ready for this entry.
+                </p>
+
+                <div className="grid grid-cols-2 rounded-md bg-[#f2eadb] p-1">
+                  {(["create", "login"] as const).map((option) => (
+                    <button
+                      key={option}
+                      className={cn(
+                        "h-11 rounded-md text-sm font-black capitalize transition",
+                        accountMode === option
+                          ? "bg-[#18211f] text-white shadow-md shadow-[#18211f]/12"
+                          : "text-[#53605a] hover:bg-white",
+                      )}
+                      type="button"
+                      onClick={() => setAccountMode(option)}
+                    >
+                      {option === "create" ? "Create account" : "Login"}
+                    </button>
+                  ))}
+                </div>
+
+                <form className="grid gap-4">
+                  {accountMode === "create" ? (
+                    <label className="grid gap-2 text-sm font-bold text-[#53605a]">
+                      Username
+                      <input
+                        className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
+                        placeholder="jordan-smith"
+                      />
+                    </label>
+                  ) : null}
+
+                  <label className="grid gap-2 text-sm font-bold text-[#53605a]">
+                    {accountMode === "create" ? "Email" : "Email/Username"}
+                    <input
+                      className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
+                      placeholder={
+                        accountMode === "create"
+                          ? "jordan@example.com"
+                          : "jordan@example.com or jordan-smith"
+                      }
+                      type={accountMode === "create" ? "email" : "text"}
+                    />
+                  </label>
+
+                  <label className="grid gap-2 text-sm font-bold text-[#53605a]">
+                    Password
+                    <input
+                      className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
+                      placeholder="********"
+                      type="password"
+                    />
+                  </label>
+
+                  {accountMode === "create" ? (
+                    <label className="grid gap-2 text-sm font-bold text-[#53605a]">
+                      Default payment method
+                      <input
+                        className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
+                        placeholder="Visa ending in 4242"
+                      />
+                    </label>
+                  ) : null}
+
+                  <button
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#18211f] px-6 text-sm font-black text-white transition hover:bg-[#2a3935]"
+                    type="button"
+                    onClick={() => setIsAccountReady(true)}
+                  >
+                    {accountMode === "create" ? (
+                      <UserPlus size={18} />
+                    ) : (
+                      <LogIn size={18} />
+                    )}
+                    {accountMode === "create"
+                      ? "Create account and continue"
+                      : "Login and continue"}
+                  </button>
+                </form>
+              </>
+            )}
+
             <button
-              className="mt-2 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#18211f] px-6 text-sm font-black text-white transition hover:bg-[#2a3935]"
+              className={cn(
+                "inline-flex h-12 items-center justify-center gap-2 rounded-md px-6 text-sm font-black transition",
+                isAccountReady
+                  ? "bg-[#2f6b3f] text-white hover:bg-[#3f7f4c]"
+                  : "cursor-not-allowed bg-[#ded6c8] text-[#6b756f]",
+              )}
+              disabled={!isAccountReady}
               type="button"
             >
               <CreditCard size={18} /> Pay $20 and enter
@@ -165,43 +261,7 @@ export default function PlayPage() {
               After payment, keep the confirmation screen open and show it to
               staff before you play.
             </p>
-          </form>
-        </section>
-
-        <section className="grid gap-4 lg:col-span-2 md:grid-cols-2">
-          <Link
-            href="/account#login"
-            className="rounded-lg border border-[#ded6c8] bg-white p-6 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#18211f]/10"
-          >
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <LogIn className="text-[#2f6b3f]" size={30} />
-                <h2 className="text-2xl font-black">Login</h2>
-              </div>
-              <ArrowRight className="text-[#2f6b3f]" size={24} />
-            </div>
-            <p className="mt-4 leading-7 text-[#59655f]">
-              Returning players can use saved account and payment details to
-              enter this challenge faster.
-            </p>
-          </Link>
-
-          <Link
-            href="/account#create"
-            className="rounded-lg border border-[#2f6b3f] bg-[#18211f] p-6 text-white transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#18211f]/16"
-          >
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <UserPlus className="text-[#a8c878]" size={30} />
-                <h2 className="text-2xl font-black">Create an account</h2>
-              </div>
-              <ArrowRight className="text-[#a8c878]" size={24} />
-            </div>
-            <p className="mt-4 leading-7 text-white/74">
-              New players can save shot history, track leaderboard status, and
-              unlock repeat-player rewards.
-            </p>
-          </Link>
+          </div>
         </section>
       </div>
     </main>
