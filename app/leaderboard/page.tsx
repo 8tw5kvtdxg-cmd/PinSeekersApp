@@ -45,7 +45,7 @@ export default function LeaderboardPage() {
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
       <div className="mx-auto max-w-6xl">
         <Link href="/" className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-          PinSeekers
+          Pin2Win
         </Link>
         <div className="mt-10 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>

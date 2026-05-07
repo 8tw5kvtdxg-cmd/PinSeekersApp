@@ -13,7 +13,7 @@ export default function LocationsPage() {
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
       <div className="mx-auto max-w-6xl">
         <Link href="/" className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-          PinSeekers
+          Pin2Win
         </Link>
         <section className="mt-10 rounded-lg bg-[#18211f] p-8 text-white">
           <MapPin className="text-[#a8c878]" size={34} />
@@ -21,7 +21,7 @@ export default function LocationsPage() {
             Texas locations and bays
           </h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-white/74">
-            PinSeekers challenges are set up across San Antonio, Houston,
+            Pin2Win challenges are set up across San Antonio, Houston,
             Austin, and Dallas. Each bay QR code sends players to the right
             live challenge for that location.
           </p>

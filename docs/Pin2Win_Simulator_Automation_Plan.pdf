@@ -1,0 +1,168 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R 7 0 R 9 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 3057 >>
+stream
+BT /F1 22 Tf 54 752 Td (Pin2Win Simulator Automation Plan) Tj ET
+BT /F2 13 Tf 54 717 Td (Owner-facing overview for off-site testing with TruGolf APOGEE and E6) Tj ET
+BT /F2 13 Tf 54 699 Td (by TruGolf / E6 CONNECT) Tj ET
+BT /F2 10 Tf 54 673 Td (Prepared for: Simulator Owner / Partner Venue) Tj ET
+BT /F2 10 Tf 54 650 Td (Prepared by: Pin2Win) Tj ET
+BT /F2 10 Tf 54 627 Td (Purpose: Explain how Pin2Win will test and eventually automate golf challenge entries,) Tj ET
+BT /F2 10 Tf 54 612 Td (results, and leaderboards without disrupting the simulator, changing production settings, or) Tj ET
+BT /F2 10 Tf 54 597 Td (interfering with normal venue operations.) Tj ET
+BT /F1 11 Tf 54 574 Td (Core promise: Pin2Win will begin with an isolated testing workflow. We will not modify,) Tj ET
+BT /F1 11 Tf 54 558 Td (reconfigure, or take control of the simulator during the first testing phase. The) Tj ET
+BT /F1 11 Tf 54 542 Td (simulator operator remains in control of E6 and APOGEE at all times.) Tj ET
+BT /F1 15 Tf 54 508 Td (1. Executive Summary) Tj ET
+BT /F2 10 Tf 54 480 Td (Pin2Win is building a paid golf challenge platform where players can create an account,) Tj ET
+BT /F2 10 Tf 54 465 Td (select a challenge, pay an entry fee, complete a simulator session, and appear on a) Tj ET
+BT /F2 10 Tf 54 450 Td (leaderboard. The partner simulator is expected to use TruGolf APOGEE and E6 by TruGolf or E6) Tj ET
+BT /F2 10 Tf 54 435 Td (CONNECT, but the exact software version will be confirmed on site.) Tj ET
+BT /F2 10 Tf 54 412 Td (The first phase is intentionally low-risk. Pin2Win will run beside the simulator as a) Tj ET
+BT /F2 10 Tf 54 397 Td (browser-based testing portal. E6 and APOGEE will continue to operate normally. The operator) Tj ET
+BT /F2 10 Tf 54 382 Td (will launch the simulator session as they do today, then enter or verify the result in the) Tj ET
+BT /F2 10 Tf 54 367 Td (Pin2Win testing portal.) Tj ET
+BT /F1 15 Tf 54 334 Td (2. What Pin2Win Will Do) Tj ET
+BT /F2 10 Tf 54 306 Td (- Create a separate off-site testing portal that is isolated from the public Pin2Win website) Tj ET
+BT /F2 10 Tf 54 291 Td (and public leaderboards.) Tj ET
+BT /F2 10 Tf 54 268 Td (- Generate or record a Pin2Win test session ID for each trial run.) Tj ET
+BT /F2 10 Tf 54 245 Td (- Capture the selected challenge type, venue, bay, player alias, simulator system, and) Tj ET
+BT /F2 10 Tf 54 230 Td (operator notes.) Tj ET
+BT /F2 10 Tf 54 207 Td (- Allow the operator to record verified results for Closest to the Pin and Longest Drive.) Tj ET
+BT /F2 10 Tf 54 184 Td (- Display results on test-only leaderboards for validation.) Tj ET
+BT /F2 10 Tf 54 161 Td (- Store fields for safe integration: E6 session name, result, evidence, verifier, and sync) Tj ET
+BT /F2 10 Tf 54 146 Td (eligibility.) Tj ET
+BT /F1 15 Tf 54 113 Td (3. What Pin2Win Will Not Do During Initial Testing) Tj ET
+BT /F2 10 Tf 54 85 Td (- Pin2Win will not alter E6, APOGEE, Windows, firewall, license, course, or launch monitor) Tj ET
+BT /F2 10 Tf 54 70 Td (settings without approval.) Tj ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 3158 >>
+stream
+BT /F2 10 Tf 54 760 Td (- Pin2Win will not attempt to bypass TruGolf licensing, security, or account controls.) Tj ET
+BT /F2 10 Tf 54 737 Td (- Pin2Win will not publish test results to public leaderboards.) Tj ET
+BT /F2 10 Tf 54 714 Td (- Pin2Win will not charge real customer payment methods during simulator integration testing) Tj ET
+BT /F2 10 Tf 54 699 Td (unless approved.) Tj ET
+BT /F2 10 Tf 54 676 Td (- Pin2Win will not install automation software on the operator PC until the owner approves) Tj ET
+BT /F2 10 Tf 54 661 Td (that phase.) Tj ET
+BT /F1 15 Tf 54 628 Td (4. Proposed Phased Approach) Tj ET
+BT /F2 10 Tf 54 600 Td (Phase 1: Manual Testing Portal. Operator runs E6/APOGEE normally. Pin2Win records test) Tj ET
+BT /F2 10 Tf 54 585 Td (session details and verified results in a separate browser portal. Risk level: Low. Owner) Tj ET
+BT /F2 10 Tf 54 570 Td (impact: No simulator changes, no software installed, and no public result publishing.) Tj ET
+BT /F2 10 Tf 54 547 Td (Phase 2: Evidence and Report Import. If E6 or the venue tools provide reports, exports, or) Tj ET
+BT /F2 10 Tf 54 532 Td (screenshots, Pin2Win may import those results into a review queue. Staff still verifies) Tj ET
+BT /F2 10 Tf 54 517 Td (results before sync.) Tj ET
+BT /F2 10 Tf 54 494 Td (Phase 3: Operator PC Companion. A lightweight Pin2Win companion may display session) Tj ET
+BT /F2 10 Tf 54 479 Td (instructions, watch an approved folder, queue results, and send verified data to Pin2Win.) Tj ET
+BT /F2 10 Tf 54 464 Td (This requires owner approval before installation.) Tj ET
+BT /F2 10 Tf 54 441 Td (Phase 4: Approved Direct Integration. If TruGolf provides a supported API, scheduler,) Tj ET
+BT /F2 10 Tf 54 426 Td (export, webhook, or partner integration path, Pin2Win may automate session creation and) Tj ET
+BT /F2 10 Tf 54 411 Td (result intake after owner and vendor approval.) Tj ET
+BT /F1 15 Tf 54 378 Td (5. Expected Operator Workflow During Phase 1) Tj ET
+BT /F2 10 Tf 54 350 Td (1. Open the Pin2Win testing portal in a browser on the operator PC or a separate device.) Tj ET
+BT /F2 10 Tf 54 327 Td (2. Create or select a test session.) Tj ET
+BT /F2 10 Tf 54 304 Td (3. Confirm the challenge type: Closest to the Pin or Longest Drive.) Tj ET
+BT /F2 10 Tf 54 281 Td (4. Launch the matching session in E6/APOGEE using the operator's normal process.) Tj ET
+BT /F2 10 Tf 54 258 Td (5. Run the player shots in the simulator.) Tj ET
+BT /F2 10 Tf 54 235 Td (6. Read the final result from E6.) Tj ET
+BT /F2 10 Tf 54 212 Td (7. Enter the verified result into the Pin2Win testing portal.) Tj ET
+BT /F2 10 Tf 54 189 Td (8. Save the result to the test-only leaderboard.) Tj ET
+BT /F2 10 Tf 54 166 Td (9. Mark whether the result should be eligible for future sync after integration is approved.) Tj ET
+BT /F1 15 Tf 54 133 Td (6. Information Needed From the Simulator Setup) Tj ET
+BT /F2 10 Tf 54 105 Td (- Simulator software: confirm whether the venue uses E6 by TruGolf, E6 Golf 2026, E6 APEX,) Tj ET
+BT /F2 10 Tf 54 90 Td (or E6 CONNECT.) Tj ET
+BT /F2 10 Tf 54 67 Td (- Launch monitor: confirm APOGEE hardware, firmware, and APOGEE Intelligent Dashboard) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 2727 >>
+stream
+BT /F2 10 Tf 54 760 Td (version.) Tj ET
+BT /F2 10 Tf 54 737 Td (- Operator PC: Windows version, internet access, account permissions, and whether the PC can) Tj ET
+BT /F2 10 Tf 54 722 Td (open a browser during simulator operation.) Tj ET
+BT /F2 10 Tf 54 699 Td (- E6 features: available challenge modes, course/hole options, events, reports, exports,) Tj ET
+BT /F2 10 Tf 54 684 Td (Clubhouse tools, and result screens.) Tj ET
+BT /F2 10 Tf 54 661 Td (- Permissions: owner approval for screenshots, exports, reports, test naming conventions,) Tj ET
+BT /F2 10 Tf 54 646 Td (and any future companion app installation.) Tj ET
+BT /F1 15 Tf 54 613 Td (7. Session Naming Convention) Tj ET
+BT /F2 10 Tf 54 585 Td (Pin2Win recommends using a consistent test name wherever E6 allows event, player, or session) Tj ET
+BT /F2 10 Tf 54 570 Td (names. Example: PS-TEST-001 | Bay 01 | Closest To Pin. Example: PS-TEST-002 | Bay 01 |) Tj ET
+BT /F2 10 Tf 54 555 Td (Longest Drive.) Tj ET
+BT /F1 15 Tf 54 522 Td (8. How Automation Would Work Later) Tj ET
+BT /F2 10 Tf 54 494 Td (1. Manual verified entry: proven immediately with no simulator risk.) Tj ET
+BT /F2 10 Tf 54 471 Td (2. Report or export import: use owner-approved E6 reports, exports, or result files if) Tj ET
+BT /F2 10 Tf 54 456 Td (available.) Tj ET
+BT /F2 10 Tf 54 433 Td (3. Operator PC companion: install a small Pin2Win tool only if needed and approved. It can) Tj ET
+BT /F2 10 Tf 54 418 Td (guide the operator, queue results, and sync verified data.) Tj ET
+BT /F2 10 Tf 54 395 Td (4. Official API or vendor-supported automation: use only documented or approved TruGolf) Tj ET
+BT /F2 10 Tf 54 380 Td (integration methods if available.) Tj ET
+BT /F1 15 Tf 54 347 Td (9. Safety Controls) Tj ET
+BT /F2 10 Tf 54 319 Td (- Testing data is separated from production player data.) Tj ET
+BT /F2 10 Tf 54 296 Td (- Test leaderboards are not public leaderboards.) Tj ET
+BT /F2 10 Tf 54 273 Td (- Results require operator verification before any future sync.) Tj ET
+BT /F2 10 Tf 54 250 Td (- Any software installation or automated control requires owner approval.) Tj ET
+BT /F2 10 Tf 54 227 Td (- Pin2Win can perform Phase 1 testing from a separate laptop or tablet if preferred.) Tj ET
+BT /F2 10 Tf 54 204 Td (- If anything behaves unexpectedly, the simulator can continue operating normally without) Tj ET
+BT /F2 10 Tf 54 189 Td (Pin2Win.) Tj ET
+BT /F1 15 Tf 54 156 Td (10. Owner Approval Points) Tj ET
+BT /F2 10 Tf 54 128 Td (- Whether screenshots or photos of result screens may be stored.) Tj ET
+BT /F2 10 Tf 54 105 Td (- Whether E6 reports or exports may be reviewed.) Tj ET
+BT /F2 10 Tf 54 82 Td (- Whether a Pin2Win companion application may be installed on the operator PC.) Tj ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 10 0 R >>
+endobj
+10 0 obj
+<< /Length 1320 >>
+stream
+BT /F2 10 Tf 54 760 Td (- Whether live customer payments may be tested at the venue.) Tj ET
+BT /F2 10 Tf 54 737 Td (- Whether verified test results may later sync to a production leaderboard.) Tj ET
+BT /F1 15 Tf 54 704 Td (11. Immediate Next Steps) Tj ET
+BT /F2 10 Tf 54 676 Td (1. Confirm exact simulator software: E6 by TruGolf, E6 Golf 2026, E6 APEX, or E6 CONNECT.) Tj ET
+BT /F2 10 Tf 54 653 Td (2. Confirm APOGEE version and operator PC environment.) Tj ET
+BT /F2 10 Tf 54 630 Td (3. Run one manual Closest to the Pin test and one manual Longest Drive test.) Tj ET
+BT /F2 10 Tf 54 607 Td (4. Save both results in the Pin2Win testing portal.) Tj ET
+BT /F2 10 Tf 54 584 Td (5. Determine whether E6 provides exportable reports or portal data that can support Phase 2.) Tj ET
+BT /F1 15 Tf 54 551 Td (12. Reference Links) Tj ET
+BT /F2 10 Tf 54 523 Td (- TruGolf APOGEE: https://trugolf.com/pages/apogee) Tj ET
+BT /F2 10 Tf 54 500 Td (- E6 by TruGolf / E6 Golf 2026: https://trugolf.com/pages/e6-apex) Tj ET
+BT /F2 10 Tf 54 477 Td (- E6 CONNECT Home for APOGEE: https://trugolf.com/products/e6-connect-home) Tj ET
+BT /F2 10 Tf 54 454 Td (- TruGolf Commercial Suite: https://trugolf.com/pages/commercial-suite) Tj ET
+BT /F2 10 Tf 54 431 Td (- TruGolf downloads and release notes: https://trugolf.com/pages/downloads) Tj ET
+endstream
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000133 00000 n 
+0000000372 00000 n 
+0000003481 00000 n 
+0000003720 00000 n 
+0000006930 00000 n 
+0000007169 00000 n 
+0000009948 00000 n 
+0000010188 00000 n 
+trailer
+<< /Size 11 /Root 1 0 R >>
+startxref
+11561
+%%EOF

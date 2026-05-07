@@ -1,0 +1,20 @@
+{
+  "pin2WinApiBaseUrl": "http://localhost:3000",
+  "operatorName": "Operator Name",
+  "defaultSession": {
+    "provider": "TRUGOLF_APOGEE_E6",
+    "challengeType": "CLOSEST_TO_PIN",
+    "playerAlias": "Test Player",
+    "operatorName": "Operator Name",
+    "venueName": "Partner Simulator Lab",
+    "bayName": "Bay 01",
+    "course": "TBD",
+    "hole": 3,
+    "teeBox": "TBD",
+    "pinLocation": "TBD",
+    "attempts": 10,
+    "playTimeMinutes": 10,
+    "e6SessionName": "P2W-TEST | Bay 01 | Closest To Pin",
+    "syncEligible": false
+  }
+}

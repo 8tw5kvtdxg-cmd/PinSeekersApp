@@ -23,7 +23,7 @@ export default function RentBayPage() {
           href="/"
           className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]"
         >
-          PinSeekers
+          Pin2Win
         </Link>
 
         <section className="mt-10 grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
@@ -32,7 +32,7 @@ export default function RentBayPage() {
               Rent a bay
             </p>
             <h1 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">
-              Book simulator time at a PinSeekers location.
+              Book simulator time at a Pin2Win location.
             </h1>
             <p className="mt-5 text-lg leading-8 text-[#53605a]">
               Find a nearby location, choose a bay, and reserve time for your

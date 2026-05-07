@@ -104,7 +104,7 @@ export default function AccountPage() {
               href="/"
               className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]"
             >
-              PinSeekers
+              Pin2Win
             </Link>
             <div className="mt-10 max-w-2xl">
               <UserPlus className="text-[#2f6b3f]" size={36} />
@@ -246,7 +246,7 @@ export default function AccountPage() {
               href="/"
               className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]"
             >
-              PinSeekers
+              Pin2Win
             </Link>
             <h1 className="mt-8 text-4xl font-black sm:text-5xl">
               Player dashboard

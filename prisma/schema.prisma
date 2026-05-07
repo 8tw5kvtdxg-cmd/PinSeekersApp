@@ -41,6 +41,40 @@ enum PrizeStatus {
   PAID_OUT
 }
 
+enum SimulatorProvider {
+  TRUGOLF_APOGEE_E6
+  E6_CONNECT
+  FLIGHTSCOPE_E6
+  MANUAL
+  OTHER
+}
+
+enum SimulatorSessionStatus {
+  CREATED
+  OPERATOR_READY
+  LAUNCHED
+  IN_PROGRESS
+  RESULT_PENDING
+  VERIFIED
+  SYNCED
+  CANCELLED
+}
+
+enum SimulatorResultSource {
+  MANUAL_ENTRY
+  SCREENSHOT
+  CSV_IMPORT
+  LOCAL_AGENT
+  VENDOR_API
+}
+
+enum SimulatorResultStatus {
+  PENDING_REVIEW
+  VERIFIED
+  REJECTED
+  SYNCED
+}
+
 model User {
   id        String   @id @default(cuid())
   name      String
@@ -66,6 +100,7 @@ model Location {
 
   bays       Bay[]
   challenges Challenge[]
+  simulatorSessions SimulatorSession[]
 }
 
 model Bay {
@@ -80,6 +115,7 @@ model Bay {
   location   Location    @relation(fields: [locationId], references: [id])
   challenges Challenge[]
   entries    Entry[]
+  simulatorSessions SimulatorSession[]
 
   @@unique([locationId, name])
 }
@@ -102,6 +138,7 @@ model Challenge {
   entries     Entry[]
   leaderboard Leaderboard?
   prizes      Prize[]
+  simulatorSessions SimulatorSession[]
 }
 
 model Entry {
@@ -120,6 +157,7 @@ model Entry {
   bay       Bay?      @relation(fields: [bayId], references: [id])
   payment   Payment?  @relation(fields: [paymentId], references: [id])
   shots     Shot[]
+  simulatorSessions SimulatorSession[]
 
   @@index([challengeId, status])
 }
@@ -177,4 +215,94 @@ model Prize {
   updatedAt   DateTime    @updatedAt
 
   challenge Challenge @relation(fields: [challengeId], references: [id])
+}
+
+model SimulatorDevice {
+  id                  String            @id @default(cuid())
+  provider            SimulatorProvider @default(TRUGOLF_APOGEE_E6)
+  venueName           String
+  bayName             String
+  softwareName        String?
+  softwareVersion     String?
+  launchMonitorModel  String?
+  launchMonitorSerial String?
+  firmwareVersion     String?
+  operatorPcName      String?
+  notes               String?
+  isActive            Boolean           @default(true)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  sessions SimulatorSession[]
+
+  @@index([provider, venueName, bayName])
+}
+
+model SimulatorSession {
+  id                 String                 @id @default(cuid())
+  pin2WinSessionId   String                 @unique
+  provider           SimulatorProvider      @default(TRUGOLF_APOGEE_E6)
+  status             SimulatorSessionStatus @default(CREATED)
+  challengeType      ChallengeType
+  playerAlias        String?
+  operatorName       String?
+  venueName          String?
+  bayName            String?
+  course             String?
+  hole               Int?
+  teeBox             String?
+  pinLocation        String?
+  attempts           Int?
+  playTimeMinutes    Int?
+  e6SessionName      String?
+  e6SessionId        String?
+  externalSessionId  String?
+  syncEligible       Boolean                @default(false)
+  launchInstructions Json?
+  rawMetadata        Json?
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  launchedAt         DateTime?
+  completedAt        DateTime?
+
+  deviceId    String?
+  locationId  String?
+  bayId       String?
+  challengeId String?
+  entryId     String?
+
+  device    SimulatorDevice? @relation(fields: [deviceId], references: [id])
+  location  Location?        @relation(fields: [locationId], references: [id])
+  bay       Bay?             @relation(fields: [bayId], references: [id])
+  challenge Challenge?       @relation(fields: [challengeId], references: [id])
+  entry     Entry?           @relation(fields: [entryId], references: [id])
+  results   SimulatorResult[]
+
+  @@index([status, provider])
+  @@index([challengeType, createdAt])
+}
+
+model SimulatorResult {
+  id                  String                @id @default(cuid())
+  sessionId           String
+  source              SimulatorResultSource @default(MANUAL_ENTRY)
+  status              SimulatorResultStatus @default(PENDING_REVIEW)
+  challengeType       ChallengeType
+  playerAlias         String?
+  rawResult           String
+  resultUnit          String
+  totalYards          Decimal?              @db.Decimal(7, 2)
+  distanceToPinInches Decimal?              @db.Decimal(8, 2)
+  evidenceUrl         String?
+  verifierName        String?
+  notes               String?
+  rawPayload          Json?
+  createdAt           DateTime              @default(now())
+  verifiedAt          DateTime?
+  syncedAt            DateTime?
+
+  session SimulatorSession @relation(fields: [sessionId], references: [id])
+
+  @@index([challengeType, status])
+  @@index([sessionId, createdAt])
 }

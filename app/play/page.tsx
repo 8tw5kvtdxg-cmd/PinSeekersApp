@@ -44,7 +44,7 @@ export default function PlayPage() {
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.9fr_1.1fr]">
         <section>
           <Link href="/" className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-            PinSeekers
+            Pin2Win
           </Link>
           <h1 className="mt-10 text-4xl font-black sm:text-5xl">
             Enter the challenge

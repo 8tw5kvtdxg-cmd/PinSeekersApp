@@ -25,6 +25,10 @@ export function SiteHeader() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
+  if (pathname.startsWith("/testing-portal")) {
+    return null;
+  }
+
   const isActive = (href: string) => {
     if (href === "/#how-it-works") {
       return pathname === "/";
@@ -41,7 +45,7 @@ export function SiteHeader() {
           className="text-xl font-black tracking-[0.12em]"
           onClick={() => setIsOpen(false)}
         >
-          PINSEEKERS
+          PIN2WIN
         </Link>
 
         <div className="flex items-center gap-2">

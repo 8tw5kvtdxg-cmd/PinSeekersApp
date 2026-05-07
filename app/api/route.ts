@@ -1,6 +1,6 @@
 export async function GET() {
   return Response.json({
-    name: "PinSeekers API",
+    name: "Pin2Win API",
     status: "poc",
     flow: [
       "scan_qr_code",

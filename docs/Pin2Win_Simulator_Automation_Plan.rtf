@@ -1,0 +1,83 @@
+{\rtf1\ansi\deff0{\fonttbl{\f0 Arial;}}\fs22
+\b\fs36 Pin2Win Simulator Automation Plan\b0\fs22\par
+\fs26 Owner-facing overview for off-site testing with TruGolf APOGEE and E6 by TruGolf / E6 CONNECT\fs22\par
+Prepared for: Simulator Owner / Partner Venue\par
+Prepared by: Pin2Win\par
+Purpose: Explain how Pin2Win will test and eventually automate golf challenge entries, results, and leaderboards without disrupting the simulator, changing production settings, or interfering with normal venue operations.\par
+\par\b Core promise: Pin2Win will begin with an isolated testing workflow. We will not modify, reconfigure, or take control of the simulator during the first testing phase. The simulator operator remains in control of E6 and APOGEE at all times.\b0\par
+\par\b\fs28 1. Executive Summary\b0\fs22\par
+Pin2Win is building a paid golf challenge platform where players can create an account, select a challenge, pay an entry fee, complete a simulator session, and appear on a leaderboard. The partner simulator is expected to use TruGolf APOGEE and E6 by TruGolf or E6 CONNECT, but the exact software version will be confirmed on site.\par
+The first phase is intentionally low-risk. Pin2Win will run beside the simulator as a browser-based testing portal. E6 and APOGEE will continue to operate normally. The operator will launch the simulator session as they do today, then enter or verify the result in the Pin2Win testing portal.\par
+\par\b\fs28 2. What Pin2Win Will Do\b0\fs22\par
+\pard\li360\fi-180 \bullet\tab Create a separate off-site testing portal that is isolated from the public Pin2Win website and public leaderboards.\par
+\pard\li360\fi-180 \bullet\tab Generate or record a Pin2Win test session ID for each trial run.\par
+\pard\li360\fi-180 \bullet\tab Capture the selected challenge type, venue, bay, player alias, simulator system, and operator notes.\par
+\pard\li360\fi-180 \bullet\tab Allow the operator to record verified results for Closest to the Pin and Longest Drive.\par
+\pard\li360\fi-180 \bullet\tab Display results on test-only leaderboards for validation.\par
+\pard\li360\fi-180 \bullet\tab Store the fields that would later be used for a safe integration: E6 session name, result, evidence, verifier, and sync eligibility.\par
+\par\b\fs28 3. What Pin2Win Will Not Do During Initial Testing\b0\fs22\par
+\pard\li360\fi-180 \bullet\tab Pin2Win will not alter E6, APOGEE, Windows, firewall, license, course, or launch monitor settings without approval.\par
+\pard\li360\fi-180 \bullet\tab Pin2Win will not attempt to bypass TruGolf licensing, security, or account controls.\par
+\pard\li360\fi-180 \bullet\tab Pin2Win will not publish test results to public leaderboards.\par
+\pard\li360\fi-180 \bullet\tab Pin2Win will not charge real customer payment methods during simulator integration testing unless the owner approves a live payment test.\par
+\pard\li360\fi-180 \bullet\tab Pin2Win will not install automation software on the operator PC until the owner approves that phase.\par
+\par\b\fs28 4. Proposed Phased Approach\b0\fs22\par
+\par\b\fs24 Phase 1: Manual Testing Portal\b0\fs22\par
+Operator runs E6/APOGEE normally. Pin2Win records test session details and verified results in a separate browser portal. Risk level: Low. Owner impact: No simulator changes, no software installed, and no public result publishing.\par
+\par\b\fs24 Phase 2: Evidence and Report Import\b0\fs22\par
+If E6 or the venue tools provide reports, exports, or screenshots, Pin2Win may import those results into a review queue. Owner approves which files or reports may be used. Staff still verifies results before sync.\par
+\par\b\fs24 Phase 3: Operator PC Companion\b0\fs22\par
+A lightweight Pin2Win companion may display session instructions, watch an approved folder, queue results, and send verified data to Pin2Win. This requires owner approval before installation and does not control E6 unless separately approved.\par
+\par\b\fs24 Phase 4: Approved Direct Integration\b0\fs22\par
+If TruGolf provides a supported API, scheduler, export, webhook, or partner integration path, Pin2Win may automate session creation and result intake. This occurs only after owner and vendor approval.\par
+\par\b\fs28 5. Expected Operator Workflow During Phase 1\b0\fs22\par
+\pard\li360\fi-180 -\tab Open the Pin2Win testing portal in a browser on the operator PC or a separate device.\par
+\pard\li360\fi-180 -\tab Create or select a test session.\par
+\pard\li360\fi-180 -\tab Confirm the challenge type: Closest to the Pin or Longest Drive.\par
+\pard\li360\fi-180 -\tab Launch the matching session in E6/APOGEE using the operator's normal process.\par
+\pard\li360\fi-180 -\tab Run the player shots in the simulator.\par
+\pard\li360\fi-180 -\tab Read the final result from E6.\par
+\pard\li360\fi-180 -\tab Enter the verified result into the Pin2Win testing portal.\par
+\pard\li360\fi-180 -\tab Save the result to the test-only leaderboard.\par
+\pard\li360\fi-180 -\tab Mark whether the result should be eligible for future sync after integration is approved.\par
+\par\b\fs28 6. Information Needed From the Simulator Setup\b0\fs22\par
+\pard\li360\fi-180 \bullet\tab Simulator software: confirm whether the venue uses E6 by TruGolf, E6 Golf 2026, E6 APEX, or E6 CONNECT.\par
+\pard\li360\fi-180 \bullet\tab Launch monitor: confirm APOGEE hardware, firmware, and APOGEE Intelligent Dashboard version.\par
+\pard\li360\fi-180 \bullet\tab Operator PC: Windows version, internet access, account permissions, and whether the PC can open a browser during simulator operation.\par
+\pard\li360\fi-180 \bullet\tab E6 features: available challenge modes, course/hole options, events, reports, exports, Clubhouse tools, and result screens.\par
+\pard\li360\fi-180 \bullet\tab Permissions: owner approval for screenshots, exports, reports, test naming conventions, and any future companion app installation.\par
+\par\b\fs28 7. Session Naming Convention\b0\fs22\par
+Pin2Win recommends using a consistent test name wherever E6 allows event, player, or session names. This makes matching results simple and avoids ambiguity.\par
+\par\b Example: PS-TEST-001 | Bay 01 | Closest To Pin
+Example: PS-TEST-002 | Bay 01 | Longest Drive\b0\par
+\par\b\fs28 8. How Automation Would Work Later\b0\fs22\par
+\pard\li360\fi-180 -\tab Manual verified entry: proven immediately with no simulator risk.\par
+\pard\li360\fi-180 -\tab Report or export import: use owner-approved E6 reports, exports, or result files if available.\par
+\pard\li360\fi-180 -\tab Operator PC companion: install a small Pin2Win tool only if needed and approved. It can guide the operator, queue results, and sync verified data.\par
+\pard\li360\fi-180 -\tab Official API or vendor-supported automation: use only documented or approved TruGolf integration methods if available.\par
+\par\b\fs28 9. Safety Controls\b0\fs22\par
+\pard\li360\fi-180 \bullet\tab Testing data is separated from production player data.\par
+\pard\li360\fi-180 \bullet\tab Test leaderboards are not public leaderboards.\par
+\pard\li360\fi-180 \bullet\tab Results require operator verification before any future sync.\par
+\pard\li360\fi-180 \bullet\tab Any software installation or automated control requires owner approval.\par
+\pard\li360\fi-180 \bullet\tab Pin2Win can perform Phase 1 testing from a separate laptop or tablet if preferred.\par
+\pard\li360\fi-180 \bullet\tab If anything behaves unexpectedly, the simulator can continue operating normally without Pin2Win.\par
+\par\b\fs28 10. Owner Approval Points\b0\fs22\par
+\pard\li360\fi-180 \bullet\tab Whether screenshots or photos of result screens may be stored.\par
+\pard\li360\fi-180 \bullet\tab Whether E6 reports or exports may be reviewed.\par
+\pard\li360\fi-180 \bullet\tab Whether a Pin2Win companion application may be installed on the operator PC.\par
+\pard\li360\fi-180 \bullet\tab Whether live customer payments may be tested at the venue.\par
+\pard\li360\fi-180 \bullet\tab Whether verified test results may later sync to a production leaderboard.\par
+\par\b\fs28 11. Immediate Next Steps\b0\fs22\par
+\pard\li360\fi-180 -\tab Confirm exact simulator software: E6 by TruGolf, E6 Golf 2026, E6 APEX, or E6 CONNECT.\par
+\pard\li360\fi-180 -\tab Confirm APOGEE version and operator PC environment.\par
+\pard\li360\fi-180 -\tab Run one manual Closest to the Pin test and one manual Longest Drive test.\par
+\pard\li360\fi-180 -\tab Save both results in the Pin2Win testing portal.\par
+\pard\li360\fi-180 -\tab Determine whether E6 provides exportable reports or portal data that can support Phase 2.\par
+\par\b\fs28 12. Reference Links\b0\fs22\par
+\pard\li360\fi-180 \bullet\tab TruGolf APOGEE: https://trugolf.com/pages/apogee\par
+\pard\li360\fi-180 \bullet\tab E6 by TruGolf / E6 Golf 2026: https://trugolf.com/pages/e6-apex\par
+\pard\li360\fi-180 \bullet\tab E6 CONNECT Home for APOGEE: https://trugolf.com/products/e6-connect-home\par
+\pard\li360\fi-180 \bullet\tab TruGolf Commercial Suite: https://trugolf.com/pages/commercial-suite\par
+\pard\li360\fi-180 \bullet\tab TruGolf downloads and release notes: https://trugolf.com/pages/downloads\par
+}

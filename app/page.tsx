@@ -42,7 +42,7 @@ export default function Home() {
       <section className="relative isolate min-h-[88vh] overflow-hidden bg-[#101816] text-white">
         <Image
           src="/pinseekers-hero.png"
-          alt="Indoor golf simulator bay at a PinSeekers challenge venue"
+          alt="Indoor golf simulator bay at a Pin2Win challenge venue"
           fill
           priority
           className="object-cover"

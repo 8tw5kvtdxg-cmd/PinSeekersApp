@@ -29,9 +29,9 @@ const addresses = [
 ];
 
 const socialLinks = [
-  { label: "Instagram", handle: "@pinseekers", icon: Share2 },
-  { label: "X / Twitter", handle: "@pinseekers", icon: Share2 },
-  { label: "LinkedIn", handle: "PinSeekers", icon: Users },
+  { label: "Instagram", handle: "@pin2win", icon: Share2 },
+  { label: "X / Twitter", handle: "@pin2win", icon: Share2 },
+  { label: "LinkedIn", handle: "Pin2Win", icon: Users },
 ];
 
 export default function ContactPage() {
@@ -42,7 +42,7 @@ export default function ContactPage() {
           href="/"
           className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]"
         >
-          PinSeekers
+          Pin2Win
         </Link>
 
         <section className="mt-10 grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
@@ -55,7 +55,7 @@ export default function ContactPage() {
             </h1>
             <p className="mt-5 text-lg leading-8 text-[#53605a]">
               Reach out for player support, venue partnerships, private events,
-              or help getting a PinSeekers challenge started at your location.
+              or help getting a Pin2Win challenge started at your location.
             </p>
           </div>
 
@@ -63,13 +63,13 @@ export default function ContactPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <a
                 className="rounded-lg bg-[#fbf8f1] p-5 transition hover:bg-[#f5efdf]"
-                href="mailto:hello@pinseekers.example"
+                href="mailto:hello@pin2win.example"
               >
                 <Mail className="text-[#2f6b3f]" size={28} />
                 <p className="mt-4 text-sm font-black uppercase tracking-[0.12em] text-[#2f6b3f]">
                   Email
                 </p>
-                <p className="mt-2 text-lg font-black">hello@pinseekers.example</p>
+                <p className="mt-2 text-lg font-black">hello@pin2win.example</p>
               </a>
               <a
                 className="rounded-lg bg-[#fbf8f1] p-5 transition hover:bg-[#f5efdf]"

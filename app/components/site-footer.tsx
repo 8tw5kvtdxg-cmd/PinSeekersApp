@@ -1,13 +1,22 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Mail, MapPin, Share2, Users } from "lucide-react";
 
 export function SiteFooter() {
+  const pathname = usePathname();
+
+  if (pathname.startsWith("/testing-portal")) {
+    return null;
+  }
+
   return (
     <footer className="bg-[#101816] px-6 py-12 text-white sm:px-10 lg:px-12">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.2fr_0.8fr_0.9fr]">
         <div>
           <Link href="/" className="text-xl font-black tracking-[0.12em]">
-            PINSEEKERS
+            PIN2WIN
           </Link>
           <p className="mt-4 max-w-xl leading-7 text-white/66">
             Live golf simulator challenges for players chasing weekly payouts,
@@ -30,10 +39,10 @@ export function SiteFooter() {
               <Mail size={18} /> Contact page
             </Link>
             <a
-              href="mailto:hello@pinseekers.example"
+              href="mailto:hello@pin2win.example"
               className="flex items-center gap-3 hover:text-white"
             >
-              <Mail size={18} /> hello@pinseekers.example
+              <Mail size={18} /> hello@pin2win.example
             </a>
             <Link href="/rent" className="flex items-center gap-3 hover:text-white">
               <MapPin size={18} /> Rent a bay
@@ -53,7 +62,7 @@ export function SiteFooter() {
               <span className="flex items-center gap-3">
                 <Share2 size={18} /> Instagram
               </span>
-              <span>@pinseekers</span>
+              <span>@pin2win</span>
             </a>
             <a
               href="#"
@@ -62,7 +71,7 @@ export function SiteFooter() {
               <span className="flex items-center gap-3">
                 <Share2 size={18} /> X / Twitter
               </span>
-              <span>@pinseekers</span>
+              <span>@pin2win</span>
             </a>
             <a
               href="#"
@@ -71,14 +80,14 @@ export function SiteFooter() {
               <span className="flex items-center gap-3">
                 <Users size={18} /> LinkedIn
               </span>
-              <span>PinSeekers</span>
+              <span>Pin2Win</span>
             </a>
           </div>
         </div>
       </div>
 
       <div className="mx-auto mt-10 flex max-w-7xl flex-col gap-3 border-t border-white/10 pt-6 text-xs font-bold text-white/42 sm:flex-row sm:items-center sm:justify-between">
-        <p>© 2026 PinSeekers. All rights reserved.</p>
+        <p>© 2026 Pin2Win. All rights reserved.</p>
         <div className="flex flex-wrap gap-4">
           <a href="#" className="hover:text-white">
             Terms

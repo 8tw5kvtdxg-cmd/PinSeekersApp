@@ -4,7 +4,7 @@ import { SiteHeader } from "@/app/components/site-header";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PinSeekers | Golf Challenges",
+  title: "Pin2Win | Golf Challenges",
   description:
     "QR-powered golf simulator challenges for venues, players, and live leaderboards.",
 };
