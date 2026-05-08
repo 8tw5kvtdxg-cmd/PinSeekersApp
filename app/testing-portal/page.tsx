@@ -10,6 +10,7 @@ import {
   Download,
   FileText,
   Gauge,
+  Upload,
   Laptop,
   Link2,
   MonitorUp,
@@ -239,6 +240,27 @@ export default function TestingPortalPage() {
 
   const handleSetupChange = (key: keyof SetupForm, value: string) => {
     setSetupForm((current) => ({ ...current, [key]: value }));
+    setResultForm((current) => {
+      if (key === "playerAlias") {
+        return { ...current, playerAlias: value };
+      }
+
+      if (key === "challengeType") {
+        const challengeType = value as SimulatorChallengeType;
+
+        return {
+          ...current,
+          challengeType,
+          resultUnit: challengeType === "LONGEST_DRIVE" ? "yd" : "ft/in",
+        };
+      }
+
+      if (key === "operatorName") {
+        return { ...current, verifierName: value };
+      }
+
+      return current;
+    });
     setPortalMessage("");
   };
 
@@ -284,6 +306,16 @@ export default function TestingPortalPage() {
 
       setSessions((current) => [payload.session, ...current]);
       setSelectedSessionId(payload.session.pin2WinSessionId);
+      setResultForm((current) => ({
+        ...current,
+        pin2WinSessionId: payload.session.pin2WinSessionId,
+        playerAlias: payload.session.playerAlias ?? setupForm.playerAlias,
+        challengeType: payload.session.challengeType,
+        resultUnit:
+          payload.session.challengeType === "LONGEST_DRIVE" ? "yd" : "ft/in",
+        verifierName: payload.session.operatorName ?? setupForm.operatorName,
+        e6SessionId: payload.session.e6SessionId ?? current.e6SessionId,
+      }));
       setPortalMessage(`${payload.session.pin2WinSessionId} is ready for off-site testing.`);
     } catch (error) {
       setPortalMessage(
@@ -311,6 +343,7 @@ export default function TestingPortalPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             source: "MANUAL_ENTRY",
+            challengeType: resultForm.challengeType,
             playerAlias: resultForm.playerAlias || "Unnamed tester",
             rawResult: resultForm.rawResult,
             resultUnit:
@@ -375,6 +408,18 @@ export default function TestingPortalPage() {
             <span className="rounded-md bg-[#18211f] px-4 py-2 text-sm font-black text-white">
               Local backend ready
             </span>
+            <Link
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#d7dfd4] bg-white px-4 text-sm font-black text-[#18211f] transition hover:border-[#2f6b3f]"
+              href="/testing-portal/site-notes"
+            >
+              <ClipboardCheck size={16} /> Site notes
+            </Link>
+            <Link
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#d7dfd4] bg-white px-4 text-sm font-black text-[#18211f] transition hover:border-[#2f6b3f]"
+              href="/testing-portal/import"
+            >
+              <Upload size={16} /> Import
+            </Link>
             <a
               className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#d7dfd4] bg-white px-4 text-sm font-black text-[#18211f] transition hover:border-[#2f6b3f]"
               href="/api/simulator/export?format=csv"

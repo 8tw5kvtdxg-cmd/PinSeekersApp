@@ -9,6 +9,7 @@ import {
   ClipboardCheck,
   Download,
   ExternalLink,
+  FileJson,
   FileText,
   Flag,
   Gauge,
@@ -16,7 +17,9 @@ import {
   RefreshCw,
   Save,
   ShieldCheck,
+  Table,
   Trophy,
+  Upload,
 } from "lucide-react";
 import type {
   SimulatorResult,
@@ -36,6 +39,15 @@ type ResultForm = {
   notes: string;
 };
 
+type PreviewRow = Record<string, string>;
+
+type ParsedSessionFile = {
+  columns: string[];
+  fileName: string;
+  fileType: "CSV" | "JSON" | "TEXT";
+  rows: PreviewRow[];
+};
+
 const statusActions: {
   label: string;
   status: SimulatorSessionStatus;
@@ -47,6 +59,133 @@ const statusActions: {
   { label: "Result pending", status: "RESULT_PENDING", icon: FileText },
   { label: "Verified", status: "VERIFIED", icon: ShieldCheck },
 ];
+
+const resultColumnHints = ["result", "distance", "score", "yards", "feet"];
+const playerColumnHints = ["player", "alias", "name"];
+const evidenceColumnHints = ["evidence", "screenshot", "report", "file"];
+
+function parseCsv(text: string) {
+  const rows: string[][] = [];
+  let current = "";
+  let row: string[] = [];
+  let inQuotes = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    const next = text[index + 1];
+
+    if (char === '"' && inQuotes && next === '"') {
+      current += '"';
+      index += 1;
+      continue;
+    }
+
+    if (char === '"') {
+      inQuotes = !inQuotes;
+      continue;
+    }
+
+    if (char === "," && !inQuotes) {
+      row.push(current.trim());
+      current = "";
+      continue;
+    }
+
+    if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (char === "\r" && next === "\n") {
+        index += 1;
+      }
+
+      row.push(current.trim());
+      if (row.some(Boolean)) {
+        rows.push(row);
+      }
+      row = [];
+      current = "";
+      continue;
+    }
+
+    current += char;
+  }
+
+  row.push(current.trim());
+  if (row.some(Boolean)) {
+    rows.push(row);
+  }
+
+  const headers = rows[0]?.map((header, index) => header || `Column ${index + 1}`) ?? [];
+  const body = rows.slice(1).map((values) =>
+    headers.reduce<PreviewRow>((record, header, index) => {
+      record[header] = values[index] ?? "";
+      return record;
+    }, {}),
+  );
+
+  return { columns: headers, rows: body };
+}
+
+function flattenValue(value: unknown) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  if (typeof value === "object") {
+    return JSON.stringify(value);
+  }
+
+  return String(value);
+}
+
+function parseJson(text: string) {
+  const parsed = JSON.parse(text) as unknown;
+  const rowsSource = Array.isArray(parsed)
+    ? parsed
+    : typeof parsed === "object" && parsed && "rows" in parsed
+      ? (parsed as { rows?: unknown }).rows
+      : typeof parsed === "object" && parsed && "results" in parsed
+        ? (parsed as { results?: unknown }).results
+        : parsed;
+  const items = Array.isArray(rowsSource) ? rowsSource : [rowsSource];
+  const records = items
+    .filter((item): item is Record<string, unknown> => {
+      return typeof item === "object" && item !== null && !Array.isArray(item);
+    })
+    .map((item) =>
+      Object.entries(item).reduce<PreviewRow>((record, [key, value]) => {
+        record[key] = flattenValue(value);
+        return record;
+      }, {}),
+    );
+  const columns = Array.from(
+    records.reduce<Set<string>>((set, row) => {
+      Object.keys(row).forEach((key) => set.add(key));
+      return set;
+    }, new Set()),
+  );
+
+  return { columns, rows: records };
+}
+
+function parseTextLog(text: string) {
+  const rows = text
+    .split(/\r?\n/)
+    .map((line, index) => ({ line: String(index + 1), content: line.trim() }))
+    .filter((row) => row.content);
+
+  return { columns: ["line", "content"], rows };
+}
+
+function normalizedColumn(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function likelyColumn(columns: string[], hints: string[]) {
+  return columns.find((column) => {
+    const cleanColumn = normalizedColumn(column);
+
+    return hints.some((hint) => cleanColumn.includes(hint));
+  });
+}
 
 function challengeLabel(session?: SimulatorSession | null) {
   if (!session) {
@@ -94,6 +233,7 @@ export default function OperatorSessionPage() {
   const [results, setResults] = useState<SimulatorResult[]>([]);
   const [message, setMessage] = useState("Loading session...");
   const [isBusy, setIsBusy] = useState(false);
+  const [parsedFile, setParsedFile] = useState<ParsedSessionFile | null>(null);
   const [resultForm, setResultForm] = useState<ResultForm>({
     rawResult: "",
     evidenceUrl: "",
@@ -104,6 +244,29 @@ export default function OperatorSessionPage() {
   const resultUnit = session?.challengeType === "LONGEST_DRIVE" ? "yd" : "ft/in";
   const resultPlaceholder =
     session?.challengeType === "LONGEST_DRIVE" ? "287" : "4 ft 8 in";
+  const likelyResultColumn = parsedFile
+    ? likelyColumn(parsedFile.columns, resultColumnHints)
+    : undefined;
+  const likelyPlayerColumn = parsedFile
+    ? likelyColumn(parsedFile.columns, playerColumnHints)
+    : undefined;
+  const likelyEvidenceColumn = parsedFile
+    ? likelyColumn(parsedFile.columns, evidenceColumnHints)
+    : undefined;
+  const importedResultCandidates = useMemo(() => {
+    if (!parsedFile) {
+      return [];
+    }
+
+    const rows = parsedFile.rows.slice(0, 8);
+
+    return rows.map((row, index) => ({
+      evidence: likelyEvidenceColumn ? row[likelyEvidenceColumn] : "",
+      index: index + 1,
+      player: likelyPlayerColumn ? row[likelyPlayerColumn] : "",
+      result: likelyResultColumn ? row[likelyResultColumn] : "",
+    }));
+  }, [likelyEvidenceColumn, likelyPlayerColumn, likelyResultColumn, parsedFile]);
   const sortedResults = useMemo(
     () =>
       [...results].sort((a, b) => {
@@ -223,6 +386,47 @@ export default function OperatorSessionPage() {
       );
     } finally {
       setIsBusy(false);
+    }
+  };
+
+  const handleSessionFile = async (file: File) => {
+    const text = await file.text();
+    const name = file.name.toLowerCase();
+
+    try {
+      if (name.endsWith(".json")) {
+        setParsedFile({
+          ...parseJson(text),
+          fileName: file.name,
+          fileType: "JSON",
+        });
+        setMessage(`${file.name} parsed for this session.`);
+        return;
+      }
+
+      if (name.endsWith(".csv")) {
+        setParsedFile({
+          ...parseCsv(text),
+          fileName: file.name,
+          fileType: "CSV",
+        });
+        setMessage(`${file.name} parsed for this session.`);
+        return;
+      }
+
+      setParsedFile({
+        ...parseTextLog(text),
+        fileName: file.name,
+        fileType: "TEXT",
+      });
+      setMessage(`${file.name} loaded as a text log preview.`);
+    } catch (error) {
+      setParsedFile(null);
+      setMessage(
+        error instanceof Error
+          ? `Could not parse file: ${error.message}`
+          : "Could not parse file.",
+      );
     }
   };
 
@@ -502,6 +706,97 @@ export default function OperatorSessionPage() {
             ) : (
               <div className="border-t border-[#d7dfd4] px-4 py-5 text-sm font-bold text-[#6b756f]">
                 No verified results have been saved for this session.
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="grid gap-6 xl:grid-cols-[0.78fr_1.22fr]">
+          <div className="rounded-lg border border-[#d7dfd4] bg-white p-6">
+            <div className="flex items-center gap-3">
+              <Upload className="text-[#2f6b3f]" size={28} />
+              <h2 className="text-2xl font-black">Session log import</h2>
+            </div>
+            <label className="mt-6 flex min-h-36 cursor-pointer flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-[#b9c6b5] bg-[#fbfdf9] p-6 text-center transition hover:border-[#2f6b3f]">
+              <Upload className="text-[#2f6b3f]" size={32} />
+              <span className="text-lg font-black">Choose session file</span>
+              <span className="text-sm font-bold text-[#59655f]">
+                CSV, JSON, TXT, or LOG
+              </span>
+              <input
+                className="sr-only"
+                type="file"
+                accept=".csv,.json,.txt,.log"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+
+                  if (file) {
+                    handleSessionFile(file);
+                  }
+                }}
+              />
+            </label>
+
+            <div className="mt-5 grid gap-3">
+              {[
+                ["File", parsedFile?.fileName ?? "None", FileText],
+                ["Type", parsedFile?.fileType ?? "Waiting", FileJson],
+                ["Rows", String(parsedFile?.rows.length ?? 0), Table],
+              ].map(([label, value, Icon]) => (
+                <div key={label as string} className="rounded-md bg-[#fbfdf9] p-4">
+                  <Icon className="text-[#2f6b3f]" size={22} />
+                  <p className="mt-3 text-xs font-black uppercase tracking-[0.12em] text-[#59655f]">
+                    {label as string}
+                  </p>
+                  <p className="mt-1 break-words font-black">{value as string}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-5 rounded-md bg-[#e3edd8] px-4 py-3 text-sm font-bold leading-6 text-[#405047]">
+              Preview only. Imported files are not saved or published from this
+              section.
+            </p>
+          </div>
+
+          <div className="overflow-hidden rounded-lg border border-[#d7dfd4] bg-white">
+            <div className="bg-[#18211f] px-6 py-5 text-white">
+              <div className="flex items-center gap-3">
+                <Table className="text-[#a8c878]" size={28} />
+                <h2 className="text-2xl font-black">Imported row preview</h2>
+              </div>
+              <p className="mt-2 text-sm font-bold text-white/58">
+                Suggested result candidates for {pin2WinSessionId}
+              </p>
+            </div>
+            {parsedFile && importedResultCandidates.length > 0 ? (
+              <>
+                <div className="grid grid-cols-[62px_1fr_120px_1fr] gap-3 bg-[#f2eadb] px-4 py-3 text-xs font-black uppercase tracking-[0.12em] text-[#53605a]">
+                  <span>Row</span>
+                  <span>Player</span>
+                  <span>Result</span>
+                  <span>Evidence</span>
+                </div>
+                {importedResultCandidates.map((candidate) => (
+                  <div
+                    key={candidate.index}
+                    className="grid grid-cols-[62px_1fr_120px_1fr] gap-3 border-t border-[#d7dfd4] px-4 py-4 text-sm"
+                  >
+                    <span className="font-black">#{candidate.index}</span>
+                    <span className="truncate font-bold">
+                      {candidate.player || "Review"}
+                    </span>
+                    <span className="truncate font-black text-[#2f6b3f]">
+                      {candidate.result || "Review"}
+                    </span>
+                    <span className="truncate font-bold text-[#59655f]">
+                      {candidate.evidence || "Review"}
+                    </span>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <div className="px-6 py-8 text-sm font-bold text-[#59655f]">
+                Upload a session log or export to preview possible result rows.
               </div>
             )}
           </div>

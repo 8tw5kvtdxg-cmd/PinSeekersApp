@@ -54,6 +54,7 @@ export type SimulatorSession = SimulatorSessionInput & {
 
 export type SimulatorResultInput = {
   source?: SimulatorResultSource;
+  challengeType?: SimulatorChallengeType;
   playerAlias?: string;
   rawResult: string;
   resultUnit?: string;

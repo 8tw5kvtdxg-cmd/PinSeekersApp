@@ -326,8 +326,9 @@ export async function createSimulatorResult(
   }
 
   const prisma = getPrismaClient();
-  const value = normalizedResultValue(session.challengeType, input.rawResult);
-  const unit = resultUnit(session.challengeType, input.resultUnit);
+  const challengeType = input.challengeType ?? session.challengeType;
+  const value = normalizedResultValue(challengeType, input.rawResult);
+  const unit = resultUnit(challengeType, input.resultUnit);
 
   if (prisma) {
     try {
@@ -336,7 +337,7 @@ export async function createSimulatorResult(
           sessionId: session.id,
           source: input.source ?? "MANUAL_ENTRY",
           status: "VERIFIED",
-          challengeType: session.challengeType,
+          challengeType,
           playerAlias: input.playerAlias,
           rawResult: input.rawResult,
           resultUnit: unit,
@@ -363,7 +364,7 @@ export async function createSimulatorResult(
     ...input,
     id: crypto.randomUUID(),
     sessionId: pin2WinSessionId,
-    challengeType: session.challengeType,
+    challengeType,
     status: "VERIFIED",
     resultUnit: unit,
     normalizedValue: value.normalizedValue,

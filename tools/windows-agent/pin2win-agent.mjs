@@ -37,6 +37,20 @@ async function createSession(config) {
   });
 }
 
+function challengeTypeFromArg(value) {
+  const challengeArg = value?.toUpperCase();
+
+  if (challengeArg === "LONGEST_DRIVE" || challengeArg === "LONGEST") {
+    return "LONGEST_DRIVE";
+  }
+
+  if (challengeArg === "CLOSEST_TO_PIN" || challengeArg === "CLOSEST") {
+    return "CLOSEST_TO_PIN";
+  }
+
+  return undefined;
+}
+
 async function submitResult(config, sessionId, result) {
   return requestJson(
     config.pin2WinApiBaseUrl,
@@ -57,7 +71,18 @@ async function main() {
   const config = readConfig();
 
   if (command === "create-session") {
-    const { session } = await createSession(config);
+    const challengeType = challengeTypeFromArg(process.argv[3]);
+    const sessionConfig = challengeType
+      ? {
+          ...config,
+          defaultSession: {
+            ...config.defaultSession,
+            challengeType,
+            resultUnit: challengeType === "LONGEST_DRIVE" ? "yd" : "ft/in",
+          },
+        }
+      : config;
+    const { session } = await createSession(sessionConfig);
 
     console.log("Created Pin2Win simulator session:");
     console.log(JSON.stringify(session, null, 2));
@@ -67,12 +92,16 @@ async function main() {
   if (command === "submit-result") {
     const sessionId = process.argv[3];
     const rawResult = process.argv[4];
+    const challengeType = challengeTypeFromArg(process.argv[5]);
 
     if (!sessionId || !rawResult) {
-      throw new Error("Usage: submit-result <P2W session id> <result>");
+      throw new Error(
+        "Usage: submit-result <P2W session id> <result> [LONGEST_DRIVE|CLOSEST_TO_PIN]",
+      );
     }
 
     const { result } = await submitResult(config, sessionId, {
+      challengeType,
       rawResult,
       evidenceUrl: "Operator verified from simulator screen",
       notes: "Submitted by local Windows agent scaffold.",
@@ -86,8 +115,8 @@ async function main() {
   console.log(`Pin2Win Windows Agent Scaffold
 
 Commands:
-  create-session
-  submit-result <P2W session id> <result>
+  create-session [LONGEST_DRIVE|CLOSEST_TO_PIN]
+  submit-result <P2W session id> <result> [LONGEST_DRIVE|CLOSEST_TO_PIN]
 
 Config:
   ${configPath}
