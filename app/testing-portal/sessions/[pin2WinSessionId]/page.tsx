@@ -22,6 +22,7 @@ import {
   Upload,
 } from "lucide-react";
 import type {
+  SimulatorChallengeType,
   SimulatorResult,
   SimulatorSession,
   SimulatorSessionStatus,
@@ -34,9 +35,28 @@ type SessionPayload = {
 
 type ResultForm = {
   rawResult: string;
+  resultUnit: string;
   evidenceUrl: string;
   verifierName: string;
   notes: string;
+};
+
+type SessionEditForm = {
+  venueName: string;
+  bayName: string;
+  provider: string;
+  challengeType: SimulatorChallengeType;
+  playerAlias: string;
+  operatorName: string;
+  course: string;
+  hole: string;
+  teeBox: string;
+  pinLocation: string;
+  attempts: string;
+  playTimeMinutes: string;
+  e6SessionName: string;
+  e6SessionId: string;
+  externalSessionId: string;
 };
 
 type PreviewRow = Record<string, string>;
@@ -58,6 +78,31 @@ const statusActions: {
   { label: "In progress", status: "IN_PROGRESS", icon: Gauge },
   { label: "Result pending", status: "RESULT_PENDING", icon: FileText },
   { label: "Verified", status: "VERIFIED", icon: ShieldCheck },
+];
+
+const resultUnitOptions: {
+  label: string;
+  value: string;
+  challengeType: SimulatorChallengeType;
+}[] = [
+  { label: "ft / in", value: "ft/in", challengeType: "CLOSEST_TO_PIN" },
+  { label: "yd", value: "yd", challengeType: "LONGEST_DRIVE" },
+];
+
+const challengeOptions: {
+  label: string;
+  value: SimulatorChallengeType;
+}[] = [
+  { label: "Closest to the Pin", value: "CLOSEST_TO_PIN" },
+  { label: "Longest Drive", value: "LONGEST_DRIVE" },
+];
+
+const providerOptions = [
+  { label: "TruGolf Apogee + E6", value: "TRUGOLF_APOGEE_E6" },
+  { label: "E6 Connect", value: "E6_CONNECT" },
+  { label: "FlightScope + E6", value: "FLIGHTSCOPE_E6" },
+  { label: "Manual simulator entry", value: "MANUAL" },
+  { label: "Other", value: "OTHER" },
 ];
 
 const resultColumnHints = ["result", "distance", "score", "yards", "feet"];
@@ -226,6 +271,34 @@ function resultDisplay(result: SimulatorResult) {
   return `${result.rawResult} ${result.resultUnit ?? ""}`.trim();
 }
 
+function editFormFromSession(session: SimulatorSession): SessionEditForm {
+  return {
+    venueName: session.venueName ?? "",
+    bayName: session.bayName ?? "",
+    provider: session.provider,
+    challengeType: session.challengeType,
+    playerAlias: session.playerAlias ?? "",
+    operatorName: session.operatorName ?? "",
+    course: session.course ?? "",
+    hole: session.hole ? String(session.hole) : "",
+    teeBox: session.teeBox ?? "",
+    pinLocation: session.pinLocation ?? "",
+    attempts: session.attempts ? String(session.attempts) : "",
+    playTimeMinutes: session.playTimeMinutes
+      ? String(session.playTimeMinutes)
+      : "",
+    e6SessionName: session.e6SessionName ?? "",
+    e6SessionId: session.e6SessionId ?? "",
+    externalSessionId: session.externalSessionId ?? "",
+  };
+}
+
+function numberOrUndefined(value: string) {
+  const number = Number.parseInt(value, 10);
+
+  return Number.isFinite(number) ? number : undefined;
+}
+
 export default function OperatorSessionPage() {
   const params = useParams<{ pin2WinSessionId: string }>();
   const pin2WinSessionId = params.pin2WinSessionId;
@@ -233,17 +306,25 @@ export default function OperatorSessionPage() {
   const [results, setResults] = useState<SimulatorResult[]>([]);
   const [message, setMessage] = useState("Loading session...");
   const [isBusy, setIsBusy] = useState(false);
+  const [isSavingSession, setIsSavingSession] = useState(false);
   const [parsedFile, setParsedFile] = useState<ParsedSessionFile | null>(null);
+  const [sessionForm, setSessionForm] = useState<SessionEditForm | null>(null);
   const [resultForm, setResultForm] = useState<ResultForm>({
     rawResult: "",
+    resultUnit: "ft/in",
     evidenceUrl: "",
     verifierName: "",
     notes: "",
   });
 
-  const resultUnit = session?.challengeType === "LONGEST_DRIVE" ? "yd" : "ft/in";
+  const resultUnit =
+    resultUnitOptions.find((option) => option.value === resultForm.resultUnit)
+      ?.label ?? resultForm.resultUnit;
+  const resultChallengeType =
+    resultUnitOptions.find((option) => option.value === resultForm.resultUnit)
+      ?.challengeType ?? session?.challengeType;
   const resultPlaceholder =
-    session?.challengeType === "LONGEST_DRIVE" ? "287" : "4 ft 8 in";
+    resultForm.resultUnit === "yd" ? "287" : "4 ft 8 in";
   const likelyResultColumn = parsedFile
     ? likelyColumn(parsedFile.columns, resultColumnHints)
     : undefined;
@@ -294,6 +375,7 @@ export default function OperatorSessionPage() {
     const payload = (await response.json()) as SessionPayload;
 
     setSession(payload.session);
+    setSessionForm(editFormFromSession(payload.session));
     setResults(payload.results);
     setMessage("Session loaded from the local backend.");
   };
@@ -305,6 +387,17 @@ export default function OperatorSessionPage() {
       );
     });
   }, [pin2WinSessionId]);
+
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    setResultForm((current) => ({
+      ...current,
+      resultUnit: session.challengeType === "LONGEST_DRIVE" ? "yd" : "ft/in",
+    }));
+  }, [session]);
 
   const updateStatus = async (status: SimulatorSessionStatus) => {
     setIsBusy(true);
@@ -334,6 +427,73 @@ export default function OperatorSessionPage() {
     }
   };
 
+  const updateSessionForm = <Key extends keyof SessionEditForm>(
+    key: Key,
+    value: SessionEditForm[Key],
+  ) => {
+    setSessionForm((current) =>
+      current ? { ...current, [key]: value } : current,
+    );
+
+    if (key === "challengeType") {
+      setResultForm((current) => ({
+        ...current,
+        resultUnit: value === "LONGEST_DRIVE" ? "yd" : "ft/in",
+      }));
+    }
+  };
+
+  const saveSessionEdits = async () => {
+    if (!sessionForm) {
+      return;
+    }
+
+    setIsSavingSession(true);
+    setMessage("");
+
+    try {
+      const response = await fetch(`/api/simulator/sessions/${pin2WinSessionId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          venueName: sessionForm.venueName,
+          bayName: sessionForm.bayName,
+          provider: sessionForm.provider,
+          challengeType: sessionForm.challengeType,
+          playerAlias: sessionForm.playerAlias,
+          operatorName: sessionForm.operatorName,
+          course: sessionForm.course,
+          hole: numberOrUndefined(sessionForm.hole),
+          teeBox: sessionForm.teeBox,
+          pinLocation: sessionForm.pinLocation,
+          attempts: numberOrUndefined(sessionForm.attempts),
+          playTimeMinutes: numberOrUndefined(sessionForm.playTimeMinutes),
+          e6SessionName: sessionForm.e6SessionName,
+          e6SessionId: sessionForm.e6SessionId,
+          externalSessionId: sessionForm.externalSessionId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Session edits could not be saved.");
+      }
+
+      const payload = (await response.json()) as { session: SimulatorSession };
+
+      setSession(payload.session);
+      setSessionForm(editFormFromSession(payload.session));
+      setMessage("Session information saved. You can submit another verified result.");
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Session edits could not be saved.",
+      );
+    } finally {
+      setIsSavingSession(false);
+    }
+  };
+
   const saveResult = async () => {
     if (!resultForm.rawResult) {
       setMessage("Enter a verified result before saving.");
@@ -351,8 +511,13 @@ export default function OperatorSessionPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             source: "MANUAL_ENTRY",
+            challengeType: resultChallengeType,
+            playerAlias:
+              sessionForm?.playerAlias ||
+              session?.playerAlias ||
+              "Player alias not set",
             rawResult: resultForm.rawResult,
-            resultUnit,
+            resultUnit: resultForm.resultUnit,
             evidenceUrl: resultForm.evidenceUrl,
             verifierName: resultForm.verifierName,
             notes: resultForm.notes,
@@ -375,6 +540,7 @@ export default function OperatorSessionPage() {
       );
       setResultForm({
         rawResult: "",
+        resultUnit: resultForm.resultUnit,
         evidenceUrl: "",
         verifierName: resultForm.verifierName,
         notes: "",
@@ -512,34 +678,107 @@ export default function OperatorSessionPage() {
               <ClipboardCheck className="text-[#2f6b3f]" size={28} />
               <h2 className="text-2xl font-black">Challenge setup</h2>
             </div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {[
-                ["Venue", session?.venueName || "Not set"],
-                ["Bay", session?.bayName || "Not set"],
-                ["Player alias", session?.playerAlias || "Not set"],
-                ["Operator", session?.operatorName || "Not set"],
-                ["Course", session?.course || "Not set"],
-                ["Hole", session?.hole ? String(session.hole) : "Not set"],
-                ["Tee box", session?.teeBox || "Not set"],
-                ["Pin location", session?.pinLocation || "Not set"],
-                ["Attempts", session?.attempts ? String(session.attempts) : "Not set"],
-                [
-                  "Play time",
-                  session?.playTimeMinutes
-                    ? `${session.playTimeMinutes} min`
-                    : "Not set",
-                ],
-                ["E6 session", session?.e6SessionName || "Not set"],
-                ["External ID", session?.e6SessionId || "Not set"],
-              ].map(([label, value]) => (
-                <div key={label} className="rounded-md bg-[#fbfdf9] p-4">
-                  <p className="text-xs font-black uppercase tracking-[0.12em] text-[#59655f]">
-                    {label}
-                  </p>
-                  <p className="mt-2 font-black">{value}</p>
+            {sessionForm ? (
+              <>
+                <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                  <EditField
+                    label="Venue"
+                    value={sessionForm.venueName}
+                    onChange={(value) => updateSessionForm("venueName", value)}
+                  />
+                  <EditField
+                    label="Bay"
+                    value={sessionForm.bayName}
+                    onChange={(value) => updateSessionForm("bayName", value)}
+                  />
+                  <EditSelect
+                    label="Provider"
+                    value={sessionForm.provider}
+                    options={providerOptions}
+                    onChange={(value) => updateSessionForm("provider", value)}
+                  />
+                  <EditSelect
+                    label="Challenge"
+                    value={sessionForm.challengeType}
+                    options={challengeOptions}
+                    onChange={(value) =>
+                      updateSessionForm(
+                        "challengeType",
+                        value as SimulatorChallengeType,
+                      )
+                    }
+                  />
+                  <EditField
+                    label="Player alias"
+                    value={sessionForm.playerAlias}
+                    onChange={(value) => updateSessionForm("playerAlias", value)}
+                  />
+                  <EditField
+                    label="Operator"
+                    value={sessionForm.operatorName}
+                    onChange={(value) => updateSessionForm("operatorName", value)}
+                  />
+                  <EditField
+                    label="Course"
+                    value={sessionForm.course}
+                    onChange={(value) => updateSessionForm("course", value)}
+                  />
+                  <EditField
+                    label="Hole"
+                    value={sessionForm.hole}
+                    onChange={(value) => updateSessionForm("hole", value)}
+                  />
+                  <EditField
+                    label="Tee box"
+                    value={sessionForm.teeBox}
+                    onChange={(value) => updateSessionForm("teeBox", value)}
+                  />
+                  <EditField
+                    label="Pin location"
+                    value={sessionForm.pinLocation}
+                    onChange={(value) => updateSessionForm("pinLocation", value)}
+                  />
+                  <EditField
+                    label="Attempts"
+                    value={sessionForm.attempts}
+                    onChange={(value) => updateSessionForm("attempts", value)}
+                  />
+                  <EditField
+                    label="Play time"
+                    value={sessionForm.playTimeMinutes}
+                    onChange={(value) =>
+                      updateSessionForm("playTimeMinutes", value)
+                    }
+                  />
+                  <EditField
+                    label="E6 session"
+                    value={sessionForm.e6SessionName}
+                    onChange={(value) => updateSessionForm("e6SessionName", value)}
+                  />
+                  <EditField
+                    label="External ID"
+                    value={sessionForm.externalSessionId || sessionForm.e6SessionId}
+                    onChange={(value) => {
+                      updateSessionForm("externalSessionId", value);
+                      updateSessionForm("e6SessionId", value);
+                    }}
+                  />
                 </div>
-              ))}
-            </div>
+                <button
+                  className="mt-5 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-6 text-sm font-black text-white transition hover:bg-[#3f7f4c] disabled:cursor-not-allowed disabled:opacity-60"
+                  type="button"
+                  onClick={saveSessionEdits}
+                  disabled={isSavingSession}
+                >
+                  <Save size={18} />{" "}
+                  {isSavingSession ? "Saving..." : "Save session changes"}
+                </button>
+              </>
+            ) : (
+              <p className="mt-5 rounded-md bg-[#fbfdf9] p-4 text-sm font-bold text-[#59655f]">
+                Session setup is loading.
+              </p>
+            )}
           </div>
 
           <div className="rounded-lg border border-[#d7dfd4] bg-white p-6">
@@ -609,9 +848,22 @@ export default function OperatorSessionPage() {
                       }))
                     }
                   />
-                  <span className="flex min-w-20 items-center justify-center border-l border-[#d7dfd4] bg-[#f2eadb] px-4 text-sm font-black text-[#53605a]">
-                    {resultUnit}
-                  </span>
+                  <select
+                    className="min-w-24 border-l border-[#d7dfd4] bg-[#f2eadb] px-3 text-sm font-black text-[#53605a] outline-none"
+                    value={resultForm.resultUnit}
+                    onChange={(event) =>
+                      setResultForm((current) => ({
+                        ...current,
+                        resultUnit: event.target.value,
+                      }))
+                    }
+                  >
+                    {resultUnitOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </label>
               <label className="grid gap-2 text-sm font-bold text-[#53605a]">
@@ -691,7 +943,10 @@ export default function OperatorSessionPage() {
                   <span className="font-black">#{index + 1}</span>
                   <div>
                     <p className="font-black">
-                      {result.playerAlias || result.verifierName || "Operator"}
+                      {result.playerAlias ||
+                        session?.playerAlias ||
+                        result.verifierName ||
+                        "Player alias not set"}
                     </p>
                     <p className="mt-1 text-xs font-bold text-[#6b756f]">
                       {result.source ?? "MANUAL_ENTRY"} |{" "}
@@ -803,5 +1058,55 @@ export default function OperatorSessionPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+function EditField({
+  label,
+  onChange,
+  value,
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  value: string;
+}) {
+  return (
+    <label className="grid gap-2 text-sm font-bold text-[#53605a]">
+      {label}
+      <input
+        className="h-12 rounded-md border border-[#d7dfd4] bg-[#fbfdf9] px-4 text-base font-bold text-[#18211f] outline-none focus:border-[#2f6b3f]"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </label>
+  );
+}
+
+function EditSelect({
+  label,
+  onChange,
+  options,
+  value,
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  options: { label: string; value: string }[];
+  value: string;
+}) {
+  return (
+    <label className="grid gap-2 text-sm font-bold text-[#53605a]">
+      {label}
+      <select
+        className="h-12 rounded-md border border-[#d7dfd4] bg-[#fbfdf9] px-4 text-base font-bold text-[#18211f] outline-none focus:border-[#2f6b3f]"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }

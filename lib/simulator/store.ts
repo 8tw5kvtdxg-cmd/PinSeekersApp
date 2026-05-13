@@ -36,6 +36,12 @@ function sessionId(sequence: number) {
   return `P2W-TEST-${date}-${String(sequence).padStart(4, "0")}`;
 }
 
+function sessionIdForDate(sequence: number, date: Date) {
+  const stamp = date.toISOString().slice(0, 10).replaceAll("-", "");
+
+  return `P2W-TEST-${stamp}-${String(sequence).padStart(4, "0")}`;
+}
+
 function normalizeResult(rawResult: string) {
   const value = Number.parseFloat(rawResult);
   return Number.isFinite(value) ? value : null;
@@ -126,8 +132,14 @@ function toSimulatorResult(
   };
 }
 
-function nextSessionSequence(sessions: SimulatorSession[]) {
+function nextSessionSequence(sessions: SimulatorSession[], date = new Date()) {
+  const stamp = date.toISOString().slice(0, 10).replaceAll("-", "");
+
   return sessions.reduce((highest, session) => {
+    if (!session.pin2WinSessionId.includes(`P2W-TEST-${stamp}-`)) {
+      return highest;
+    }
+
     const sequence = Number.parseInt(
       session.pin2WinSessionId.split("-").at(-1) ?? "",
       10,
@@ -135,6 +147,13 @@ function nextSessionSequence(sessions: SimulatorSession[]) {
 
     return Number.isFinite(sequence) ? Math.max(highest, sequence + 1) : highest;
   }, store.sequence);
+}
+
+async function nextDatabaseSessionId() {
+  const sessions = await listSimulatorSessions();
+  const now = new Date();
+
+  return sessionIdForDate(nextSessionSequence(sessions, now), now);
 }
 
 function logPrismaFallback(action: string, error: unknown) {
@@ -168,35 +187,51 @@ export async function createSimulatorSession(input: SimulatorSessionInput) {
   const prisma = getPrismaClient();
 
   if (prisma) {
-    try {
-      const sessions = await listSimulatorSessions();
-      const pin2WinSessionId = sessionId(nextSessionSequence(sessions));
-      const session = await prisma.simulatorSession.create({
-        data: {
-          pin2WinSessionId,
-          provider: input.provider ?? "TRUGOLF_APOGEE_E6",
-          challengeType: input.challengeType,
-          playerAlias: input.playerAlias,
-          operatorName: input.operatorName,
-          venueName: input.venueName,
-          bayName: input.bayName,
-          course: input.course,
-          hole: input.hole,
-          teeBox: input.teeBox,
-          pinLocation: input.pinLocation,
-          attempts: input.attempts,
-          playTimeMinutes: input.playTimeMinutes,
-          e6SessionName: input.e6SessionName,
-          e6SessionId: input.e6SessionId,
-          externalSessionId: input.externalSessionId,
-          syncEligible: input.syncEligible ?? true,
-        },
-      });
+    let attempts = 0;
 
-      return toSimulatorSession(session);
-    } catch (error) {
-      logPrismaFallback("session create", error);
+    while (attempts < 5) {
+      const pin2WinSessionId = await nextDatabaseSessionId();
+      attempts += 1;
+
+      try {
+        const session = await prisma.simulatorSession.create({
+          data: {
+            pin2WinSessionId,
+            provider: input.provider ?? "TRUGOLF_APOGEE_E6",
+            challengeType: input.challengeType,
+            playerAlias: input.playerAlias,
+            operatorName: input.operatorName,
+            venueName: input.venueName,
+            bayName: input.bayName,
+            course: input.course,
+            hole: input.hole,
+            teeBox: input.teeBox,
+            pinLocation: input.pinLocation,
+            attempts: input.attempts,
+            playTimeMinutes: input.playTimeMinutes,
+            e6SessionName: input.e6SessionName,
+            e6SessionId: input.e6SessionId,
+            externalSessionId: input.externalSessionId,
+            syncEligible: input.syncEligible ?? true,
+          },
+        });
+
+        return toSimulatorSession(session);
+      } catch (error) {
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "code" in error &&
+          error.code === "P2002"
+        ) {
+          continue;
+        }
+
+        throw error;
+      }
     }
+
+    throw new Error("Could not generate a unique Pin2Win test session ID.");
   }
 
   const now = new Date().toISOString();
@@ -313,6 +348,35 @@ export async function listSimulatorResults(pin2WinSessionId?: string) {
   }
 
   return [...store.results.values()].flat();
+}
+
+export async function deleteSimulatorSession(pin2WinSessionId: string) {
+  const prisma = getPrismaClient();
+
+  if (prisma) {
+    const session = await prisma.simulatorSession.findUnique({
+      where: { pin2WinSessionId },
+      select: { id: true },
+    });
+
+    if (!session) {
+      return false;
+    }
+
+    await prisma.simulatorResult.deleteMany({
+      where: { sessionId: session.id },
+    });
+    await prisma.simulatorSession.delete({
+      where: { pin2WinSessionId },
+    });
+
+    return true;
+  }
+
+  const deleted = store.sessions.delete(pin2WinSessionId);
+
+  store.results.delete(pin2WinSessionId);
+  return deleted;
 }
 
 export async function createSimulatorResult(

@@ -1,4 +1,5 @@
 import {
+  deleteSimulatorSession,
   getSimulatorSession,
   listSimulatorResults,
   updateSimulatorSession,
@@ -38,4 +39,15 @@ export async function PATCH(request: Request, context: Context) {
   }
 
   return Response.json({ session });
+}
+
+export async function DELETE(_request: Request, context: Context) {
+  const { pin2WinSessionId } = await context.params;
+  const deleted = await deleteSimulatorSession(pin2WinSessionId);
+
+  if (!deleted) {
+    return Response.json({ error: "Session not found" }, { status: 404 });
+  }
+
+  return Response.json({ deleted: true, pin2WinSessionId });
 }
