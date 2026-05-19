@@ -16,7 +16,7 @@ const signupSteps = [
   "Choose one of the live challenges at this bay.",
   "Enter your name and email so your score can be posted.",
   "Pay the $20 entry fee to lock in your spot.",
-  "The selected challenge will launch on your bay screen and you can begin the challenge.",
+  "Pin2Win reveals the E6 Event Join Code for the official Clubhouse event.",
 ];
 
 const challenges = [
@@ -58,10 +58,10 @@ export default function PlayPage() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <span className="rounded-full bg-white px-4 py-2 text-sm font-bold text-[#53605a]">
-              Location: San Antonio
+              Location: Alamo Golf Den
             </span>
             <span className="rounded-full bg-white px-4 py-2 text-sm font-bold text-[#53605a]">
-              Bay: 03
+              E6 Clubhouse event
             </span>
             <span className="rounded-full bg-white px-4 py-2 text-sm font-bold text-[#53605a]">
               Entry: $20
@@ -257,9 +257,15 @@ export default function PlayPage() {
             >
               <CreditCard size={18} /> Pay $20 and enter
             </button>
+            <Link
+              href="/play/alamo-closest-pin-weekly"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#2f6b3f] bg-[#e3edd8] px-6 text-sm font-black text-[#18211f] transition hover:bg-[#d5e8c3]"
+            >
+              <QrCode size={18} /> Preview E6 code reveal flow
+            </Link>
             <p className="text-sm leading-6 text-[#6b756f]">
-              After payment, keep the confirmation screen open and show it to
-              staff before you play.
+              After payment, keep the confirmation screen open and use the E6
+              Event Join Code inside the official Clubhouse event.
             </p>
           </div>
         </section>

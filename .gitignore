@@ -23,6 +23,8 @@
 # misc
 .DS_Store
 *.pem
+.pin2win-clubhouse-entries.json
+.pin2win-clubhouse-event-codes.json
 
 # debug
 npm-debug.log*
