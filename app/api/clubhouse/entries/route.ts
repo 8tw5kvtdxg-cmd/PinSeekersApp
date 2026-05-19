@@ -2,10 +2,15 @@ import {
   createClubhouseEntryRecord,
   listClubhouseEntryRecords,
 } from "@/lib/clubhouse-entry-store";
+import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!isAdminRequestAuthenticated(request)) {
+    return Response.json({ error: "Admin login required." }, { status: 401 });
+  }
+
   const entries = await listClubhouseEntryRecords();
 
   return Response.json({ entries });

@@ -1,18 +1,39 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  CalendarDays,
-  Clock,
+  BadgeCheck,
+  CreditCard,
   MapPin,
-  Search,
-  Users,
+  MonitorPlay,
+  QrCode,
+  Trophy,
 } from "lucide-react";
 
-const rentalLocations = [
-  { city: "San Antonio", label: "Location name coming soon" },
-  { city: "Houston", label: "Location name coming soon" },
-  { city: "Austin", label: "Location name coming soon" },
-  { city: "Dallas", label: "Location name coming soon" },
+const sessionSteps = [
+  {
+    title: "Book your simulator time",
+    description:
+      "Reserve your bay through the location the same way you normally would.",
+    icon: MapPin,
+  },
+  {
+    title: "Scan the Pin2Win QR code",
+    description:
+      "Open the active challenge page from your phone once you are at the bay.",
+    icon: QrCode,
+  },
+  {
+    title: "Pay to enter",
+    description:
+      "Complete your entry and get the E6 Event Join Code on your confirmation page.",
+    icon: CreditCard,
+  },
+  {
+    title: "Play the challenge",
+    description:
+      "Enter the code in E6, take your shots, and check where you stand.",
+    icon: MonitorPlay,
+  },
 ];
 
 export default function RentBayPage() {
@@ -29,102 +50,79 @@ export default function RentBayPage() {
         <section className="mt-10 grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-              Rent a bay
+              Before you play
             </p>
             <h1 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">
-              Book simulator time at a Pin2Win location.
+              Book your bay first. Enter the challenge when you arrive.
             </h1>
             <p className="mt-5 text-lg leading-8 text-[#53605a]">
-              Find a nearby location, choose a bay, and reserve time for your
-              group. Location names and addresses can be added here as each
-              venue goes live.
+              Pin2Win is for the challenge entry, not the bay reservation. Once
+              your simulator time is set, scan the QR code at the bay to enter
+              closest-to-the-pin or longest-drive events.
             </p>
-
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-lg bg-white p-4">
-                <CalendarDays className="text-[#2f6b3f]" size={26} />
-                <p className="mt-3 text-sm font-black">Pick a date</p>
-              </div>
-              <div className="rounded-lg bg-white p-4">
-                <Clock className="text-[#2f6b3f]" size={26} />
-                <p className="mt-3 text-sm font-black">Choose a time</p>
-              </div>
-              <div className="rounded-lg bg-white p-4">
-                <Users className="text-[#2f6b3f]" size={26} />
-                <p className="mt-3 text-sm font-black">Bring your group</p>
-              </div>
+            <div className="mt-8 rounded-lg bg-[#18211f] p-6 text-white">
+              <Trophy className="text-[#a8c878]" size={30} />
+              <h2 className="mt-4 text-2xl font-black">
+                Challenge entry happens at the bay
+              </h2>
+              <p className="mt-3 leading-7 text-white/74">
+                Keep your E6 username handy. You will use it when you enter so
+                your challenge result can be matched after play.
+              </p>
             </div>
           </div>
 
           <section className="rounded-lg border border-[#ded6c8] bg-white p-6 shadow-xl shadow-[#18211f]/8">
-            <div className="flex items-center gap-3">
-              <Search className="text-[#2f6b3f]" size={28} />
-              <div>
-                <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-                  Location search
-                </p>
-                <h2 className="mt-1 text-2xl font-black">
-                  Search for available bays
-                </h2>
-              </div>
-            </div>
+            <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
+              Player workflow
+            </p>
+            <h2 className="mt-2 text-2xl font-black">
+              From bay time to challenge time
+            </h2>
+            <div className="mt-6 grid gap-4">
+              {sessionSteps.map((step, index) => {
+                const Icon = step.icon;
 
-            <form className="mt-6 grid gap-4">
-              <label className="grid gap-2 text-sm font-bold text-[#53605a]">
-                City or location
-                <input
-                  className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-                  placeholder="Search San Antonio, Houston, Austin, or Dallas"
-                />
-              </label>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="grid gap-2 text-sm font-bold text-[#53605a]">
-                  Date
-                  <input
-                    className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-                    type="date"
-                  />
-                </label>
-                <label className="grid gap-2 text-sm font-bold text-[#53605a]">
-                  Party size
-                  <input
-                    className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-                    min="1"
-                    placeholder="4"
-                    type="number"
-                  />
-                </label>
-              </div>
-              <button
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#18211f] px-6 text-sm font-black text-white transition hover:bg-[#2a3935]"
-                type="button"
-              >
-                <Search size={18} /> Search locations
-              </button>
-            </form>
+                return (
+                  <article
+                    key={step.title}
+                    className="rounded-lg border border-[#ded6c8] bg-[#fbf8f1] p-5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#2f6b3f] text-xs font-black text-white">
+                        {index + 1}
+                      </span>
+                      <Icon className="text-[#2f6b3f]" size={24} />
+                    </div>
+                    <h3 className="mt-4 text-xl font-black">{step.title}</h3>
+                    <p className="mt-3 leading-7 text-[#59655f]">
+                      {step.description}
+                    </p>
+                  </article>
+                );
+              })}
+            </div>
           </section>
         </section>
 
-        <section className="mt-10 grid gap-4 md:grid-cols-4">
-          {rentalLocations.map((location) => (
-            <article
-              key={location.city}
-              className="rounded-lg border border-[#ded6c8] bg-white p-5"
-            >
-              <MapPin className="text-[#2f6b3f]" size={30} />
-              <h2 className="mt-4 text-2xl font-black">{location.city}</h2>
-              <p className="mt-2 text-sm font-bold text-[#53605a]">
-                {location.label}
-              </p>
-              <p className="mt-4 leading-7 text-[#59655f]">
-                Address, bay count, hours, and booking rules can be added when
-                this location is ready.
-              </p>
-              <button className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-[#ded6c8] px-4 text-sm font-black transition hover:border-[#2f6b3f] hover:bg-[#fbf8f1]">
-                View bays <ArrowRight size={17} />
-              </button>
-            </article>
-          ))}
+        <section className="mt-10 rounded-lg border border-[#ded6c8] bg-white p-6">
+          <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
+            Player path
+          </p>
+          <h2 className="mt-3 text-3xl font-black">
+            Ready once you are at the simulator.
+          </h2>
+          <p className="mt-4 max-w-3xl leading-8 text-[#59655f]">
+            When your bay is active, open the Pin2Win challenge page, complete
+            your entry, and use the E6 code to join the event. The challenge is
+            designed to fit into the simulator session you already booked.
+          </p>
+          <Link
+            href="/play"
+            className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white transition hover:bg-[#2a3935]"
+          >
+            See challenge pages <ArrowRight size={17} />
+          </Link>
         </section>
       </div>
     </main>

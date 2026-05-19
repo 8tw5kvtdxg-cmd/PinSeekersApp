@@ -7,10 +7,14 @@ import {
   ShieldCheck,
   Trophy,
 } from "lucide-react";
+import { AdminLogoutForm } from "@/app/admin/logout-form";
 import { ChallengeAdminCard } from "@/app/admin/challenges/challenge-admin-card";
 import { clubhouseChallenges } from "@/lib/clubhouse";
+import { requireAdminSession } from "@/lib/admin-auth";
 
-export default function AdminChallengesPage() {
+export default async function AdminChallengesPage() {
+  await requireAdminSession("/admin/challenges");
+
   return (
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
       <div className="mx-auto max-w-6xl">
@@ -46,6 +50,7 @@ export default function AdminChallengesPage() {
             >
               <ClipboardCheck size={18} /> Review results
             </Link>
+            <AdminLogoutForm />
           </div>
         </div>
 

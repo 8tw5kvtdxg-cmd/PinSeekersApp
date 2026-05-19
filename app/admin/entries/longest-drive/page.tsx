@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { ClipboardCheck, Flag, KeyRound } from "lucide-react";
+import { AdminLogoutForm } from "@/app/admin/logout-form";
 import { LiveEntryLog } from "@/app/admin/entries/live-entry-log";
+import { requireAdminSession } from "@/lib/admin-auth";
 import { listClubhouseEntryRecords } from "@/lib/clubhouse-entry-store";
 
 const challengeSlug = "alamo-long-drive-weekly";
 
 export default async function LongestDriveEntriesPage() {
+  await requireAdminSession("/admin/entries/longest-drive");
+
   const entries = await listClubhouseEntryRecords();
   const initialEntries = entries.filter(
     (entry) => entry.challengeSlug === challengeSlug,
@@ -46,6 +50,7 @@ export default async function LongestDriveEntriesPage() {
             >
               <ClipboardCheck size={18} /> Review results
             </Link>
+            <AdminLogoutForm />
           </div>
         </div>
 

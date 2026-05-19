@@ -110,8 +110,9 @@ export default async function EntryConfirmationPage({
             </div>
 
             <EventCodePanel
-              challengeSlug={challenge.slug}
-              fallbackEventCode={challenge.e6JoinCode}
+              fallbackEventCode={
+                "e6EventCode" in entry ? entry.e6EventCode : challenge.e6JoinCode
+              }
               entryId={entry.id}
             />
           </div>

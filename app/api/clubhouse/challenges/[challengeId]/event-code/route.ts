@@ -1,5 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
 import { getClubhouseChallenge } from "@/lib/clubhouse";
 
 type EventCodeStore = Record<string, string>;
@@ -47,9 +48,13 @@ async function getEventCode(challengeId: string) {
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ challengeId: string }> },
 ) {
+  if (!isAdminRequestAuthenticated(request)) {
+    return Response.json({ error: "Admin login required." }, { status: 401 });
+  }
+
   const { challengeId } = await context.params;
   const eventCode = await getEventCode(challengeId);
 
@@ -64,6 +69,10 @@ export async function PATCH(
   request: Request,
   context: { params: Promise<{ challengeId: string }> },
 ) {
+  if (!isAdminRequestAuthenticated(request)) {
+    return Response.json({ error: "Admin login required." }, { status: 401 });
+  }
+
   const { challengeId } = await context.params;
   const challenge = getClubhouseChallenge(challengeId);
 

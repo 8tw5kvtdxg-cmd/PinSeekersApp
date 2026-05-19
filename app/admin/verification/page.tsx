@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { ClipboardCheck, KeyRound, ListChecks } from "lucide-react";
+import { AdminLogoutForm } from "@/app/admin/logout-form";
 import { LiveVerificationQueue } from "@/app/admin/verification/live-verification-queue";
+import { requireAdminSession } from "@/lib/admin-auth";
 import { listClubhouseEntryRecords } from "@/lib/clubhouse-entry-store";
 
 export default async function AdminVerificationPage() {
+  await requireAdminSession("/admin/verification");
+
   const entries = await listClubhouseEntryRecords();
 
   return (
@@ -48,6 +52,7 @@ export default async function AdminVerificationPage() {
             >
               <KeyRound size={18} /> Challenge codes
             </Link>
+            <AdminLogoutForm />
           </div>
         </div>
 

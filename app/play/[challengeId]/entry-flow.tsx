@@ -32,32 +32,6 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
   const [isCreatingEntry, setIsCreatingEntry] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
-
-    async function loadEventCode() {
-      const response = await fetch(
-        `/api/clubhouse/challenges/${challenge.slug}/event-code`,
-      );
-
-      if (!response.ok) {
-        return;
-      }
-
-      const data = (await response.json()) as { eventCode?: string };
-
-      if (isMounted && data.eventCode) {
-        setEventCode(data.eventCode);
-      }
-    }
-
-    loadEventCode();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [challenge.slug]);
-
-  useEffect(() => {
     const savedDraft = window.localStorage.getItem(storageKey);
 
     if (!savedDraft) {

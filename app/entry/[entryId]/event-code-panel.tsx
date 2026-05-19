@@ -4,45 +4,16 @@ import { useEffect, useState } from "react";
 import { KeyRound } from "lucide-react";
 
 type EventCodePanelProps = {
-  challengeSlug: string;
   fallbackEventCode: string;
   entryId: string;
 };
 
 export function EventCodePanel({
-  challengeSlug,
   fallbackEventCode,
   entryId,
 }: EventCodePanelProps) {
-  const [eventCode, setEventCode] = useState(fallbackEventCode);
   const [playerName, setPlayerName] = useState<string | null>(null);
   const [e6DisplayName, setE6DisplayName] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function loadEventCode() {
-      const response = await fetch(
-        `/api/clubhouse/challenges/${challengeSlug}/event-code`,
-      );
-
-      if (!response.ok) {
-        return;
-      }
-
-      const data = (await response.json()) as { eventCode?: string };
-
-      if (isMounted && data.eventCode) {
-        setEventCode(data.eventCode);
-      }
-    }
-
-    loadEventCode();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [challengeSlug]);
 
   useEffect(() => {
     const savedEntry = window.localStorage.getItem(`pin2win-entry-${entryId}`);
@@ -87,7 +58,7 @@ export function EventCodePanel({
         <h2 className="text-xl font-black">E6 Event Join Code</h2>
       </div>
       <p className="mt-4 rounded-md bg-white px-4 py-4 text-2xl font-black tracking-[0.08em]">
-        {eventCode}
+        {fallbackEventCode}
       </p>
       <p className="mt-3 text-sm leading-6 text-[#59655f]">
         Enter this in E6 2026 using the Event option after the E6 event has
