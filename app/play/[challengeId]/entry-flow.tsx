@@ -29,6 +29,7 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
   const [e6DisplayName, setE6DisplayName] = useState("");
   const [entryId, setEntryId] = useState("");
   const [paymentError, setPaymentError] = useState("");
+  const [isStartingCheckout, setIsStartingCheckout] = useState(false);
   const [isCreatingEntry, setIsCreatingEntry] = useState(false);
 
   useEffect(() => {
@@ -151,6 +152,46 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
     }
   }
 
+  async function startStripeCheckout() {
+    const wasSaved = savePlayerInfo();
+
+    if (!wasSaved) {
+      return;
+    }
+
+    setIsStartingCheckout(true);
+    setPaymentError("");
+
+    try {
+      const response = await fetch("/api/clubhouse/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          challengeSlug: challenge.slug,
+          playerName,
+          e6DisplayName,
+        }),
+      });
+      const data = (await response.json()) as {
+        checkoutUrl?: string;
+        error?: string;
+      };
+
+      if (!response.ok || !data.checkoutUrl) {
+        throw new Error(data.error ?? "Could not start Stripe Checkout.");
+      }
+
+      window.location.href = data.checkoutUrl;
+    } catch (error) {
+      setPaymentError(
+        error instanceof Error
+          ? error.message
+          : "Could not start Stripe Checkout.",
+      );
+      setIsStartingCheckout(false);
+    }
+  }
+
   return (
     <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
       <section>
@@ -205,8 +246,9 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
             Unlock the E6 event code
           </h2>
           <p className="mt-3 text-sm leading-6 text-[#59655f]">
-            This demo shows the intended flow. Live Stripe payment and database
-            entry creation can be wired into this same screen.
+            Checkout is handled securely by Stripe. After payment, your
+            confirmation page will show your Pin2Win entry ID and the E6 Event
+            Join Code.
           </p>
         </div>
 
@@ -288,17 +330,36 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
             <button
               className="mt-4 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-5 text-sm font-black text-white transition hover:bg-[#3f7f4c] disabled:cursor-not-allowed disabled:bg-[#ded6c8] disabled:text-[#6b756f]"
               disabled={
-                isCreatingEntry || !playerName.trim() || !e6DisplayName.trim()
+                isStartingCheckout ||
+                isCreatingEntry ||
+                !playerName.trim() ||
+                !e6DisplayName.trim()
+              }
+              type="button"
+              onClick={startStripeCheckout}
+            >
+              <CreditCard size={17} />
+              {isStartingCheckout
+                ? "Opening Stripe..."
+                : `Pay ${formatEntryFee(challenge.entryFeeCents)} with Stripe`}
+            </button>
+            <button
+              className="mt-3 inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-4 text-xs font-black text-[#53605a] transition hover:bg-[#f5efdf] disabled:cursor-not-allowed disabled:bg-[#f5efdf] disabled:text-[#87908a]"
+              disabled={
+                isStartingCheckout ||
+                isCreatingEntry ||
+                !playerName.trim() ||
+                !e6DisplayName.trim()
               }
               type="button"
               onClick={simulatePayment}
             >
-              {paymentReady ? <CheckCircle2 size={17} /> : <CreditCard size={17} />}
+              {paymentReady ? <CheckCircle2 size={15} /> : <CreditCard size={15} />}
               {isCreatingEntry
-                ? "Creating entry..."
+                ? "Creating test entry..."
                 : paymentReady
-                ? "Payment simulated"
-                : `Simulate ${formatEntryFee(challenge.entryFeeCents)} payment`}
+                ? "Test entry created"
+                : "Testing only: simulate payment"}
             </button>
             {paymentError ? (
               <p className="mt-3 text-sm font-bold text-[#9a3324]">

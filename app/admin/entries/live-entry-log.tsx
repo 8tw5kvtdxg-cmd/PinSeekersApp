@@ -173,8 +173,8 @@ export function LiveEntryLog({
             <CreditCard className="mx-auto text-[#2f6b3f]" size={34} />
             <h2 className="mt-4 text-2xl font-black">No paid entries yet</h2>
             <p className="mt-3 text-sm leading-6 text-[#59655f]">
-              Scan the QR code and simulate a payment to create the first
-              verification record.
+              Scan the QR code and complete Stripe Checkout to create the first
+              paid entry record.
             </p>
           </div>
         ) : (
