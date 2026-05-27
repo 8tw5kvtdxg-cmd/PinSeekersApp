@@ -5,6 +5,7 @@ import { getClubhouseChallenge } from "@/lib/clubhouse";
 
 export type ClubhouseEntryRecord = ClubhouseEntry & {
   e6EventCode: string;
+  stripeCheckoutSessionId?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -53,6 +54,20 @@ export async function getClubhouseEntryRecord(entryId: string) {
   );
 
   return entries[entryId] ?? null;
+}
+
+export async function getClubhouseEntryRecordByStripeSessionId(
+  stripeCheckoutSessionId: string,
+) {
+  const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
+    entriesPath,
+  );
+
+  return (
+    Object.values(entries).find(
+      (entry) => entry.stripeCheckoutSessionId === stripeCheckoutSessionId,
+    ) ?? null
+  );
 }
 
 async function getSavedEventCode(challengeSlug: string) {
@@ -107,6 +122,7 @@ export async function createClubhouseEntryRecord(input: {
   challengeSlug: string;
   playerName: string;
   e6DisplayName: string;
+  stripeCheckoutSessionId?: string;
 }) {
   const challenge = getClubhouseChallenge(input.challengeSlug);
 
@@ -130,6 +146,18 @@ export async function createClubhouseEntryRecord(input: {
   const existing = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
     entriesPath,
   );
+
+  if (input.stripeCheckoutSessionId) {
+    const existingStripeEntry = Object.values(existing).find(
+      (entry) =>
+        entry.stripeCheckoutSessionId === input.stripeCheckoutSessionId,
+    );
+
+    if (existingStripeEntry) {
+      return existingStripeEntry;
+    }
+  }
+
   const now = new Date();
   const validUntil = new Date(
     now.getTime() + challenge.playWindowMinutes * 60 * 1000,
@@ -148,6 +176,7 @@ export async function createClubhouseEntryRecord(input: {
     attemptLimit: 1,
     resultStatus: "Pending E6 Result",
     e6EventCode,
+    stripeCheckoutSessionId: input.stripeCheckoutSessionId,
     createdAt: timestamp,
     updatedAt: timestamp,
   };
