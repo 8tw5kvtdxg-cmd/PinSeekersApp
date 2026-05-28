@@ -80,6 +80,7 @@ export const clubhouseChallenges: ClubhouseChallenge[] = [
     ],
     eligibilityRules: [
       "Only paid Pin2Win entries are prize-eligible.",
+      "Verified Closest to the Pin entrants are also eligible for the $10,000 hole-in-one prize.",
       "One Pin2Win entry equals one eligible E6 attempt window.",
       "Shared or reused E6 codes do not create prize eligibility.",
       "Results must match the Pin2Win player record, E6 display name, and play window.",
