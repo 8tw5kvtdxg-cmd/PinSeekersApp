@@ -50,7 +50,7 @@ export default async function AdminResultsPage() {
           </div>
         </div>
 
-        <div className="mt-10 grid gap-8">
+        <div className="mt-10 grid gap-8 xl:grid-cols-2 xl:items-start">
           {clubhouseChallenges.map((challenge) => (
             <ResultLogTable
               key={challenge.slug}
