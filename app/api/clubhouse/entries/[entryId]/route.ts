@@ -1,5 +1,8 @@
-import { getClubhouseEntryRecord } from "@/lib/clubhouse-entry-store";
-import { updateClubhouseEntryResult } from "@/lib/clubhouse-entry-store";
+import {
+  deleteClubhouseEntryRecord,
+  getClubhouseEntryRecord,
+  updateClubhouseEntryResult,
+} from "@/lib/clubhouse-entry-store";
 import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
@@ -60,4 +63,22 @@ export async function PATCH(
       { status: 400 },
     );
   }
+}
+
+export async function DELETE(
+  request: Request,
+  context: { params: Promise<{ entryId: string }> },
+) {
+  if (!isAdminRequestAuthenticated(request)) {
+    return Response.json({ error: "Admin login required." }, { status: 401 });
+  }
+
+  const { entryId } = await context.params;
+  const deleted = await deleteClubhouseEntryRecord(entryId);
+
+  if (!deleted) {
+    return Response.json({ error: "Entry not found." }, { status: 404 });
+  }
+
+  return Response.json({ deleted: true, entryId });
 }

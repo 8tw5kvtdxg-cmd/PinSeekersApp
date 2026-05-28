@@ -167,6 +167,21 @@ export async function updateClubhouseEntryResult(input: {
   return updatedEntry;
 }
 
+export async function deleteClubhouseEntryRecord(entryId: string) {
+  const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
+    entriesPath,
+  );
+
+  if (!entries[entryId]) {
+    return false;
+  }
+
+  delete entries[entryId];
+  await writeJson(entriesPath, entries);
+
+  return true;
+}
+
 export async function getClubhouseLeaderboardRows(challengeSlug: string) {
   const normalizedSlug = normalizeChallengeSlug(challengeSlug);
   const challenge = getClubhouseChallenge(normalizedSlug);
