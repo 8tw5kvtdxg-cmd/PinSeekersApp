@@ -7,17 +7,15 @@ import {
 import { AdminLogoutForm } from "@/app/admin/logout-form";
 import { LiveEntryLog } from "@/app/admin/entries/live-entry-log";
 import { requireAdminSession } from "@/lib/admin-auth";
-import { listClubhouseEntryRecords } from "@/lib/clubhouse-entry-store";
+import { clubhouseChallengeSlugs } from "@/lib/clubhouse";
+import { listClubhouseEntryRecordsForChallenge } from "@/lib/clubhouse-entry-store";
 
-const challengeSlug = "alamo-closest-pin-weekly";
+const challengeSlug = clubhouseChallengeSlugs.closestToPin;
 
 export default async function AdminEntriesPage() {
   await requireAdminSession("/admin/entries");
 
-  const entries = await listClubhouseEntryRecords();
-  const initialEntries = entries.filter(
-    (entry) => entry.challengeSlug === challengeSlug,
-  );
+  const initialEntries = await listClubhouseEntryRecordsForChallenge(challengeSlug);
 
   return (
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">

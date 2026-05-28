@@ -13,7 +13,11 @@ import {
   XCircle,
 } from "lucide-react";
 import type { ClubhouseEntryRecord } from "@/lib/clubhouse-entry-store";
-import { clubhouseChallenges } from "@/lib/clubhouse";
+import {
+  clubhouseChallenges,
+  clubhouseChallengeSlugs,
+  normalizeChallengeSlug,
+} from "@/lib/clubhouse";
 
 type LiveVerificationQueueProps = {
   initialEntries: ClubhouseEntryRecord[];
@@ -30,6 +34,7 @@ function searchableText(entry: ClubhouseEntryRecord) {
   return [
     entry.id,
     entry.playerName,
+    entry.phoneNumber,
     entry.e6DisplayName,
     entry.challengeSlug,
     challengeName(entry.challengeSlug),
@@ -74,8 +79,8 @@ function SearchResults({
           <Search className="mx-auto text-[#2f6b3f]" size={34} />
           <h2 className="mt-4 text-2xl font-black">No matching entries</h2>
           <p className="mt-3 text-sm leading-6 text-[#59655f]">
-            Try a full name, E6 username, Pin2Win entry ID, challenge name, or
-            event code.
+            Try a full name, phone number, E6 username, Pin2Win entry ID,
+            challenge name, or event code.
           </p>
         </div>
       ) : (
@@ -92,6 +97,9 @@ function SearchResults({
                 >
                   {entry.playerName} - {entry.id}
                 </Link>
+                <p className="mt-2 text-sm font-bold text-[#59655f]">
+                  Phone: {entry.phoneNumber ?? "Not provided"}
+                </p>
                 <p className="mt-2 text-sm font-bold text-[#59655f]">
                   E6: {entry.e6DisplayName} · {challengeName(entry.challengeSlug)}
                 </p>
@@ -155,6 +163,9 @@ function QueueColumn({
                   Queue #{index + 1}
                 </p>
                 <h3 className="mt-2 text-lg font-black">{entry.playerName}</h3>
+                <p className="mt-1 text-sm font-bold text-[#59655f]">
+                  Phone: {entry.phoneNumber ?? "Not provided"}
+                </p>
                 <p className="mt-1 text-sm font-bold text-[#59655f]">
                   E6: {entry.e6DisplayName}
                 </p>
@@ -307,12 +318,20 @@ export function LiveVerificationQueue({
 
   const closestToPinEntries = useMemo(
     () =>
-      entries.filter((entry) => entry.challengeSlug === "alamo-closest-pin-weekly"),
+      entries.filter(
+        (entry) =>
+          normalizeChallengeSlug(entry.challengeSlug) ===
+          clubhouseChallengeSlugs.closestToPin,
+      ),
     [entries],
   );
   const longestDriveEntries = useMemo(
     () =>
-      entries.filter((entry) => entry.challengeSlug === "alamo-long-drive-weekly"),
+      entries.filter(
+        (entry) =>
+          normalizeChallengeSlug(entry.challengeSlug) ===
+          clubhouseChallengeSlugs.longestDrive,
+      ),
     [entries],
   );
   const normalizedQuery = query.trim().toLowerCase();
@@ -401,7 +420,7 @@ export function LiveVerificationQueue({
               />
               <input
                 className="h-12 w-full rounded-md border border-[#ded6c8] bg-[#fbf8f1] pl-12 pr-4 text-base font-bold text-[#18211f] outline-none transition placeholder:text-[#87908a] focus:border-[#2f6b3f] focus:bg-white"
-                placeholder="Search full name, E6 username, entry ID, event code..."
+                placeholder="Search full name, phone, E6 username, entry ID, event code..."
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
               />
@@ -418,8 +437,8 @@ export function LiveVerificationQueue({
           </div>
         </label>
         <p className="mt-3 text-sm font-bold text-[#59655f]">
-          Searches across Full Name, E6 username, Pin2Win Entry ID, challenge,
-          status, result, and E6 event code.
+          Searches across Full Name, phone number, E6 username, Pin2Win Entry
+          ID, challenge, status, result, and E6 event code.
         </p>
       </section>
 

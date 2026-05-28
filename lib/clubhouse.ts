@@ -24,6 +24,7 @@ export type ClubhouseEntry = {
   id: string;
   challengeSlug: string;
   playerName: string;
+  phoneNumber?: string;
   e6DisplayName: string;
   paymentStatus: "Succeeded" | "Pending" | "Failed";
   paidAt: string;
@@ -41,10 +42,20 @@ export type VerificationRecord = ClubhouseEntry & {
   reviewNote: string;
 };
 
+export const clubhouseChallengeSlugs = {
+  closestToPin: "alamo-closest-pin-monthly",
+  longestDrive: "alamo-long-drive-monthly",
+} as const;
+
+const legacyChallengeSlugMap: Record<string, string> = {
+  "alamo-closest-pin-weekly": clubhouseChallengeSlugs.closestToPin,
+  "alamo-long-drive-weekly": clubhouseChallengeSlugs.longestDrive,
+};
+
 export const clubhouseChallenges: ClubhouseChallenge[] = [
   {
-    slug: "alamo-closest-pin-weekly",
-    name: "Alamo Golf Den Closest to the Pin",
+    slug: clubhouseChallengeSlugs.closestToPin,
+    name: "Alamo Golf Den Closest to the Pin Monthly",
     type: "CLOSEST_TO_PIN",
     venue: "Alamo Golf Den",
     bayLabel: "Any active E6 2026 bay",
@@ -53,11 +64,11 @@ export const clubhouseChallenges: ClubhouseChallenge[] = [
     startsAt: "May 22, 2026, 10:00 AM",
     endsAt: "May 24, 2026, 8:00 PM",
     playWindowMinutes: 10,
-    e6EventName: "Pin2Win CTP Weekend Qualifier",
+    e6EventName: "Pin2Win CTP Monthly Qualifier",
     e6JoinCode: "E6-P2W-7429",
     e6QueueCode: "QUEUE-118",
     e6ClubhouseUrl: "https://e6golf.com/clubhouse",
-    prizeSummary: "$20 entry. Top verified closest-to-the-pin result wins the weekly prize.",
+    prizeSummary: "$20 entry. Monthly prize pot starts at $50 and grows with paid entries.",
     instructions: [
       "Scan the Pin2Win QR code before starting your E6 attempt.",
       "Create or load your Pin2Win player account.",
@@ -74,8 +85,8 @@ export const clubhouseChallenges: ClubhouseChallenge[] = [
     ],
   },
   {
-    slug: "alamo-long-drive-weekly",
-    name: "Alamo Golf Den Long Drive",
+    slug: clubhouseChallengeSlugs.longestDrive,
+    name: "Alamo Golf Den Long Drive Monthly",
     type: "LONGEST_DRIVE",
     venue: "Alamo Golf Den",
     bayLabel: "Any active E6 2026 bay",
@@ -84,11 +95,11 @@ export const clubhouseChallenges: ClubhouseChallenge[] = [
     startsAt: "May 22, 2026, 10:00 AM",
     endsAt: "May 24, 2026, 8:00 PM",
     playWindowMinutes: 10,
-    e6EventName: "Pin2Win Long Drive Weekend",
+    e6EventName: "Pin2Win Long Drive Monthly",
     e6JoinCode: "Pending E6 event finalization",
     e6QueueCode: "Generated after event start",
     e6ClubhouseUrl: "https://e6golf.com/clubhouse",
-    prizeSummary: "$20 entry. Longest verified drive wins the weekly prize.",
+    prizeSummary: "$20 entry. Monthly prize pot starts at $50 and grows with paid entries.",
     instructions: [
       "Finalize the matching E6 Clubhouse event before opening paid entries.",
       "Load the E6 Event Join Code into the Pin2Win admin record.",
@@ -106,8 +117,9 @@ export const clubhouseChallenges: ClubhouseChallenge[] = [
 export const clubhouseEntries: ClubhouseEntry[] = [
   {
     id: "P2W-ENTRY-20260522-0042",
-    challengeSlug: "alamo-closest-pin-weekly",
+    challengeSlug: clubhouseChallengeSlugs.closestToPin,
     playerName: "Jordan Smith",
+    phoneNumber: "(210) 555-0101",
     e6DisplayName: "JSmith-SA",
     paymentStatus: "Succeeded",
     paidAt: "May 22, 2026, 1:55 PM",
@@ -120,8 +132,9 @@ export const clubhouseEntries: ClubhouseEntry[] = [
   },
   {
     id: "P2W-ENTRY-20260522-0043",
-    challengeSlug: "alamo-closest-pin-weekly",
+    challengeSlug: clubhouseChallengeSlugs.closestToPin,
     playerName: "Maya Chen",
+    phoneNumber: "(210) 555-0102",
     e6DisplayName: "MayaC",
     paymentStatus: "Succeeded",
     paidAt: "May 22, 2026, 2:08 PM",
@@ -159,8 +172,26 @@ export function formatEntryFee(cents: number) {
   }).format(cents / 100);
 }
 
+export function formatCurrency(cents: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(cents / 100);
+}
+
+export function normalizeChallengeSlug(slug: string) {
+  return legacyChallengeSlugMap[slug] ?? slug;
+}
+
 export function getClubhouseChallenge(slug: string) {
-  return clubhouseChallenges.find((challenge) => challenge.slug === slug);
+  const normalizedSlug = normalizeChallengeSlug(slug);
+
+  return clubhouseChallenges.find((challenge) => challenge.slug === normalizedSlug);
+}
+
+export function getClubhouseChallengeByType(type: ClubhouseChallengeType) {
+  return clubhouseChallenges.find((challenge) => challenge.type === type);
 }
 
 export function getClubhouseEntry(entryId: string) {

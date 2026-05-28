@@ -7,11 +7,14 @@ export async function POST(request: Request) {
   const body = (await request.json()) as {
     challengeSlug?: unknown;
     playerName?: unknown;
+    phoneNumber?: unknown;
     e6DisplayName?: unknown;
   };
   const challengeSlug =
     typeof body.challengeSlug === "string" ? body.challengeSlug : "";
   const playerName = typeof body.playerName === "string" ? body.playerName.trim() : "";
+  const phoneNumber =
+    typeof body.phoneNumber === "string" ? body.phoneNumber.trim() : "";
   const e6DisplayName =
     typeof body.e6DisplayName === "string" ? body.e6DisplayName.trim() : "";
   const challenge = getClubhouseChallenge(challengeSlug);
@@ -20,9 +23,9 @@ export async function POST(request: Request) {
     return Response.json({ error: "Challenge not found." }, { status: 404 });
   }
 
-  if (!playerName || !e6DisplayName) {
+  if (!playerName || !phoneNumber || !e6DisplayName) {
     return Response.json(
-      { error: "Full name and E6 account name are required." },
+      { error: "Full name, phone number, and E6 account name are required." },
       { status: 400 },
     );
   }
@@ -48,12 +51,14 @@ export async function POST(request: Request) {
       metadata: {
         challengeSlug: challenge.slug,
         playerName,
+        phoneNumber,
         e6DisplayName,
       },
       payment_intent_data: {
         metadata: {
           challengeSlug: challenge.slug,
           playerName,
+          phoneNumber,
           e6DisplayName,
         },
       },
@@ -81,4 +86,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

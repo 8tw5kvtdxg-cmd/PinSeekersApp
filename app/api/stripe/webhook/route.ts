@@ -7,15 +7,17 @@ export const dynamic = "force-dynamic";
 async function createEntryFromCheckoutSession(session: Stripe.Checkout.Session) {
   const challengeSlug = session.metadata?.challengeSlug ?? "";
   const playerName = session.metadata?.playerName ?? "";
+  const phoneNumber = session.metadata?.phoneNumber ?? "";
   const e6DisplayName = session.metadata?.e6DisplayName ?? "";
 
-  if (!challengeSlug || !playerName || !e6DisplayName) {
+  if (!challengeSlug || !playerName || !phoneNumber || !e6DisplayName) {
     throw new Error("Stripe session is missing Pin2Win entry metadata.");
   }
 
   return createClubhouseEntryRecord({
     challengeSlug,
     playerName,
+    phoneNumber,
     e6DisplayName,
     stripeCheckoutSessionId: session.id,
   });
@@ -65,4 +67,3 @@ export async function POST(request: Request) {
 
   return Response.json({ received: true });
 }
-

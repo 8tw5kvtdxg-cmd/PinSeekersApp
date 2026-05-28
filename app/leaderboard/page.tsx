@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { Trophy } from "lucide-react";
-import { JackpotTicker } from "@/app/components/jackpot-ticker";
-import { jackpotSettings } from "@/lib/jackpots";
+import { MonthlyPrizePot } from "@/app/components/monthly-prize-pot";
+import { clubhouseChallengeSlugs } from "@/lib/clubhouse";
+import { getClubhousePotSummary } from "@/lib/clubhouse-entry-store";
 
 const leaderboards = [
   {
     title: "Closest to the Pin",
     resultLabel: "Distance",
-    jackpot: jackpotSettings.closestToPin,
+    slug: clubhouseChallengeSlugs.closestToPin,
     rows: [
       { rank: 1, player: "Maya Chen", location: "San Antonio", result: "2 ft 8 in" },
       { rank: 2, player: "Jordan Smith", location: "Austin", result: "4 ft 1 in" },
@@ -24,7 +25,7 @@ const leaderboards = [
   {
     title: "Longest Drive",
     resultLabel: "Distance",
-    jackpot: jackpotSettings.longestDrive,
+    slug: clubhouseChallengeSlugs.longestDrive,
     rows: [
       { rank: 1, player: "Evan Brooks", location: "Houston", result: "319 yd" },
       { rank: 2, player: "Taylor Kim", location: "San Antonio", result: "312 yd" },
@@ -40,7 +41,11 @@ const leaderboards = [
   },
 ];
 
-export default function LeaderboardPage() {
+export default async function LeaderboardPage() {
+  const potSummaries = await Promise.all(
+    leaderboards.map((leaderboard) => getClubhousePotSummary(leaderboard.slug)),
+  );
+
   return (
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
       <div className="mx-auto max-w-6xl">
@@ -53,13 +58,13 @@ export default function LeaderboardPage() {
             <h1 className="mt-4 text-4xl font-black sm:text-5xl">Leaderboards</h1>
           </div>
           <p className="max-w-xl text-lg leading-8 text-[#53605a]">
-            Follow the weekly Closest to the Pin and Longest Drive races by
+            Follow the monthly Closest to the Pin and Longest Drive races by
             player, result, and location.
           </p>
         </div>
 
         <div className="mt-10 grid gap-8 xl:grid-cols-2">
-          {leaderboards.map((leaderboard) => (
+          {leaderboards.map((leaderboard, index) => (
             <section
               key={leaderboard.title}
               className="overflow-hidden rounded-lg border border-[#ded6c8] bg-white"
@@ -67,14 +72,13 @@ export default function LeaderboardPage() {
               <div className="flex flex-col gap-2 bg-[#18211f] px-5 py-5 text-white sm:flex-row sm:items-end sm:justify-between">
                 <h2 className="text-2xl font-black">{leaderboard.title}</h2>
                 <p className="text-sm font-bold text-white/68">
-                  Weekly payout leaderboard
+                  Monthly payout leaderboard
                 </p>
               </div>
               <div className="border-b border-[#ece5d8] bg-[#fbf8f1] p-5">
-                <JackpotTicker
-                  label={leaderboard.jackpot.label}
-                  initialWeeklyRevenue={leaderboard.jackpot.weeklyRevenue}
-                  updateDelayMs={leaderboard.jackpot.updateDelayMs}
+                <MonthlyPrizePot
+                  challengeSlug={leaderboard.slug}
+                  initialSummary={potSummaries[index]}
                 />
               </div>
               <div className="grid grid-cols-[60px_1.1fr_1fr_105px] gap-3 bg-[#f2eadb] px-5 py-4 text-xs font-black uppercase tracking-[0.12em] text-[#53605a] sm:grid-cols-[70px_1.15fr_1fr_120px]">

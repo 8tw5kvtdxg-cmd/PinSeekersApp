@@ -7,6 +7,9 @@ import {
   QrCode,
   Trophy,
 } from "lucide-react";
+import { MonthlyPrizePot } from "@/app/components/monthly-prize-pot";
+import { clubhouseChallengeSlugs } from "@/lib/clubhouse";
+import { getClubhousePotSummary } from "@/lib/clubhouse-entry-store";
 
 const challenges = [
   {
@@ -14,14 +17,16 @@ const challenges = [
     location: "Alamo Golf Den",
     description:
       "Aim for the flag, post your shot in E6, and see where you land on the board.",
-    href: "/play/alamo-closest-pin-weekly",
+    href: `/play/${clubhouseChallengeSlugs.closestToPin}`,
+    slug: clubhouseChallengeSlugs.closestToPin,
   },
   {
     name: "Longest Drive",
     location: "Alamo Golf Den",
     description:
       "Take your biggest swing and compete for the longest verified drive.",
-    href: "/play/alamo-long-drive-weekly",
+    href: `/play/${clubhouseChallengeSlugs.longestDrive}`,
+    slug: clubhouseChallengeSlugs.longestDrive,
   },
 ];
 
@@ -33,7 +38,7 @@ const steps = [
   },
   {
     title: "Add player details",
-    description: "Enter your full name and E6 account name before checkout.",
+    description: "Enter your full name, phone number, and E6 account name before checkout.",
     icon: BadgeCheck,
   },
   {
@@ -48,7 +53,11 @@ const steps = [
   },
 ];
 
-export default function PlayPage() {
+export default async function PlayPage() {
+  const potSummaries = await Promise.all(
+    challenges.map((challenge) => getClubhousePotSummary(challenge.slug)),
+  );
+
   return (
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
       <div className="mx-auto max-w-6xl">
@@ -110,7 +119,7 @@ export default function PlayPage() {
               Alamo Golf Den pilot events
             </h2>
             <div className="mt-6 grid gap-4">
-              {challenges.map((challenge) => (
+              {challenges.map((challenge, index) => (
                 <article
                   key={challenge.name}
                   className="rounded-lg border border-[#ded6c8] bg-[#fbf8f1] p-5"
@@ -123,6 +132,11 @@ export default function PlayPage() {
                   <p className="mt-3 leading-7 text-[#59655f]">
                     {challenge.description}
                   </p>
+                  <MonthlyPrizePot
+                    challengeSlug={challenge.slug}
+                    initialSummary={potSummaries[index]}
+                    className="mt-5"
+                  />
                   <Link
                     href={challenge.href}
                     className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white transition hover:bg-[#2a3935]"
