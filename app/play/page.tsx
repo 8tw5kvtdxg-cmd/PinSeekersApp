@@ -13,18 +13,18 @@ import { getClubhousePotSummary } from "@/lib/clubhouse-entry-store";
 
 const challenges = [
   {
-    name: "Closest to the Pin",
+    name: "Monthly Closest to the Pin",
     location: "Alamo Golf Den",
     description:
-      "Aim for the flag, post your shot in E6, and see where you land on the board.",
+      "Aim for the flag, post your verified result in E6, compete for the monthly winner payout, and stay eligible for the $10,000 hole-in-one prize.",
     href: `/play/${clubhouseChallengeSlugs.closestToPin}`,
     slug: clubhouseChallengeSlugs.closestToPin,
   },
   {
-    name: "Longest Drive",
+    name: "Monthly Longest Drive",
     location: "Alamo Golf Den",
     description:
-      "Take your biggest swing and compete for the longest verified drive.",
+      "Take your biggest swing and compete for the longest verified drive of the month.",
     href: `/play/${clubhouseChallengeSlugs.longestDrive}`,
     slug: clubhouseChallengeSlugs.longestDrive,
   },
@@ -74,12 +74,16 @@ export default async function PlayPage() {
               Play now
             </p>
             <h1 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">
-              Pick the challenge running at your bay.
+              Pay. Play. Win.
             </h1>
             <p className="mt-5 text-lg leading-8 text-[#53605a]">
-              Choose the event you want to play, enter your player information,
-              and complete payment. Your confirmation page will show the E6
-              Event Join Code you need for the challenge.
+              Choose a payout challenge, enter your player information, and
+              complete payment. Your confirmation page will show the E6 Event
+              Join Code you need for your shot at the monthly leaderboard.
+            </p>
+            <p className="mt-4 rounded-lg border border-[#ded6c8] bg-white p-4 text-sm font-bold leading-6 text-[#53605a]">
+              Closest to the Pin entries also include $10,000 hole-in-one
+              eligibility for verified entrants.
             </p>
             <div className="mt-8 rounded-lg bg-[#18211f] p-6 text-white">
               <div className="flex items-center gap-3">
@@ -116,7 +120,7 @@ export default async function PlayPage() {
               Available challenges
             </p>
             <h2 className="mt-2 text-2xl font-black">
-              Alamo Golf Den pilot events
+              Monthly payout competitions
             </h2>
             <div className="mt-6 grid gap-4">
               {challenges.map((challenge, index) => (
