@@ -12,7 +12,7 @@ import {
   UserRound,
 } from "lucide-react";
 import type { ClubhouseEntryRecord } from "@/lib/clubhouse-entry-store";
-import { clubhouseChallenges } from "@/lib/clubhouse";
+import { clubhouseChallenges, normalizeChallengeSlug } from "@/lib/clubhouse";
 
 type LiveEntryLogProps = {
   initialEntries: ClubhouseEntryRecord[];
@@ -78,7 +78,11 @@ export function LiveEntryLog({
   const visibleEntries = useMemo(
     () =>
       challengeFilter
-        ? entries.filter((entry) => entry.challengeSlug === challengeFilter)
+        ? entries.filter(
+            (entry) =>
+              normalizeChallengeSlug(entry.challengeSlug) ===
+              normalizeChallengeSlug(challengeFilter),
+          )
         : entries,
     [challengeFilter, entries],
   );
@@ -200,6 +204,9 @@ export function LiveEntryLog({
                   <UserRound className="text-[#2f6b3f]" size={18} />
                   <p className="font-black">{entry.playerName}</p>
                 </div>
+                <p className="mt-1 text-sm font-bold text-[#59655f]">
+                  Phone: {entry.phoneNumber ?? "Not provided"}
+                </p>
                 <p className="mt-1 text-sm font-bold text-[#59655f]">
                   E6: {entry.e6DisplayName}
                 </p>

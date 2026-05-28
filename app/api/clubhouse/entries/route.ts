@@ -20,6 +20,7 @@ export async function POST(request: Request) {
   const body = (await request.json()) as {
     challengeSlug?: unknown;
     playerName?: unknown;
+    phoneNumber?: unknown;
     e6DisplayName?: unknown;
   };
 
@@ -28,6 +29,7 @@ export async function POST(request: Request) {
       challengeSlug:
         typeof body.challengeSlug === "string" ? body.challengeSlug : "",
       playerName: typeof body.playerName === "string" ? body.playerName : "",
+      phoneNumber: typeof body.phoneNumber === "string" ? body.phoneNumber : "",
       e6DisplayName:
         typeof body.e6DisplayName === "string" ? body.e6DisplayName : "",
     });

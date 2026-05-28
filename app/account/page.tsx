@@ -72,7 +72,7 @@ const challengeSteps = [
   },
   {
     title: "Track the board",
-    detail: "See where your posted shot lands on the weekly leaderboard.",
+    detail: "See where your posted shot lands on the monthly leaderboard.",
     icon: Flag,
   },
 ];
@@ -299,7 +299,7 @@ export default function AccountPage() {
                   <p className="mt-3 text-5xl font-black">#2</p>
                   <p className="mt-3 text-sm leading-6 text-white/74">
                     Registered at San Antonio - Bay 03. You are 1 ft 5 in behind
-                    first place with three days left in the weekly challenge.
+                    first place with three days left in the monthly challenge.
                   </p>
                 </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">

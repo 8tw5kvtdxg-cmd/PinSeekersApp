@@ -1,7 +1,11 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { ClubhouseEntry } from "@/lib/clubhouse";
-import { getClubhouseChallenge } from "@/lib/clubhouse";
+import {
+  clubhouseChallenges,
+  getClubhouseChallenge,
+  normalizeChallengeSlug,
+} from "@/lib/clubhouse";
 
 export type ClubhouseEntryRecord = ClubhouseEntry & {
   e6EventCode: string;
@@ -9,6 +13,18 @@ export type ClubhouseEntryRecord = ClubhouseEntry & {
   createdAt: string;
   updatedAt: string;
 };
+
+export type ClubhousePotSummary = {
+  challengeSlug: string;
+  challengeName: string;
+  entryCount: number;
+  revenueCents: number;
+  potCents: number;
+  potRate: number;
+};
+
+const potRate = 0.05;
+const monthlyStartingPotCents = 5000;
 
 const entriesPath = path.join(process.cwd(), ".pin2win-clubhouse-entries.json");
 const eventCodesPath = path.join(
@@ -46,6 +62,45 @@ export async function listClubhouseEntryRecords() {
     (a, b) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
+}
+
+export async function listClubhouseEntryRecordsForChallenge(challengeSlug: string) {
+  const normalizedSlug = normalizeChallengeSlug(challengeSlug);
+  const entries = await listClubhouseEntryRecords();
+
+  return entries.filter(
+    (entry) => normalizeChallengeSlug(entry.challengeSlug) === normalizedSlug,
+  );
+}
+
+export async function getClubhousePotSummaries() {
+  const entries = await listClubhouseEntryRecords();
+
+  return clubhouseChallenges.map((challenge) => {
+    const paidEntries = entries.filter(
+      (entry) =>
+        normalizeChallengeSlug(entry.challengeSlug) === challenge.slug &&
+        entry.paymentStatus === "Succeeded" &&
+        Boolean(entry.stripeCheckoutSessionId),
+    );
+    const revenueCents = paidEntries.length * challenge.entryFeeCents;
+
+    return {
+      challengeSlug: challenge.slug,
+      challengeName: challenge.name,
+      entryCount: paidEntries.length,
+      revenueCents,
+      potCents: monthlyStartingPotCents + Math.round(revenueCents * potRate),
+      potRate,
+    };
+  });
+}
+
+export async function getClubhousePotSummary(challengeSlug: string) {
+  const normalizedSlug = normalizeChallengeSlug(challengeSlug);
+  const summaries = await getClubhousePotSummaries();
+
+  return summaries.find((summary) => summary.challengeSlug === normalizedSlug);
 }
 
 export async function getClubhouseEntryRecord(entryId: string) {
@@ -121,6 +176,7 @@ function nextEntryId(entries: ClubhouseEntryRecord[], now: Date) {
 export async function createClubhouseEntryRecord(input: {
   challengeSlug: string;
   playerName: string;
+  phoneNumber: string;
   e6DisplayName: string;
   stripeCheckoutSessionId?: string;
 }) {
@@ -131,13 +187,15 @@ export async function createClubhouseEntryRecord(input: {
   }
 
   const playerName = input.playerName.trim();
+  const phoneNumber = input.phoneNumber.trim();
   const e6DisplayName = input.e6DisplayName.trim();
 
-  if (!playerName || !e6DisplayName) {
-    throw new Error("Player name and E6 account name are required.");
+  if (!playerName || !phoneNumber || !e6DisplayName) {
+    throw new Error("Player name, phone number, and E6 account name are required.");
   }
 
-  const e6EventCode = await getSavedEventCode(input.challengeSlug);
+  const normalizedChallengeSlug = normalizeChallengeSlug(input.challengeSlug);
+  const e6EventCode = await getSavedEventCode(normalizedChallengeSlug);
 
   if (!e6EventCode) {
     throw new Error("E6 Event Join Code is not available.");
@@ -166,8 +224,9 @@ export async function createClubhouseEntryRecord(input: {
   const timestamp = now.toISOString();
   const entry: ClubhouseEntryRecord = {
     id: entryId,
-    challengeSlug: input.challengeSlug,
+    challengeSlug: normalizedChallengeSlug,
     playerName,
+    phoneNumber,
     e6DisplayName,
     paymentStatus: "Succeeded",
     paidAt: formatDisplayDate(now),

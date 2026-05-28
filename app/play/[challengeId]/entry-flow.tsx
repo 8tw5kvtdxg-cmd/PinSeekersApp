@@ -12,20 +12,24 @@ import {
   ShieldCheck,
   UserRound,
 } from "lucide-react";
+import { MonthlyPrizePot } from "@/app/components/monthly-prize-pot";
 import type { ClubhouseChallenge } from "@/lib/clubhouse";
 import { formatEntryFee } from "@/lib/clubhouse";
+import type { ClubhousePotSummary } from "@/lib/clubhouse-entry-store";
 
 type EntryFlowProps = {
   challenge: ClubhouseChallenge;
+  initialPotSummary?: ClubhousePotSummary | null;
 };
 
-export function EntryFlow({ challenge }: EntryFlowProps) {
+export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
   const storageKey = `pin2win-entry-draft-${challenge.slug}`;
   const accessSectionRef = useRef<HTMLDivElement>(null);
   const [accountReady, setAccountReady] = useState(false);
   const [paymentReady, setPaymentReady] = useState(false);
   const [eventCode, setEventCode] = useState(challenge.e6JoinCode);
   const [playerName, setPlayerName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [e6DisplayName, setE6DisplayName] = useState("");
   const [entryId, setEntryId] = useState("");
   const [paymentError, setPaymentError] = useState("");
@@ -42,11 +46,16 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
     try {
       const draft = JSON.parse(savedDraft) as {
         playerName?: unknown;
+        phoneNumber?: unknown;
         e6DisplayName?: unknown;
       };
 
       if (typeof draft.playerName === "string") {
         setPlayerName(draft.playerName);
+      }
+
+      if (typeof draft.phoneNumber === "string") {
+        setPhoneNumber(draft.phoneNumber);
       }
 
       if (typeof draft.e6DisplayName === "string") {
@@ -59,9 +68,10 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
 
   function savePlayerInfo(nextEntryId = entryId) {
     const trimmedPlayerName = playerName.trim();
+    const trimmedPhoneNumber = phoneNumber.trim();
     const trimmedE6DisplayName = e6DisplayName.trim();
 
-    if (!trimmedPlayerName || !trimmedE6DisplayName) {
+    if (!trimmedPlayerName || !trimmedPhoneNumber || !trimmedE6DisplayName) {
       setAccountReady(false);
       return;
     }
@@ -70,6 +80,7 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
       storageKey,
       JSON.stringify({
         playerName: trimmedPlayerName,
+        phoneNumber: trimmedPhoneNumber,
         e6DisplayName: trimmedE6DisplayName,
       }),
     );
@@ -80,6 +91,7 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
         JSON.stringify({
           challengeSlug: challenge.slug,
           playerName: trimmedPlayerName,
+          phoneNumber: trimmedPhoneNumber,
           e6DisplayName: trimmedE6DisplayName,
         }),
       );
@@ -107,6 +119,7 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
         body: JSON.stringify({
           challengeSlug: challenge.slug,
           playerName,
+          phoneNumber,
           e6DisplayName,
         }),
       });
@@ -115,6 +128,7 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
           id: string;
           challengeSlug: string;
           playerName: string;
+          phoneNumber?: string;
           e6DisplayName: string;
           e6EventCode: string;
         };
@@ -130,6 +144,7 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
         JSON.stringify({
           challengeSlug: data.entry.challengeSlug,
           playerName: data.entry.playerName,
+          phoneNumber: data.entry.phoneNumber ?? phoneNumber,
           e6DisplayName: data.entry.e6DisplayName,
         }),
       );
@@ -169,6 +184,7 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
         body: JSON.stringify({
           challengeSlug: challenge.slug,
           playerName,
+          phoneNumber,
           e6DisplayName,
         }),
       });
@@ -205,6 +221,12 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
           Pay through Pin2Win to create a unique eligible entry, then use the E6
           Event Join Code inside the official E6 Clubhouse event.
         </p>
+        <div className="mt-6 max-w-md">
+          <MonthlyPrizePot
+            challengeSlug={challenge.slug}
+            initialSummary={initialPotSummary}
+          />
+        </div>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
           {[
@@ -268,7 +290,7 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
                 <CheckCircle2 className="text-[#2f6b3f]" size={22} />
               ) : null}
             </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
               <input
                 className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
                 placeholder="Full Name"
@@ -285,6 +307,21 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
               />
               <input
                 className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
+                inputMode="tel"
+                placeholder="Phone Number"
+                value={phoneNumber}
+                suppressHydrationWarning
+                onChange={(event) => {
+                  setPhoneNumber(event.target.value);
+                  setAccountReady(false);
+                  setPaymentReady(false);
+                  setEntryId("");
+                  setPaymentError("");
+                }}
+                aria-label="Phone number"
+              />
+              <input
+                className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
                 placeholder="E6 Account Name"
                 value={e6DisplayName}
                 suppressHydrationWarning
@@ -298,7 +335,7 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
                 aria-label="E6 display name"
               />
             </div>
-            {!accountReady && (playerName || e6DisplayName) ? (
+            {!accountReady && (playerName || phoneNumber || e6DisplayName) ? (
               <p className="mt-3 text-sm font-bold text-[#6b756f]">
                 Save player info before payment so this entry uses your name.
               </p>
@@ -333,6 +370,7 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
                 isStartingCheckout ||
                 isCreatingEntry ||
                 !playerName.trim() ||
+                !phoneNumber.trim() ||
                 !e6DisplayName.trim()
               }
               type="button"
@@ -349,6 +387,7 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
                 isStartingCheckout ||
                 isCreatingEntry ||
                 !playerName.trim() ||
+                !phoneNumber.trim() ||
                 !e6DisplayName.trim()
               }
               type="button"
@@ -366,9 +405,9 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
                 {paymentError}
               </p>
             ) : null}
-            {!playerName.trim() || !e6DisplayName.trim() ? (
+            {!playerName.trim() || !phoneNumber.trim() || !e6DisplayName.trim() ? (
               <p className="mt-3 text-sm font-bold text-[#6b756f]">
-                Enter your name and E6 account name to enable payment.
+                Enter your name, phone number, and E6 account name to enable payment.
               </p>
             ) : null}
           </div>

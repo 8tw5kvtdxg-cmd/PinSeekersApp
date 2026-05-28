@@ -13,6 +13,7 @@ export function EventCodePanel({
   entryId,
 }: EventCodePanelProps) {
   const [playerName, setPlayerName] = useState<string | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
   const [e6DisplayName, setE6DisplayName] = useState<string | null>(null);
 
   useEffect(() => {
@@ -25,11 +26,16 @@ export function EventCodePanel({
     try {
       const entry = JSON.parse(savedEntry) as {
         playerName?: unknown;
+        phoneNumber?: unknown;
         e6DisplayName?: unknown;
       };
 
       if (typeof entry.playerName === "string") {
         setPlayerName(entry.playerName);
+      }
+
+      if (typeof entry.phoneNumber === "string") {
+        setPhoneNumber(entry.phoneNumber);
       }
 
       if (typeof entry.e6DisplayName === "string") {
@@ -42,12 +48,17 @@ export function EventCodePanel({
 
   return (
     <div className="rounded-lg bg-[#fbf8f1] p-5">
-      {playerName || e6DisplayName ? (
+      {playerName || phoneNumber || e6DisplayName ? (
         <div className="mb-5 rounded-md bg-white p-4">
           <p className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
             Saved player
           </p>
           <p className="mt-1 font-black">{playerName ?? "Player name needed"}</p>
+          {phoneNumber ? (
+            <p className="mt-1 text-sm font-bold text-[#59655f]">
+              Phone: {phoneNumber}
+            </p>
+          ) : null}
           <p className="mt-1 text-sm font-bold text-[#59655f]">
             E6: {e6DisplayName ?? "E6 account needed"}
           </p>

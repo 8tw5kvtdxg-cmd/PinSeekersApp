@@ -19,8 +19,8 @@ export function SiteFooter() {
             PIN2WIN
           </Link>
           <p className="mt-4 max-w-xl leading-7 text-white/66">
-            Live golf simulator challenges for players chasing weekly payouts,
-            progressive jackpots, and a featured hole-in-one prize.
+            Live golf simulator challenges for players chasing monthly payouts,
+            growing prize pots, and verified leaderboard results.
           </p>
           <p className="mt-6 text-sm leading-6 text-white/46">
             Disclaimers: Prize eligibility, payout amounts, challenge rules,

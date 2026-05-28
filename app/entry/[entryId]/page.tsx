@@ -11,6 +11,7 @@ import { getClubhouseEntryRecord } from "@/lib/clubhouse-entry-store";
 import {
   getClubhouseChallenge,
   getClubhouseEntry,
+  clubhouseChallengeSlugs,
 } from "@/lib/clubhouse";
 
 export default async function EntryConfirmationPage({
@@ -28,7 +29,7 @@ export default async function EntryConfirmationPage({
     loggedEntry?.challengeSlug ??
     savedEntry?.challengeSlug ??
     challengeSlug ??
-    "alamo-closest-pin-weekly";
+    clubhouseChallengeSlugs.closestToPin;
   const challenge = getClubhouseChallenge(resolvedChallengeSlug);
 
   if (!challenge) {
@@ -39,6 +40,7 @@ export default async function EntryConfirmationPage({
     id: entryId,
     challengeSlug: challenge.slug,
     playerName: "Saved on this device",
+    phoneNumber: "Saved on this device",
     e6DisplayName: "Saved on this device",
     paymentStatus: "Succeeded" as const,
     paidAt: "Just now",
@@ -85,6 +87,14 @@ export default async function EntryConfirmationPage({
                     Player
                   </dt>
                   <dd className="mt-1 font-black">{entry.playerName}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
+                    Phone
+                  </dt>
+                  <dd className="mt-1 font-black">
+                    {entry.phoneNumber ?? "Not provided"}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">

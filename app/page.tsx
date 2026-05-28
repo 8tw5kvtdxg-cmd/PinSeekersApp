@@ -8,6 +8,9 @@ import {
   QrCode,
   Trophy,
 } from "lucide-react";
+import { MonthlyPrizePot } from "@/app/components/monthly-prize-pot";
+import { clubhouseChallengeSlugs } from "@/lib/clubhouse";
+import { getClubhousePotSummary } from "@/lib/clubhouse-entry-store";
 
 const playerSteps = [
   {
@@ -41,13 +44,15 @@ const challengeTypes = [
     name: "Closest to the Pin",
     description:
       "Aim tight, post your score in E6, and see how close you can get to the pin.",
-    href: "/play/alamo-closest-pin-weekly",
+    href: `/play/${clubhouseChallengeSlugs.closestToPin}`,
+    slug: clubhouseChallengeSlugs.closestToPin,
   },
   {
     name: "Longest Drive",
     description:
       "Step up, swing big, and see if your longest drive can hold the top spot.",
-    href: "/play/alamo-long-drive-weekly",
+    href: `/play/${clubhouseChallengeSlugs.longestDrive}`,
+    slug: clubhouseChallengeSlugs.longestDrive,
   },
 ];
 
@@ -58,7 +63,11 @@ const playerBenefits = [
   "Use your E6 username so your result can be matched correctly.",
 ];
 
-export default function Home() {
+export default async function Home() {
+  const potSummaries = await Promise.all(
+    challengeTypes.map((challenge) => getClubhousePotSummary(challenge.slug)),
+  );
+
   return (
     <main className="min-h-screen bg-[#f8f4ec] text-[#18211f]">
       <section className="relative isolate min-h-[84vh] overflow-hidden bg-[#101816] text-white">
@@ -198,18 +207,23 @@ export default function Home() {
           </div>
 
           <div className="mt-9 grid gap-5 md:grid-cols-2">
-            {challengeTypes.map((challenge) => (
+            {challengeTypes.map((challenge, index) => (
               <article
                 key={challenge.name}
                 className="rounded-lg border border-[#e4ddcf] bg-[#fbf8f1] p-6"
               >
                 <Trophy className="text-[#2f6b3f]" size={30} />
                 <h3 className="mt-5 text-2xl font-black">{challenge.name}</h3>
-                <p className="mt-3 leading-7 text-[#59655f]">
-                  {challenge.description}
-                </p>
-                <Link
-                  href={challenge.href}
+                  <p className="mt-3 leading-7 text-[#59655f]">
+                    {challenge.description}
+                  </p>
+                  <MonthlyPrizePot
+                    challengeSlug={challenge.slug}
+                    initialSummary={potSummaries[index]}
+                    className="mt-5"
+                  />
+                  <Link
+                    href={challenge.href}
                   className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#2f6b3f] px-5 text-sm font-black text-[#2f6b3f] transition hover:bg-[#e3edd8]"
                 >
                   Enter challenge <ArrowRight size={17} />
