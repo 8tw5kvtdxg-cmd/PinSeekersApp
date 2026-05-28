@@ -33,6 +33,8 @@ export type ClubhouseEntry = {
   attemptLimit: number;
   resultStatus: "Pending E6 Result" | "Needs Review" | "Verified" | "Rejected";
   result?: string;
+  resultValue?: number;
+  resultUnit?: "inches" | "yards";
   evidence?: string;
 };
 

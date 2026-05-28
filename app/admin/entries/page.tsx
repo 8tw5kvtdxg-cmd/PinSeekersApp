@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   ClipboardCheck,
   KeyRound,
+  PencilLine,
   Trophy,
 } from "lucide-react";
 import { AdminLogoutForm } from "@/app/admin/logout-form";
@@ -45,6 +46,12 @@ export default async function AdminEntriesPage() {
               className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
             >
               <Trophy size={18} /> Long Drive log
+            </Link>
+            <Link
+              href="/admin/results"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
+            >
+              <PencilLine size={18} /> Log results
             </Link>
             <Link
               href="/admin/verification"

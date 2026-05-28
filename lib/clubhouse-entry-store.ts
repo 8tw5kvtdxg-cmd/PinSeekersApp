@@ -14,6 +14,19 @@ export type ClubhouseEntryRecord = ClubhouseEntry & {
   updatedAt: string;
 };
 
+export type ClubhouseLeaderboardRow = {
+  rank: number;
+  entryId: string;
+  playerName: string;
+  e6DisplayName: string;
+  challengeSlug: string;
+  result: string;
+  resultValue: number;
+  resultUnit: "inches" | "yards";
+  paidAt: string;
+  resultStatus: ClubhouseEntryRecord["resultStatus"];
+};
+
 export type ClubhousePotSummary = {
   challengeSlug: string;
   challengeName: string;
@@ -109,6 +122,83 @@ export async function getClubhouseEntryRecord(entryId: string) {
   );
 
   return entries[entryId] ?? null;
+}
+
+export async function updateClubhouseEntryResult(input: {
+  entryId: string;
+  result: string;
+  resultValue: number;
+  resultUnit: "inches" | "yards";
+  resultStatus: ClubhouseEntryRecord["resultStatus"];
+  evidence?: string;
+}) {
+  const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
+    entriesPath,
+  );
+  const entry = entries[input.entryId];
+
+  if (!entry) {
+    throw new Error("Entry not found.");
+  }
+
+  const result = input.result.trim();
+
+  if (!result) {
+    throw new Error("Result display value is required.");
+  }
+
+  if (!Number.isFinite(input.resultValue) || input.resultValue < 0) {
+    throw new Error("Result sort value must be a positive number.");
+  }
+
+  const updatedEntry: ClubhouseEntryRecord = {
+    ...entry,
+    result,
+    resultValue: input.resultValue,
+    resultUnit: input.resultUnit,
+    resultStatus: input.resultStatus,
+    evidence: input.evidence?.trim() || undefined,
+    updatedAt: new Date().toISOString(),
+  };
+
+  entries[input.entryId] = updatedEntry;
+  await writeJson(entriesPath, entries);
+
+  return updatedEntry;
+}
+
+export async function getClubhouseLeaderboardRows(challengeSlug: string) {
+  const normalizedSlug = normalizeChallengeSlug(challengeSlug);
+  const challenge = getClubhouseChallenge(normalizedSlug);
+  const entries = await listClubhouseEntryRecordsForChallenge(normalizedSlug);
+  const eligibleEntries = entries.filter(
+    (entry) =>
+      entry.paymentStatus === "Succeeded" &&
+      entry.resultStatus === "Verified" &&
+      typeof entry.resultValue === "number" &&
+      entry.result &&
+      entry.resultUnit,
+  );
+  const sortedEntries = eligibleEntries.sort((a, b) => {
+    if (challenge?.type === "CLOSEST_TO_PIN") {
+      return (a.resultValue ?? 0) - (b.resultValue ?? 0);
+    }
+
+    return (b.resultValue ?? 0) - (a.resultValue ?? 0);
+  });
+
+  return sortedEntries.map<ClubhouseLeaderboardRow>((entry, index) => ({
+    rank: index + 1,
+    entryId: entry.id,
+    playerName: entry.playerName,
+    e6DisplayName: entry.e6DisplayName,
+    challengeSlug: normalizeChallengeSlug(entry.challengeSlug),
+    result: entry.result ?? "",
+    resultValue: entry.resultValue ?? 0,
+    resultUnit: entry.resultUnit ?? (challenge?.type === "CLOSEST_TO_PIN" ? "inches" : "yards"),
+    paidAt: entry.paidAt,
+    resultStatus: entry.resultStatus,
+  }));
 }
 
 export async function getClubhouseEntryRecordByStripeSessionId(

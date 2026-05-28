@@ -100,7 +100,7 @@ export default async function Home() {
                   href="/play"
                   className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#a8c878] px-6 text-sm font-black text-[#101816] shadow-lg shadow-black/20 transition hover:bg-[#c1df8d]"
                 >
-                  View challenge flow <ArrowRight size={18} />
+                  Enter a Challenge <ArrowRight size={18} />
                 </Link>
                 <Link
                   href="/leaderboard"
