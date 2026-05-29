@@ -121,6 +121,12 @@ export default async function AdminDashboardPage() {
             >
               <Plus size={18} /> New location
             </Link>
+            <Link
+              href="/admin/users"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
+            >
+              <UsersRound size={18} /> User log
+            </Link>
             <AdminLogoutForm />
           </div>
         </div>
@@ -173,14 +179,14 @@ export default async function AdminDashboardPage() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-lg border border-[#ded6c8] bg-white p-5 transition hover:-translate-y-0.5 hover:border-[#2f6b3f] hover:shadow-xl hover:shadow-[#18211f]/10"
+                className="group rounded-lg border border-[#ded6c8] bg-white p-5 transition hover:-translate-y-0.5 hover:border-[#2f6b3f] hover:shadow-xl hover:shadow-[#18211f]/10"
               >
                 <Icon className="text-[#2f6b3f]" size={28} />
                 <h2 className="mt-4 text-2xl font-black">{item.title}</h2>
                 <p className="mt-3 min-h-18 text-sm leading-6 text-[#59655f]">
                   {item.text}
                 </p>
-                <span className="mt-5 inline-flex h-10 items-center justify-center rounded-md bg-[#18211f] px-4 text-sm font-black text-white">
+                <span className="mt-5 inline-flex h-10 items-center justify-center rounded-md bg-[#18211f] px-4 text-sm font-black text-white transition group-hover:bg-[#2a3935]">
                   {item.action}
                 </span>
               </Link>
