@@ -1,9 +1,12 @@
 import Link from "next/link";
 import {
   ClipboardCheck,
+  ExternalLink,
+  Globe,
   KeyRound,
   ListChecks,
   MapPin,
+  PencilLine,
   Plus,
   QrCode,
   ReceiptText,
@@ -39,7 +42,9 @@ const existingLocations = [
     address: "7001 I-10 #225",
     city: "San Antonio",
     state: "TX 78213",
+    websiteUrl: "https://alamogolfden.com",
     isActive: true,
+    isEditable: false,
     bays: [{ id: "existing-alamo-general", name: "General QR" }],
   },
 ];
@@ -51,7 +56,9 @@ type AdminLocationCard = {
   address: string | null;
   city: string | null;
   state: string | null;
+  websiteUrl: string | null;
   isActive: boolean;
+  isEditable: boolean;
   bays: { id: string; name: string }[];
 };
 
@@ -69,7 +76,10 @@ export default async function AdminLocationsPage({
     ? await prisma.location.findMany({
         orderBy: { createdAt: "desc" },
         include: {
-          bays: { orderBy: { name: "asc" } },
+          bays: {
+            where: { isActive: true },
+            orderBy: { name: "asc" },
+          },
         },
       })
     : [];
@@ -89,7 +99,9 @@ export default async function AdminLocationsPage({
         address: location.address,
         city: location.city,
         state: location.state,
+        websiteUrl: location.websiteUrl,
         isActive: location.isActive,
+        isEditable: true,
         bays: location.bays.map((bay) => ({
           id: bay.id,
           name: bay.name,
@@ -218,10 +230,27 @@ export default async function AdminLocationsPage({
                         <p className="mt-2 font-mono text-xs text-[#6b756f]">
                           {location.slug}
                         </p>
+                        {location.websiteUrl ? (
+                          <span className="mt-2 inline-flex items-center gap-2 text-sm font-bold text-[#2f6b3f]">
+                            <Globe size={16} /> {location.websiteUrl.replace(/^https?:\/\//, "")}
+                          </span>
+                        ) : null}
                       </div>
                       <span className="rounded-md bg-[#eef7e9] px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#2f6b3f]">
                         {location.isActive ? "Active" : "Inactive"}
                       </span>
+                    </div>
+
+                    <div className="mt-4">
+                      {location.isEditable ? (
+                        <span className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#18211f] px-4 text-sm font-black text-white">
+                          <PencilLine size={16} /> Select to edit below
+                        </span>
+                      ) : (
+                        <span className="inline-flex h-10 items-center justify-center rounded-md border border-[#ded6c8] bg-white px-4 text-sm font-black text-[#59655f]">
+                          Built-in location
+                        </span>
+                      )}
                     </div>
 
                     <div className="mt-5 grid gap-4 lg:grid-cols-2">
@@ -308,11 +337,36 @@ export default async function AdminLocationsPage({
                       <p className="mt-2 font-mono text-xs text-[#6b756f]">
                         {selectedLocation.slug}
                       </p>
+                      {selectedLocation.websiteUrl ? (
+                        <a
+                          href={selectedLocation.websiteUrl}
+                          className="mt-3 inline-flex items-center gap-2 text-sm font-black text-[#2f6b3f] transition hover:text-[#1f4e2e]"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <Globe size={16} />
+                          {selectedLocation.websiteUrl.replace(/^https?:\/\//, "")}
+                          <ExternalLink size={14} />
+                        </a>
+                      ) : null}
                     </div>
                     <p className="text-2xl font-black text-[#2f6b3f]">
                       {formatCurrency(selectedRevenueSummary.revenueCents)}
                     </p>
                   </div>
+                  {selectedLocation.isEditable ? (
+                    <Link
+                      href={`/admin/locations/${selectedLocation.id}/edit`}
+                      className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-4 text-sm font-black text-white transition hover:bg-[#2a3935]"
+                    >
+                      <PencilLine size={17} /> Edit location
+                    </Link>
+                  ) : (
+                    <p className="mt-5 rounded-md bg-white px-4 py-3 text-sm font-bold text-[#59655f]">
+                      This is a built-in starter location. Create a partner
+                      location record to manage editable venue details.
+                    </p>
+                  )}
                   <div className="mt-5 grid gap-3 sm:grid-cols-2">
                     <div className="rounded-md bg-white p-4">
                       <p className="text-xs font-black uppercase tracking-[0.12em] text-[#59655f]">

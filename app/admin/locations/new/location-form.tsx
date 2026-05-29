@@ -4,13 +4,44 @@ import { useState } from "react";
 import { ArrowLeft, Building2, Plus, Save, Trash2 } from "lucide-react";
 import Link from "next/link";
 
-export function LocationForm() {
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
-  const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [bays, setBays] = useState(["Bay 1"]);
+type LocationFormProps = {
+  mode?: "create" | "edit";
+  locationId?: string;
+  initialValues?: {
+    name: string;
+    slug: string;
+    address: string;
+    city: string;
+    state: string;
+    websiteUrl: string;
+    bays: string[];
+  };
+};
+
+const emptyValues = {
+  name: "",
+  slug: "",
+  address: "",
+  city: "",
+  state: "",
+  websiteUrl: "",
+  bays: ["Bay 1"],
+};
+
+export function LocationForm({
+  mode = "create",
+  locationId,
+  initialValues = emptyValues,
+}: LocationFormProps) {
+  const [name, setName] = useState(initialValues.name);
+  const [slug, setSlug] = useState(initialValues.slug);
+  const [address, setAddress] = useState(initialValues.address);
+  const [city, setCity] = useState(initialValues.city);
+  const [state, setState] = useState(initialValues.state);
+  const [websiteUrl, setWebsiteUrl] = useState(initialValues.websiteUrl);
+  const [bays, setBays] = useState(
+    initialValues.bays.length ? initialValues.bays : [""],
+  );
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,9 +53,18 @@ export function LocationForm() {
 
     try {
       const response = await fetch("/api/admin/locations", {
-        method: "POST",
+        method: mode === "create" ? "POST" : "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, slug, address, city, state, bays }),
+        body: JSON.stringify({
+          locationId,
+          name,
+          slug,
+          address,
+          city,
+          state,
+          websiteUrl,
+          bays,
+        }),
       });
       const data = (await response.json()) as {
         location?: { slug: string };
@@ -35,13 +75,19 @@ export function LocationForm() {
         throw new Error(data.error ?? "Could not create location.");
       }
 
-      setMessage("Location created. QR codes are ready on the locations page.");
-      window.location.href = `/admin/locations?created=${data.location.slug}`;
+      setMessage(
+        mode === "create"
+          ? "Location created. QR codes are ready on the locations page."
+          : "Location updated. QR codes and accounting details are refreshed.",
+      );
+      window.location.href = `/admin/locations?location=${data.location.slug}`;
     } catch (submissionError) {
       setError(
         submissionError instanceof Error
           ? submissionError.message
-          : "Could not create location.",
+          : mode === "create"
+            ? "Could not create location."
+            : "Could not update location.",
       );
     } finally {
       setIsSubmitting(false);
@@ -53,7 +99,9 @@ export function LocationForm() {
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <Building2 className="text-[#2f6b3f]" size={30} />
-          <h2 className="mt-3 text-2xl font-black">Partner details</h2>
+          <h2 className="mt-3 text-2xl font-black">
+            {mode === "create" ? "Partner details" : "Edit partner details"}
+          </h2>
         </div>
         <Link
           href="/admin/locations"
@@ -70,6 +118,7 @@ export function LocationForm() {
           ["Address", address, setAddress],
           ["City", city, setCity],
           ["State", state, setState],
+          ["Website", websiteUrl, setWebsiteUrl],
         ].map(([label, value, setter]) => (
           <label
             key={label as string}
@@ -148,7 +197,14 @@ export function LocationForm() {
         type="button"
         onClick={submitLocation}
       >
-        <Save size={18} /> {isSubmitting ? "Creating..." : "Create location"}
+        <Save size={18} />{" "}
+        {isSubmitting
+          ? mode === "create"
+            ? "Creating..."
+            : "Saving..."
+          : mode === "create"
+            ? "Create location"
+            : "Save location"}
       </button>
     </section>
   );

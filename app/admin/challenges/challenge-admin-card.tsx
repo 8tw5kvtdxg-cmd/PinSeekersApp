@@ -87,7 +87,7 @@ export function ChallengeAdminCard({ challenge }: ChallengeAdminCardProps) {
           <dl className="mt-6 grid gap-4 sm:grid-cols-2">
             <div>
               <dt className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
-                Venue
+                Default venue
               </dt>
               <dd className="mt-1 font-bold">{challenge.venue}</dd>
             </div>

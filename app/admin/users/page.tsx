@@ -28,46 +28,119 @@ function formatDate(date: Date) {
   return dateFormatter.format(date);
 }
 
+type AdminUserLogRow = {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  phone: string | null;
+  emailVerifiedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  entries: {
+    id: string;
+    status: string;
+    createdAt: Date;
+    challenge: {
+      name: string;
+      type: string;
+    };
+  }[];
+  _count: {
+    entries: number;
+    payments: number;
+  };
+};
+
+async function loadAdminUsers(): Promise<AdminUserLogRow[]> {
+  const prisma = getPrismaClient();
+
+  if (!prisma) {
+    return [];
+  }
+
+  try {
+    return await prisma.user.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        phone: true,
+        emailVerifiedAt: true,
+        createdAt: true,
+        updatedAt: true,
+        entries: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            status: true,
+            createdAt: true,
+            challenge: {
+              select: {
+                name: true,
+                type: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            entries: true,
+            payments: true,
+          },
+        },
+      },
+    });
+  } catch {
+    const users = await prisma.user.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        phone: true,
+        createdAt: true,
+        updatedAt: true,
+        entries: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            status: true,
+            createdAt: true,
+            challenge: {
+              select: {
+                name: true,
+                type: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            entries: true,
+            payments: true,
+          },
+        },
+      },
+    });
+
+    return users.map((user) => ({
+      ...user,
+      emailVerifiedAt: null,
+    }));
+  }
+}
+
 export default async function AdminUsersPage() {
   await requireAdminSession("/admin/users");
 
   const prisma = getPrismaClient();
-  const users = prisma
-    ? await prisma.user.findMany({
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          name: true,
-          username: true,
-          email: true,
-          phone: true,
-          emailVerifiedAt: true,
-          createdAt: true,
-          updatedAt: true,
-          entries: {
-            orderBy: { createdAt: "desc" },
-            take: 1,
-            select: {
-              id: true,
-              status: true,
-              createdAt: true,
-              challenge: {
-                select: {
-                  name: true,
-                  type: true,
-                },
-              },
-            },
-          },
-          _count: {
-            select: {
-              entries: true,
-              payments: true,
-            },
-          },
-        },
-      })
-    : [];
+  const users = await loadAdminUsers();
 
   const totalEntries = users.reduce(
     (sum, user) => sum + user._count.entries,

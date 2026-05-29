@@ -112,6 +112,7 @@ model Location {
   address   String?
   city      String?
   state     String?
+  websiteUrl String?
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
