@@ -9,6 +9,7 @@ import {
   ReceiptText,
   UsersRound,
 } from "lucide-react";
+import { AdminHomeLink } from "@/app/admin/admin-home-link";
 import { AdminLogoutForm } from "@/app/admin/logout-form";
 import { requireAdminSession } from "@/lib/admin-auth";
 import { clubhouseChallenges, formatCurrency } from "@/lib/clubhouse";
@@ -135,6 +136,7 @@ export default async function AdminLocationsPage({
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <AdminHomeLink />
             <Link
               href="/admin/locations/new"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white transition hover:bg-[#2a3935]"

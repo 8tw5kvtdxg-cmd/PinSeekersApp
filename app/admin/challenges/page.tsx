@@ -10,6 +10,7 @@ import {
   Trophy,
   UsersRound,
 } from "lucide-react";
+import { AdminHomeLink } from "@/app/admin/admin-home-link";
 import { AdminLogoutForm } from "@/app/admin/logout-form";
 import { ChallengeAdminCard } from "@/app/admin/challenges/challenge-admin-card";
 import { clubhouseChallenges } from "@/lib/clubhouse";
@@ -24,17 +25,19 @@ export default async function AdminChallengesPage() {
         <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-              E6 Clubhouse workflow
+              Global E6 setup
             </p>
             <h1 className="mt-4 text-4xl font-black sm:text-5xl">
-              Challenge admin
+              Challenge codes
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-[#53605a]">
-              Prepare E6-hosted events with Pin2Win-controlled payment,
-              eligibility, code reveal, and result verification.
+              Manage the E6 Event Join Codes used by the QR entry flow.
+              Partner-specific QR codes and location revenue are managed from
+              Locations.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <AdminHomeLink />
             <Link
               href="/admin/entries"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white transition hover:bg-[#2a3935]"
