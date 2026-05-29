@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { ClipboardCheck, KeyRound, ListChecks, PencilLine } from "lucide-react";
+import {
+  ClipboardCheck,
+  KeyRound,
+  ListChecks,
+  PencilLine,
+  UsersRound,
+} from "lucide-react";
 import { AdminLogoutForm } from "@/app/admin/logout-form";
 import { LiveVerificationQueue } from "@/app/admin/verification/live-verification-queue";
 import { requireAdminSession } from "@/lib/admin-auth";
@@ -45,6 +51,12 @@ export default async function AdminVerificationPage() {
               className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
             >
               <ClipboardCheck size={18} /> Long Drive log
+            </Link>
+            <Link
+              href="/admin/users"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
+            >
+              <UsersRound size={18} /> User log
             </Link>
             <Link
               href="/admin/results"

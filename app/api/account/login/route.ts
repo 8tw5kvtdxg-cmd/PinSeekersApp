@@ -45,6 +45,7 @@ export async function POST(request: Request) {
       username: true,
       email: true,
       phone: true,
+      emailVerifiedAt: true,
       passwordHash: true,
     },
   });

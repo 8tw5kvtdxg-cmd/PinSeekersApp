@@ -9,7 +9,11 @@ import {
   Eye,
   KeyRound,
   LockKeyhole,
+  LogIn,
+  MailCheck,
+  MailWarning,
   ShieldCheck,
+  UserPlus,
   UserRound,
 } from "lucide-react";
 import { MonthlyPrizePot } from "@/app/components/monthly-prize-pot";
@@ -22,49 +26,220 @@ type EntryFlowProps = {
   initialPotSummary?: ClubhousePotSummary | null;
 };
 
+type PlayerAccount = {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  phone: string;
+  emailVerified: boolean;
+};
+
+type EntryDraft = {
+  playerName: string;
+  phoneNumber: string;
+  e6DisplayName: string;
+};
+
+function readEntryDraft(storageKey: string): EntryDraft {
+  if (typeof window === "undefined") {
+    return { playerName: "", phoneNumber: "", e6DisplayName: "" };
+  }
+
+  const savedDraft = window.localStorage.getItem(storageKey);
+
+  if (!savedDraft) {
+    return { playerName: "", phoneNumber: "", e6DisplayName: "" };
+  }
+
+  try {
+    const draft = JSON.parse(savedDraft) as {
+      playerName?: unknown;
+      phoneNumber?: unknown;
+      e6DisplayName?: unknown;
+    };
+
+    return {
+      playerName: typeof draft.playerName === "string" ? draft.playerName : "",
+      phoneNumber:
+        typeof draft.phoneNumber === "string" ? draft.phoneNumber : "",
+      e6DisplayName:
+        typeof draft.e6DisplayName === "string" ? draft.e6DisplayName : "",
+    };
+  } catch {
+    window.localStorage.removeItem(storageKey);
+
+    return { playerName: "", phoneNumber: "", e6DisplayName: "" };
+  }
+}
+
+function getInitialQrParam(name: string) {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  return new URLSearchParams(window.location.search).get(name) ?? "";
+}
+
 export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
   const storageKey = `pin2win-entry-draft-${challenge.slug}`;
+  const draft = readEntryDraft(storageKey);
   const accessSectionRef = useRef<HTMLDivElement>(null);
   const [accountReady, setAccountReady] = useState(false);
   const [paymentReady, setPaymentReady] = useState(false);
   const [eventCode, setEventCode] = useState(challenge.e6JoinCode);
-  const [playerName, setPlayerName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [e6DisplayName, setE6DisplayName] = useState("");
+  const [locationSlug] = useState(() => getInitialQrParam("location"));
+  const [bayName] = useState(() => getInitialQrParam("bay"));
+  const [playerName, setPlayerName] = useState(draft.playerName);
+  const [phoneNumber, setPhoneNumber] = useState(draft.phoneNumber);
+  const [e6DisplayName, setE6DisplayName] = useState(draft.e6DisplayName);
   const [entryId, setEntryId] = useState("");
+  const [playerAccount, setPlayerAccount] = useState<PlayerAccount | null>(null);
+  const [accountMode, setAccountMode] = useState<"create" | "login">("create");
+  const [username, setUsername] = useState("");
+  const [emailOrLogin, setEmailOrLogin] = useState("");
+  const [password, setPassword] = useState("");
+  const [accountError, setAccountError] = useState("");
+  const [accountNotice, setAccountNotice] = useState("");
   const [paymentError, setPaymentError] = useState("");
+  const [isLoadingAccount, setIsLoadingAccount] = useState(true);
+  const [isSubmittingAccount, setIsSubmittingAccount] = useState(false);
+  const [isResendingVerification, setIsResendingVerification] = useState(false);
   const [isStartingCheckout, setIsStartingCheckout] = useState(false);
   const [isCreatingEntry, setIsCreatingEntry] = useState(false);
 
   useEffect(() => {
-    const savedDraft = window.localStorage.getItem(storageKey);
+    async function loadPlayerAccount() {
+      try {
+        const response = await fetch("/api/account/me", { cache: "no-store" });
+        const data = (await response.json()) as {
+          user?: PlayerAccount | null;
+        };
 
-    if (!savedDraft) {
+        if (response.ok && data.user) {
+          setPlayerAccount(data.user);
+          setPlayerName((current) => current || data.user?.name || "");
+          setPhoneNumber((current) => current || data.user?.phone || "");
+        }
+      } catch {
+        setPlayerAccount(null);
+      } finally {
+        setIsLoadingAccount(false);
+      }
+    }
+
+    void loadPlayerAccount();
+  }, []);
+
+  async function submitAccountForm() {
+    const trimmedUsername = username.trim();
+    const trimmedEmailOrLogin = emailOrLogin.trim();
+
+    if (
+      !trimmedEmailOrLogin ||
+      !password.trim() ||
+      (accountMode === "create" && !trimmedUsername)
+    ) {
+      setAccountError(
+        accountMode === "create"
+          ? "Username, email, and password are required."
+          : "Email/username and password are required.",
+      );
       return;
     }
 
+    setIsSubmittingAccount(true);
+    setAccountError("");
+    setAccountNotice("");
+
     try {
-      const draft = JSON.parse(savedDraft) as {
-        playerName?: unknown;
-        phoneNumber?: unknown;
-        e6DisplayName?: unknown;
+      const response = await fetch(
+        accountMode === "create" ? "/api/account/signup" : "/api/account/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(
+            accountMode === "create"
+              ? {
+                  username: trimmedUsername,
+                  email: trimmedEmailOrLogin,
+                  password,
+                }
+              : {
+                  login: trimmedEmailOrLogin,
+                  password,
+                },
+          ),
+        },
+      );
+      const data = (await response.json()) as {
+        user?: PlayerAccount;
+        error?: string;
       };
 
-      if (typeof draft.playerName === "string") {
-        setPlayerName(draft.playerName);
+      if (!response.ok || !data.user) {
+        throw new Error(data.error ?? "Could not access account.");
       }
 
-      if (typeof draft.phoneNumber === "string") {
-        setPhoneNumber(draft.phoneNumber);
-      }
-
-      if (typeof draft.e6DisplayName === "string") {
-        setE6DisplayName(draft.e6DisplayName);
-      }
-    } catch {
-      window.localStorage.removeItem(storageKey);
+      setPlayerAccount(data.user);
+      setPlayerName((current) => current || data.user?.name || "");
+      setPhoneNumber((current) => current || data.user?.phone || "");
+      setPassword("");
+      setAccountNotice(
+        accountMode === "create"
+          ? "Account created. Check your email to verify before payment."
+          : data.user.emailVerified
+          ? "Logged in. You can continue this entry."
+          : "Logged in. Verify your email before payment.",
+      );
+    } catch (error) {
+      setAccountError(
+        error instanceof Error ? error.message : "Could not access account.",
+      );
+    } finally {
+      setIsSubmittingAccount(false);
     }
-  }, [storageKey]);
+  }
+
+  async function resendVerification() {
+    setIsResendingVerification(true);
+    setAccountError("");
+    setAccountNotice("");
+
+    try {
+      const response = await fetch("/api/account/resend-verification", {
+        method: "POST",
+      });
+      const data = (await response.json()) as {
+        alreadyVerified?: boolean;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Verification email could not be sent.");
+      }
+
+      setAccountNotice(
+        data.alreadyVerified
+          ? "Email is already verified."
+          : "Verification email sent. Check your inbox.",
+      );
+    } catch (error) {
+      setAccountError(
+        error instanceof Error
+          ? error.message
+          : "Verification email could not be sent.",
+      );
+    } finally {
+      setIsResendingVerification(false);
+    }
+  }
+
+  const isVerifiedPlayer = Boolean(playerAccount?.emailVerified);
+  const hasEntryDetails = Boolean(
+    playerName.trim() && phoneNumber.trim() && e6DisplayName.trim(),
+  );
+  const canStartPayment = isVerifiedPlayer && hasEntryDetails;
 
   function savePlayerInfo(nextEntryId = entryId) {
     const trimmedPlayerName = playerName.trim();
@@ -109,6 +284,11 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
       return;
     }
 
+    if (!isVerifiedPlayer) {
+      setPaymentError("Verify your email before creating a paid entry.");
+      return;
+    }
+
     setIsCreatingEntry(true);
     setPaymentError("");
 
@@ -121,6 +301,8 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
           playerName,
           phoneNumber,
           e6DisplayName,
+          locationSlug,
+          bayName,
         }),
       });
       const data = (await response.json()) as {
@@ -174,6 +356,16 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
       return;
     }
 
+    if (!playerAccount) {
+      setPaymentError("Create or login to your account before payment.");
+      return;
+    }
+
+    if (!playerAccount.emailVerified) {
+      setPaymentError("Verify your email before payment.");
+      return;
+    }
+
     setIsStartingCheckout(true);
     setPaymentError("");
 
@@ -186,6 +378,8 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
           playerName,
           phoneNumber,
           e6DisplayName,
+          locationSlug,
+          bayName,
         }),
       });
       const data = (await response.json()) as {
@@ -227,6 +421,17 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
             initialSummary={initialPotSummary}
           />
         </div>
+        {locationSlug ? (
+          <div className="mt-4 rounded-lg border border-[#ded6c8] bg-white p-4">
+            <p className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
+              Scanned location
+            </p>
+            <p className="mt-1 font-black">
+              {locationSlug.replaceAll("-", " ")}
+              {bayName ? ` - ${bayName}` : ""}
+            </p>
+          </div>
+        ) : null}
 
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
           {[
@@ -278,11 +483,153 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
           <div className="rounded-lg border border-[#ece5d8] p-4">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <UserRound className="text-[#2f6b3f]" size={24} />
+                {isVerifiedPlayer ? (
+                  <MailCheck className="text-[#2f6b3f]" size={24} />
+                ) : (
+                  <MailWarning className="text-[#8a6419]" size={24} />
+                )}
                 <div>
                   <h3 className="font-black">1. Player account</h3>
                   <p className="text-sm text-[#59655f]">
-                    Match the player to their E6 display name.
+                    Login or create an account and verify your email.
+                  </p>
+                </div>
+              </div>
+              {isVerifiedPlayer ? (
+                <CheckCircle2 className="text-[#2f6b3f]" size={22} />
+              ) : null}
+            </div>
+
+            {isLoadingAccount ? (
+              <p className="mt-4 text-sm font-bold text-[#6b756f]">
+                Checking account status...
+              </p>
+            ) : playerAccount ? (
+              <div className="mt-4 rounded-md bg-[#fbf8f1] p-4">
+                <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                  <div>
+                    <p className="font-black">{playerAccount.username}</p>
+                    <p className="mt-1 text-sm text-[#59655f]">
+                      {playerAccount.email}
+                    </p>
+                  </div>
+                  {playerAccount.emailVerified ? (
+                    <span className="inline-flex h-9 items-center justify-center rounded-md bg-[#eef7e9] px-3 text-xs font-black uppercase tracking-[0.12em] text-[#2f6b3f]">
+                      Verified
+                    </span>
+                  ) : (
+                    <button
+                      className="inline-flex h-10 items-center justify-center rounded-md bg-[#18211f] px-4 text-sm font-black text-white transition hover:bg-[#2a3935]"
+                      disabled={isResendingVerification}
+                      type="button"
+                      onClick={resendVerification}
+                    >
+                      {isResendingVerification ? "Sending..." : "Resend email"}
+                    </button>
+                  )}
+                </div>
+                {!playerAccount.emailVerified ? (
+                  <p className="mt-3 text-sm font-bold text-[#8a6419]">
+                    Check your inbox and verify your email before payment.
+                  </p>
+                ) : null}
+              </div>
+            ) : (
+              <div className="mt-4">
+                <div className="grid grid-cols-2 rounded-md bg-[#f2eadb] p-1">
+                  {(["create", "login"] as const).map((option) => (
+                    <button
+                      key={option}
+                      className={`h-10 rounded-md text-sm font-black capitalize transition ${
+                        accountMode === option
+                          ? "bg-[#18211f] text-white"
+                          : "text-[#53605a] hover:bg-white"
+                      }`}
+                      type="button"
+                      onClick={() => {
+                        setAccountMode(option);
+                        setAccountError("");
+                        setAccountNotice("");
+                      }}
+                    >
+                      {option === "create" ? "Create account" : "Login"}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mt-4 grid gap-3">
+                  {accountMode === "create" ? (
+                    <input
+                      className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
+                      placeholder="Username"
+                      value={username}
+                      onChange={(event) => setUsername(event.target.value)}
+                      aria-label="Username"
+                    />
+                  ) : null}
+                  <input
+                    className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
+                    placeholder={
+                      accountMode === "create"
+                        ? "Email"
+                        : "Email or username"
+                    }
+                    type={accountMode === "create" ? "email" : "text"}
+                    value={emailOrLogin}
+                    onChange={(event) => setEmailOrLogin(event.target.value)}
+                    aria-label={
+                      accountMode === "create" ? "Email" : "Email or username"
+                    }
+                  />
+                  <input
+                    className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
+                    placeholder="Password"
+                    type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    aria-label="Password"
+                  />
+                  <button
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-4 text-sm font-black text-white transition hover:bg-[#2a3935]"
+                    disabled={isSubmittingAccount}
+                    type="button"
+                    onClick={submitAccountForm}
+                  >
+                    {accountMode === "create" ? (
+                      <UserPlus size={17} />
+                    ) : (
+                      <LogIn size={17} />
+                    )}
+                    {isSubmittingAccount
+                      ? "Working..."
+                      : accountMode === "create"
+                      ? "Create and send email"
+                      : "Login"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {accountError ? (
+              <p className="mt-3 rounded-md bg-[#fff5f2] px-3 py-2 text-sm font-bold text-[#9a3324]">
+                {accountError}
+              </p>
+            ) : null}
+            {accountNotice ? (
+              <p className="mt-3 rounded-md bg-[#eef7e9] px-3 py-2 text-sm font-bold text-[#2f6b3f]">
+                {accountNotice}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="rounded-lg border border-[#ece5d8] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <UserRound className="text-[#2f6b3f]" size={24} />
+                <div>
+                  <h3 className="font-black">2. Entry details</h3>
+                  <p className="text-sm text-[#59655f]">
+                    Match this entry to the player and E6 display name.
                   </p>
                 </div>
               </div>
@@ -354,7 +701,7 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
               <div className="flex items-center gap-3">
                 <CreditCard className="text-[#2f6b3f]" size={24} />
                 <div>
-                  <h3 className="font-black">2. Entry payment</h3>
+                  <h3 className="font-black">3. Entry payment</h3>
                   <p className="text-sm text-[#59655f]">
                     Create one eligible attempt for this E6 event.
                   </p>
@@ -369,9 +716,7 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
               disabled={
                 isStartingCheckout ||
                 isCreatingEntry ||
-                !playerName.trim() ||
-                !phoneNumber.trim() ||
-                !e6DisplayName.trim()
+                !canStartPayment
               }
               type="button"
               onClick={startStripeCheckout}
@@ -386,9 +731,7 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
               disabled={
                 isStartingCheckout ||
                 isCreatingEntry ||
-                !playerName.trim() ||
-                !phoneNumber.trim() ||
-                !e6DisplayName.trim()
+                !canStartPayment
               }
               type="button"
               onClick={simulatePayment}
@@ -405,7 +748,12 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
                 {paymentError}
               </p>
             ) : null}
-            {!playerName.trim() || !phoneNumber.trim() || !e6DisplayName.trim() ? (
+            {!isVerifiedPlayer ? (
+              <p className="mt-3 text-sm font-bold text-[#6b756f]">
+                Login and verify your email to enable payment.
+              </p>
+            ) : null}
+            {isVerifiedPlayer && !hasEntryDetails ? (
               <p className="mt-3 text-sm font-bold text-[#6b756f]">
                 Enter your name, phone number, and E6 account name to enable payment.
               </p>
@@ -419,7 +767,7 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
               ) : (
                 <LockKeyhole className="text-[#87908a]" size={26} />
               )}
-              <h3 className="text-xl font-black">3. E6 access</h3>
+              <h3 className="text-xl font-black">4. E6 access</h3>
             </div>
             <dl className="mt-5 grid gap-4">
               <div>

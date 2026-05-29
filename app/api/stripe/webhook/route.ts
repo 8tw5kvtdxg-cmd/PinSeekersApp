@@ -9,6 +9,9 @@ async function createEntryFromCheckoutSession(session: Stripe.Checkout.Session) 
   const playerName = session.metadata?.playerName ?? "";
   const phoneNumber = session.metadata?.phoneNumber ?? "";
   const e6DisplayName = session.metadata?.e6DisplayName ?? "";
+  const locationSlug = session.metadata?.locationSlug ?? "";
+  const locationName = session.metadata?.locationName ?? "";
+  const bayName = session.metadata?.bayName ?? "";
 
   if (!challengeSlug || !playerName || !phoneNumber || !e6DisplayName) {
     throw new Error("Stripe session is missing Pin2Win entry metadata.");
@@ -19,6 +22,9 @@ async function createEntryFromCheckoutSession(session: Stripe.Checkout.Session) 
     playerName,
     phoneNumber,
     e6DisplayName,
+    locationSlug,
+    locationName,
+    bayName,
     stripeCheckoutSessionId: session.id,
   });
 }

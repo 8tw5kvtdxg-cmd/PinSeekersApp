@@ -1,4 +1,9 @@
 import { cookies } from "next/headers";
+import {
+  createEmailVerificationToken,
+  sendEmailVerification,
+  validateEmailForSignup,
+} from "@/lib/email-verification";
 import { getPrismaClient } from "@/lib/prisma";
 import {
   createPlayerSessionValue,
@@ -40,6 +45,12 @@ export async function POST(request: Request) {
   }
 
   try {
+    const emailValidationError = await validateEmailForSignup(email);
+
+    if (emailValidationError) {
+      return Response.json({ error: emailValidationError }, { status: 400 });
+    }
+
     const user = await prisma.user.create({
       data: {
         name: username,
@@ -53,8 +64,21 @@ export async function POST(request: Request) {
         username: true,
         email: true,
         phone: true,
+        emailVerifiedAt: true,
       },
     });
+    const token = await createEmailVerificationToken({
+      userId: user.id,
+      email: user.email,
+    });
+
+    await sendEmailVerification({
+      email: user.email,
+      username: user.username,
+      token,
+      request,
+    });
+
     const cookieStore = await cookies();
 
     cookieStore.set({
@@ -67,7 +91,10 @@ export async function POST(request: Request) {
       maxAge: 60 * 60 * 24 * 30,
     });
 
-    return Response.json({ user: publicPlayer(user) }, { status: 201 });
+    return Response.json(
+      { user: publicPlayer(user), verificationSent: true },
+      { status: 201 },
+    );
   } catch (error) {
     return Response.json(
       {

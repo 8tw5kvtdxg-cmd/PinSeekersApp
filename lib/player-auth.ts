@@ -113,9 +113,32 @@ export async function getCurrentPlayer() {
       username: true,
       email: true,
       phone: true,
+      emailVerifiedAt: true,
       createdAt: true,
     },
   });
+}
+
+export async function getCurrentVerifiedPlayer() {
+  const player = await getCurrentPlayer();
+
+  if (!player) {
+    return {
+      player: null,
+      error: "Login required before entering a challenge.",
+      status: 401,
+    } as const;
+  }
+
+  if (!player.emailVerifiedAt) {
+    return {
+      player: null,
+      error: "Verify your email before entering a challenge.",
+      status: 403,
+    } as const;
+  }
+
+  return { player, error: null, status: 200 } as const;
 }
 
 export function publicPlayer(user: {
@@ -124,6 +147,7 @@ export function publicPlayer(user: {
   username: string;
   email: string;
   phone: string | null;
+  emailVerifiedAt?: Date | null;
 }) {
   return {
     id: user.id,
@@ -131,5 +155,6 @@ export function publicPlayer(user: {
     username: user.username,
     email: user.email,
     phone: user.phone ?? "",
+    emailVerified: Boolean(user.emailVerifiedAt),
   };
 }
