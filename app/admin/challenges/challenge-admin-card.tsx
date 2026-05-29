@@ -1,25 +1,24 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import {
-  CalendarClock,
-  CheckCircle2,
-  ExternalLink,
-  KeyRound,
-  QrCode,
-  Save,
-  ShieldCheck,
-} from "lucide-react";
+import { CalendarClock, CheckCircle2, KeyRound, Save } from "lucide-react";
 import type { ClubhouseChallenge } from "@/lib/clubhouse";
 import { formatEntryFee } from "@/lib/clubhouse";
+import type { ClubhouseChallengeSettingView } from "@/lib/clubhouse-challenge-settings";
 
 type ChallengeAdminCardProps = {
   challenge: ClubhouseChallenge;
+  setting: ClubhouseChallengeSettingView;
 };
 
-export function ChallengeAdminCard({ challenge }: ChallengeAdminCardProps) {
-  const [eventCode, setEventCode] = useState(challenge.e6JoinCode);
+export function ChallengeAdminCard({
+  challenge,
+  setting,
+}: ChallengeAdminCardProps) {
+  const [eventCode, setEventCode] = useState(setting.e6EventCode);
+  const [startsAt, setStartsAt] = useState(setting.startsAt);
+  const [endsAt, setEndsAt] = useState(setting.endsAt);
+  const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
     "idle",
   );
@@ -27,7 +26,7 @@ export function ChallengeAdminCard({ challenge }: ChallengeAdminCardProps) {
   useEffect(() => {
     let isMounted = true;
 
-    async function loadEventCode() {
+    async function loadSettings() {
       const response = await fetch(
         `/api/clubhouse/challenges/${challenge.slug}/event-code`,
       );
@@ -36,42 +35,75 @@ export function ChallengeAdminCard({ challenge }: ChallengeAdminCardProps) {
         return;
       }
 
-      const data = (await response.json()) as { eventCode?: string };
+      const data = (await response.json()) as {
+        eventCode?: string;
+        startsAt?: string;
+        endsAt?: string;
+      };
 
-      if (isMounted && data.eventCode) {
-        setEventCode(data.eventCode);
+      if (!isMounted) {
+        return;
       }
+
+      setEventCode(data.eventCode ?? setting.e6EventCode);
+      setStartsAt(data.startsAt ?? setting.startsAt);
+      setEndsAt(data.endsAt ?? setting.endsAt);
     }
 
-    loadEventCode();
+    loadSettings();
 
     return () => {
       isMounted = false;
     };
-  }, [challenge.slug]);
+  }, [challenge.slug, setting.e6EventCode, setting.endsAt, setting.startsAt]);
 
-  async function saveEventCode() {
+  function markDirty() {
+    setStatus("idle");
+    setMessage("");
+  }
+
+  async function saveSettings() {
     setStatus("saving");
+    setMessage("");
 
     const response = await fetch(
       `/api/clubhouse/challenges/${challenge.slug}/event-code`,
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eventCode }),
+        body: JSON.stringify({ eventCode, startsAt, endsAt }),
       },
     );
 
-    setStatus(response.ok ? "saved" : "error");
+    if (!response.ok) {
+      const data = (await response.json().catch(() => ({}))) as {
+        error?: string;
+      };
+
+      setStatus("error");
+      setMessage(data.error ?? "The settings could not be saved.");
+      return;
+    }
+
+    const data = (await response.json()) as {
+      eventCode: string;
+      startsAt: string;
+      endsAt: string;
+    };
+
+    setEventCode(data.eventCode);
+    setStartsAt(data.startsAt);
+    setEndsAt(data.endsAt);
+    setStatus("saved");
   }
 
   return (
-    <article className="overflow-hidden rounded-lg border border-[#ded6c8] bg-white">
-      <div className="grid gap-6 p-6 lg:grid-cols-[1.1fr_0.9fr]">
+    <article className="rounded-lg border border-[#ded6c8] bg-white p-6">
+      <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
         <div>
           <div className="flex flex-wrap items-center gap-3">
             <span className="rounded-full bg-[#e3edd8] px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-[#2f6b3f]">
-              {challenge.status}
+              Shared across locations
             </span>
             <span className="rounded-full bg-[#f2eadb] px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-[#53605a]">
               {challenge.type === "CLOSEST_TO_PIN"
@@ -79,18 +111,8 @@ export function ChallengeAdminCard({ challenge }: ChallengeAdminCardProps) {
                 : "Longest Drive"}
             </span>
           </div>
-          <h2 className="mt-4 text-3xl font-black">{challenge.name}</h2>
-          <p className="mt-3 text-base leading-7 text-[#59655f]">
-            {challenge.prizeSummary}
-          </p>
-
-          <dl className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div>
-              <dt className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
-                Default venue
-              </dt>
-              <dd className="mt-1 font-bold">{challenge.venue}</dd>
-            </div>
+          <h2 className="mt-4 text-2xl font-black">{challenge.name}</h2>
+          <dl className="mt-5 grid gap-4 sm:grid-cols-2">
             <div>
               <dt className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
                 Entry
@@ -101,27 +123,21 @@ export function ChallengeAdminCard({ challenge }: ChallengeAdminCardProps) {
             </div>
             <div>
               <dt className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
-                E6 event
-              </dt>
-              <dd className="mt-1 font-bold">{challenge.e6EventName}</dd>
-            </div>
-            <div>
-              <dt className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
                 Play window
               </dt>
               <dd className="mt-1 font-bold">
-                {challenge.playWindowMinutes} minutes per paid entry
+                {challenge.playWindowMinutes} minutes
               </dd>
             </div>
           </dl>
         </div>
 
-        <div className="rounded-lg bg-[#fbf8f1] p-5">
+        <div className="w-full rounded-lg bg-[#fbf8f1] p-5 lg:max-w-xl">
           <div className="flex items-center gap-3">
             <KeyRound className="text-[#2f6b3f]" size={24} />
-            <h3 className="text-xl font-black">Access codes</h3>
+            <h3 className="text-xl font-black">Global E6 event code</h3>
           </div>
-          <div className="mt-5 space-y-4">
+          <div className="mt-5 grid gap-4">
             <label className="grid gap-2">
               <span className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
                 E6 Event Join Code
@@ -131,68 +147,57 @@ export function ChallengeAdminCard({ challenge }: ChallengeAdminCardProps) {
                 value={eventCode}
                 onChange={(event) => {
                   setEventCode(event.target.value);
-                  setStatus("idle");
+                  markDirty();
                 }}
               />
             </label>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="grid gap-2">
+                <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
+                  <CalendarClock size={15} /> Monthly start
+                </span>
+                <input
+                  className="h-12 rounded-md border border-[#ded6c8] bg-white px-4 font-bold text-[#18211f] outline-none focus:border-[#2f6b3f]"
+                  type="datetime-local"
+                  value={startsAt}
+                  onChange={(event) => {
+                    setStartsAt(event.target.value);
+                    markDirty();
+                  }}
+                />
+              </label>
+              <label className="grid gap-2">
+                <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
+                  <CalendarClock size={15} /> Monthly end
+                </span>
+                <input
+                  className="h-12 rounded-md border border-[#ded6c8] bg-white px-4 font-bold text-[#18211f] outline-none focus:border-[#2f6b3f]"
+                  type="datetime-local"
+                  value={endsAt}
+                  onChange={(event) => {
+                    setEndsAt(event.target.value);
+                    markDirty();
+                  }}
+                />
+              </label>
+            </div>
             <button
               className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[#18211f] px-4 text-sm font-black text-white transition hover:bg-[#2a3935] disabled:cursor-not-allowed disabled:bg-[#ded6c8] disabled:text-[#6b756f]"
               disabled={status === "saving"}
               type="button"
-              onClick={saveEventCode}
+              onClick={saveSettings}
             >
               {status === "saved" ? <CheckCircle2 size={17} /> : <Save size={17} />}
               {status === "saving"
                 ? "Saving..."
                 : status === "saved"
                   ? "Saved"
-                  : "Save event code"}
+                  : "Save shared settings"}
             </button>
             {status === "error" ? (
-              <p className="text-sm font-bold text-[#9a3324]">
-                The code could not be saved. Try again.
-              </p>
+              <p className="text-sm font-bold text-[#9a3324]">{message}</p>
             ) : null}
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Link
-                href={`/play/${challenge.slug}`}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-4 text-sm font-black text-white transition hover:bg-[#3f7f4c]"
-              >
-                <QrCode size={17} /> QR landing
-              </Link>
-              <a
-                href={challenge.e6ClubhouseUrl}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-4 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <ExternalLink size={17} /> Clubhouse
-              </a>
-            </div>
           </div>
-        </div>
-      </div>
-
-      <div className="grid gap-5 border-t border-[#ece5d8] bg-[#fbf8f1] p-6 lg:grid-cols-2">
-        <div>
-          <div className="flex items-center gap-2">
-            <CalendarClock className="text-[#2f6b3f]" size={20} />
-            <h3 className="font-black">Event timing</h3>
-          </div>
-          <p className="mt-3 text-sm leading-6 text-[#59655f]">
-            {challenge.startsAt} through {challenge.endsAt}
-          </p>
-        </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="text-[#2f6b3f]" size={20} />
-            <h3 className="font-black">Eligibility rules</h3>
-          </div>
-          <ul className="mt-3 space-y-2 text-sm leading-6 text-[#59655f]">
-            {challenge.eligibilityRules.slice(0, 3).map((rule) => (
-              <li key={rule}>- {rule}</li>
-            ))}
-          </ul>
         </div>
       </div>
     </article>

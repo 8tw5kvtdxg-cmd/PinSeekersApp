@@ -57,9 +57,9 @@ const legacyChallengeSlugMap: Record<string, string> = {
 export const clubhouseChallenges: ClubhouseChallenge[] = [
   {
     slug: clubhouseChallengeSlugs.closestToPin,
-    name: "Alamo Golf Den Closest to the Pin Monthly",
+    name: "Closest to the Pin Monthly",
     type: "CLOSEST_TO_PIN",
-    venue: "Alamo Golf Den",
+    venue: "All partner locations",
     bayLabel: "Any active E6 2026 bay",
     entryFeeCents: 2000,
     status: "Ready",
@@ -89,9 +89,9 @@ export const clubhouseChallenges: ClubhouseChallenge[] = [
   },
   {
     slug: clubhouseChallengeSlugs.longestDrive,
-    name: "Alamo Golf Den Long Drive Monthly",
+    name: "Long Drive Monthly",
     type: "LONGEST_DRIVE",
-    venue: "Alamo Golf Den",
+    venue: "All partner locations",
     bayLabel: "Any active E6 2026 bay",
     entryFeeCents: 2000,
     status: "Draft",

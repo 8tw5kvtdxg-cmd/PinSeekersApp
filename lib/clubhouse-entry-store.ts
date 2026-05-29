@@ -6,6 +6,7 @@ import {
   getClubhouseChallenge,
   normalizeChallengeSlug,
 } from "@/lib/clubhouse";
+import { getClubhouseEventCode } from "@/lib/clubhouse-challenge-settings";
 import { slugifyLocation } from "@/lib/location-utils";
 
 export type ClubhouseEntryRecord = ClubhouseEntry & {
@@ -45,11 +46,6 @@ const potRate = 0.05;
 const monthlyStartingPotCents = 5000;
 
 const entriesPath = path.join(process.cwd(), ".pin2win-clubhouse-entries.json");
-const eventCodesPath = path.join(
-  process.cwd(),
-  ".pin2win-clubhouse-event-codes.json",
-);
-
 async function readJsonObject<T extends Record<string, unknown>>(
   filePath: string,
 ): Promise<T> {
@@ -285,19 +281,6 @@ export async function getClubhouseEntryRecordByStripeSessionId(
   );
 }
 
-async function getSavedEventCode(challengeSlug: string) {
-  const challenge = getClubhouseChallenge(challengeSlug);
-
-  if (!challenge) {
-    return null;
-  }
-
-  const eventCodes =
-    await readJsonObject<Record<string, string>>(eventCodesPath);
-
-  return eventCodes[challengeSlug] ?? challenge.e6JoinCode;
-}
-
 function formatEntryDate(date: Date) {
   return [
     date.getFullYear(),
@@ -363,7 +346,7 @@ export async function createClubhouseEntryRecord(input: {
     slugifyLocation(input.locationSlug || locationName) ||
     slugifyLocation(challenge.venue);
   const bayName = input.bayName?.trim() || challenge.bayLabel;
-  const e6EventCode = await getSavedEventCode(normalizedChallengeSlug);
+  const e6EventCode = await getClubhouseEventCode(normalizedChallengeSlug);
 
   if (!e6EventCode) {
     throw new Error("E6 Event Join Code is not available.");

@@ -1,14 +1,11 @@
 import Link from "next/link";
 import {
-  CircleDollarSign,
   ClipboardCheck,
   Globe,
-  KeyRound,
   ListChecks,
   MapPin,
   PencilLine,
   QrCode,
-  ShieldCheck,
   Trophy,
   UsersRound,
 } from "lucide-react";
@@ -16,6 +13,7 @@ import { AdminHomeLink } from "@/app/admin/admin-home-link";
 import { AdminLogoutForm } from "@/app/admin/logout-form";
 import { ChallengeAdminCard } from "@/app/admin/challenges/challenge-admin-card";
 import { clubhouseChallenges } from "@/lib/clubhouse";
+import { listClubhouseChallengeSettings } from "@/lib/clubhouse-challenge-settings";
 import { requireAdminSession } from "@/lib/admin-auth";
 import {
   getAppOrigin,
@@ -38,6 +36,10 @@ export default async function AdminChallengesPage() {
   await requireAdminSession("/admin/challenges");
   const prisma = getPrismaClient();
   const origin = getAppOrigin();
+  const challengeSettings = await listClubhouseChallengeSettings();
+  const settingByChallengeSlug = new Map(
+    challengeSettings.map((setting) => [setting.challengeSlug, setting]),
+  );
   const dbLocations = prisma
     ? await prisma.location.findMany({
         orderBy: { name: "asc" },
@@ -82,9 +84,8 @@ export default async function AdminChallengesPage() {
               Challenge codes
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-[#53605a]">
-              Manage the E6 Event Join Codes used by the QR entry flow.
-              Partner-specific QR codes and location revenue are managed from
-              Locations.
+              Manage the shared monthly E6 Event Join Codes used by every
+              partner location QR flow.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -129,39 +130,21 @@ export default async function AdminChallengesPage() {
           </div>
         </div>
 
-        <section className="mt-10 grid gap-5 lg:grid-cols-3">
-          {[
-            {
-              icon: CircleDollarSign,
-              title: "Pin2Win controls eligibility",
-              text: "Payment creates the unique entry record, even when E6 uses one shared join code.",
-            },
-            {
-              icon: KeyRound,
-              title: "E6 code stays hidden",
-              text: "Players only see the E6 Event Join Code after a successful Pin2Win entry.",
-            },
-            {
-              icon: ShieldCheck,
-              title: "Prize results are verified",
-              text: "Only paid entries matched to E6 leaderboard results are eligible for payout.",
-            },
-          ].map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <div
-                key={item.title}
-                className="rounded-lg border border-[#ded6c8] bg-white p-5"
-              >
-                <Icon className="text-[#2f6b3f]" size={28} />
-                <h2 className="mt-4 text-xl font-black">{item.title}</h2>
-                <p className="mt-3 text-sm leading-6 text-[#59655f]">
-                  {item.text}
-                </p>
-              </div>
-            );
-          })}
+        <section className="mt-10 grid gap-6">
+          {clubhouseChallenges.map((challenge) => (
+            <ChallengeAdminCard
+              key={challenge.slug}
+              challenge={challenge}
+              setting={
+                settingByChallengeSlug.get(challenge.slug) ?? {
+                  challengeSlug: challenge.slug,
+                  e6EventCode: challenge.e6JoinCode,
+                  startsAt: "",
+                  endsAt: "",
+                }
+              }
+            />
+          ))}
         </section>
 
         <section className="mt-10 rounded-lg border border-[#ded6c8] bg-white p-6">
@@ -170,8 +153,8 @@ export default async function AdminChallengesPage() {
             <div>
               <h2 className="text-2xl font-black">Location QR access</h2>
               <p className="mt-2 text-sm leading-6 text-[#59655f]">
-                These partner QR links use the global E6 challenge codes below,
-                while preserving the location and bay for revenue reporting.
+                These QR links point customers into the correct location and
+                bay flow. The E6 codes above stay shared globally.
               </p>
             </div>
           </div>
@@ -227,9 +210,6 @@ export default async function AdminChallengesPage() {
                               className="mt-3 aspect-square w-full rounded-md border border-[#ece4d6] bg-white p-2"
                               src={getQrImageUrl(qrUrl)}
                             />
-                            <p className="mt-2 break-all font-mono text-[11px] leading-5 text-[#6b756f]">
-                              {qrUrl}
-                            </p>
                           </div>
                         );
                       }),
@@ -240,14 +220,6 @@ export default async function AdminChallengesPage() {
           </div>
         </section>
 
-        <section className="mt-10 grid gap-6">
-          {clubhouseChallenges.map((challenge) => (
-            <ChallengeAdminCard
-              key={challenge.slug}
-              challenge={challenge}
-            />
-          ))}
-        </section>
       </div>
     </main>
   );
