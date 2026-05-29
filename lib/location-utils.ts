@@ -10,7 +10,7 @@ export function getAppOrigin(request?: Request) {
   const configuredUrl =
     process.env.PIN2WIN_APP_URL ??
     process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.VERCEL_URL;
+    (process.env.NODE_ENV === "production" ? "https://pin2wingolf.com" : "");
 
   if (configuredUrl) {
     return configuredUrl.startsWith("http")
@@ -20,6 +20,12 @@ export function getAppOrigin(request?: Request) {
 
   if (request) {
     return new URL(request.url).origin;
+  }
+
+  if (process.env.VERCEL_URL) {
+    return process.env.VERCEL_URL.startsWith("http")
+      ? process.env.VERCEL_URL
+      : `https://${process.env.VERCEL_URL}`;
   }
 
   return "http://localhost:3000";
