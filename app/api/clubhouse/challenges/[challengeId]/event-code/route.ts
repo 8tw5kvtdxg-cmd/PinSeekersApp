@@ -1,51 +1,10 @@
-import { readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
-import { getClubhouseChallenge } from "@/lib/clubhouse";
-
-type EventCodeStore = Record<string, string>;
+import {
+  getClubhouseChallengeSetting,
+  updateClubhouseChallengeSetting,
+} from "@/lib/clubhouse-challenge-settings";
 
 export const dynamic = "force-dynamic";
-
-const eventCodeStorePath = path.join(
-  process.cwd(),
-  ".pin2win-clubhouse-event-codes.json",
-);
-
-async function readEventCodeStore(): Promise<EventCodeStore> {
-  try {
-    const file = await readFile(eventCodeStorePath, "utf8");
-    const parsed = JSON.parse(file) as unknown;
-
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      return {};
-    }
-
-    return Object.fromEntries(
-      Object.entries(parsed).filter(
-        (entry): entry is [string, string] => typeof entry[1] === "string",
-      ),
-    );
-  } catch {
-    return {};
-  }
-}
-
-async function writeEventCodeStore(store: EventCodeStore) {
-  await writeFile(eventCodeStorePath, `${JSON.stringify(store, null, 2)}\n`);
-}
-
-async function getEventCode(challengeId: string) {
-  const challenge = getClubhouseChallenge(challengeId);
-
-  if (!challenge) {
-    return null;
-  }
-
-  const store = await readEventCodeStore();
-
-  return store[challengeId] ?? challenge.e6JoinCode;
-}
 
 export async function GET(
   request: Request,
@@ -56,13 +15,18 @@ export async function GET(
   }
 
   const { challengeId } = await context.params;
-  const eventCode = await getEventCode(challengeId);
+  const setting = await getClubhouseChallengeSetting(challengeId);
 
-  if (!eventCode) {
+  if (!setting) {
     return Response.json({ error: "Challenge not found." }, { status: 404 });
   }
 
-  return Response.json({ challengeId, eventCode });
+  return Response.json({
+    challengeId: setting.challengeSlug,
+    eventCode: setting.e6EventCode,
+    startsAt: setting.startsAt,
+    endsAt: setting.endsAt,
+  });
 }
 
 export async function PATCH(
@@ -74,26 +38,35 @@ export async function PATCH(
   }
 
   const { challengeId } = await context.params;
-  const challenge = getClubhouseChallenge(challengeId);
+  const body = (await request.json()) as {
+    eventCode?: unknown;
+    startsAt?: unknown;
+    endsAt?: unknown;
+  };
 
-  if (!challenge) {
-    return Response.json({ error: "Challenge not found." }, { status: 404 });
-  }
+  try {
+    const setting = await updateClubhouseChallengeSetting({
+      challengeSlug: challengeId,
+      e6EventCode: body.eventCode,
+      startsAt: body.startsAt,
+      endsAt: body.endsAt,
+    });
 
-  const body = (await request.json()) as { eventCode?: unknown };
-  const eventCode =
-    typeof body.eventCode === "string" ? body.eventCode.trim() : "";
-
-  if (!eventCode) {
+    return Response.json({
+      challengeId: setting.challengeSlug,
+      eventCode: setting.e6EventCode,
+      startsAt: setting.startsAt,
+      endsAt: setting.endsAt,
+    });
+  } catch (error) {
     return Response.json(
-      { error: "E6 Event Join Code is required." },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Could not update challenge settings.",
+      },
       { status: 400 },
     );
   }
-
-  const store = await readEventCodeStore();
-  store[challengeId] = eventCode;
-  await writeEventCodeStore(store);
-
-  return Response.json({ challengeId, eventCode });
 }
