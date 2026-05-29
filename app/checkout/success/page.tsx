@@ -63,12 +63,18 @@ export default async function CheckoutSuccessPage({
   const playerName = session.metadata?.playerName ?? "";
   const phoneNumber = session.metadata?.phoneNumber ?? "";
   const e6DisplayName = session.metadata?.e6DisplayName ?? "";
+  const locationSlug = session.metadata?.locationSlug ?? "";
+  const locationName = session.metadata?.locationName ?? "";
+  const bayName = session.metadata?.bayName ?? "";
 
   const entry = await createClubhouseEntryRecord({
     challengeSlug,
     playerName,
     phoneNumber,
     e6DisplayName,
+    locationSlug,
+    locationName,
+    bayName,
     stripeCheckoutSessionId: session.id,
   });
 

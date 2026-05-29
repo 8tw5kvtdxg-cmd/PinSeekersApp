@@ -3,6 +3,7 @@ import {
   listClubhouseEntryRecords,
 } from "@/lib/clubhouse-entry-store";
 import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
+import { getCurrentVerifiedPlayer } from "@/lib/player-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -17,11 +18,19 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const { error, status } = await getCurrentVerifiedPlayer();
+
+  if (error) {
+    return Response.json({ error }, { status });
+  }
+
   const body = (await request.json()) as {
     challengeSlug?: unknown;
     playerName?: unknown;
     phoneNumber?: unknown;
     e6DisplayName?: unknown;
+    locationSlug?: unknown;
+    bayName?: unknown;
   };
 
   try {
@@ -32,6 +41,9 @@ export async function POST(request: Request) {
       phoneNumber: typeof body.phoneNumber === "string" ? body.phoneNumber : "",
       e6DisplayName:
         typeof body.e6DisplayName === "string" ? body.e6DisplayName : "",
+      locationSlug:
+        typeof body.locationSlug === "string" ? body.locationSlug : "",
+      bayName: typeof body.bayName === "string" ? body.bayName : "",
     });
 
     return Response.json({ entry }, { status: 201 });

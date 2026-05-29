@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { ClipboardCheck, KeyRound, ListChecks } from "lucide-react";
+import {
+  ClipboardCheck,
+  KeyRound,
+  ListChecks,
+  UsersRound,
+} from "lucide-react";
 import { AdminLogoutForm } from "@/app/admin/logout-form";
 import { ResultLogTable } from "@/app/admin/results/result-log-table";
 import { requireAdminSession } from "@/lib/admin-auth";
@@ -39,6 +44,12 @@ export default async function AdminResultsPage() {
               className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
             >
               <ListChecks size={18} /> Entry log
+            </Link>
+            <Link
+              href="/admin/users"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
+            >
+              <UsersRound size={18} /> User log
             </Link>
             <Link
               href="/admin/verification"

@@ -1,5 +1,13 @@
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, MapPin, QrCode, Trophy } from "lucide-react";
+import {
+  ArrowRight,
+  BadgeCheck,
+  ExternalLink,
+  Globe,
+  MapPin,
+  QrCode,
+  Trophy,
+} from "lucide-react";
 
 const playerDetails = [
   "Scan the challenge QR code from the bay.",
@@ -34,6 +42,31 @@ export default function LocationsPage() {
           >
             Choose a challenge <ArrowRight size={18} />
           </Link>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-[#ded6c8] bg-white p-6">
+          <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
+            Partner location
+          </p>
+          <h2 className="mt-3 text-2xl font-black">Alamo Golf Den</h2>
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            <div className="flex gap-3 rounded-lg bg-[#fbf8f1] p-4">
+              <MapPin className="mt-0.5 shrink-0 text-[#2f6b3f]" size={22} />
+              <p className="leading-7 text-[#59655f]">
+                7001 I-10 #225, San Antonio, TX 78213
+              </p>
+            </div>
+            <a
+              href="https://alamogolfden.com"
+              className="flex gap-3 rounded-lg bg-[#fbf8f1] p-4 leading-7 text-[#59655f] transition hover:bg-[#f5efdf]"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Globe className="mt-0.5 shrink-0 text-[#2f6b3f]" size={22} />
+              <span className="font-bold">alamogolfden.com</span>
+              <ExternalLink className="ml-auto shrink-0 text-[#2f6b3f]" size={18} />
+            </a>
+          </div>
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-3">

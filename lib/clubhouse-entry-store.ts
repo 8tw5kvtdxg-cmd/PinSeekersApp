@@ -6,10 +6,15 @@ import {
   getClubhouseChallenge,
   normalizeChallengeSlug,
 } from "@/lib/clubhouse";
+import { slugifyLocation } from "@/lib/location-utils";
 
 export type ClubhouseEntryRecord = ClubhouseEntry & {
   e6EventCode: string;
   stripeCheckoutSessionId?: string;
+  locationSlug: string;
+  locationName: string;
+  bayName?: string;
+  amountCents: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -106,6 +111,56 @@ export async function getClubhousePotSummaries() {
       potCents: monthlyStartingPotCents + Math.round(revenueCents * potRate),
       potRate,
     };
+  });
+}
+
+export async function getClubhouseLocationRevenueSummaries() {
+  const entries = await listClubhouseEntryRecords();
+
+  return entries
+    .filter((entry) => entry.paymentStatus === "Succeeded")
+    .reduce<
+      Record<
+        string,
+        {
+          locationSlug: string;
+          locationName: string;
+          entryCount: number;
+          revenueCents: number;
+          latestPaidAt: string;
+        }
+      >
+    >((summaries, entry) => {
+      const challenge = getClubhouseChallenge(entry.challengeSlug);
+      const locationName = entry.locationName || challenge?.venue || "Unknown";
+      const locationSlug =
+        entry.locationSlug || slugifyLocation(locationName) || "unknown";
+      const amountCents = entry.amountCents ?? challenge?.entryFeeCents ?? 0;
+      const current = summaries[locationSlug];
+
+      summaries[locationSlug] = {
+        locationSlug,
+        locationName,
+        entryCount: (current?.entryCount ?? 0) + 1,
+        revenueCents: (current?.revenueCents ?? 0) + amountCents,
+        latestPaidAt: current?.latestPaidAt ?? entry.createdAt,
+      };
+
+      return summaries;
+    }, {});
+}
+
+export async function listClubhouseEntryRecordsForLocation(locationSlug: string) {
+  const normalizedLocationSlug = slugifyLocation(locationSlug);
+  const entries = await listClubhouseEntryRecords();
+
+  return entries.filter((entry) => {
+    const challenge = getClubhouseChallenge(entry.challengeSlug);
+    const entryLocationSlug =
+      entry.locationSlug ||
+      slugifyLocation(entry.locationName || challenge?.venue || "");
+
+    return entryLocationSlug === normalizedLocationSlug;
   });
 }
 
@@ -284,6 +339,9 @@ export async function createClubhouseEntryRecord(input: {
   phoneNumber: string;
   e6DisplayName: string;
   stripeCheckoutSessionId?: string;
+  locationSlug?: string;
+  locationName?: string;
+  bayName?: string;
 }) {
   const challenge = getClubhouseChallenge(input.challengeSlug);
 
@@ -300,6 +358,11 @@ export async function createClubhouseEntryRecord(input: {
   }
 
   const normalizedChallengeSlug = normalizeChallengeSlug(input.challengeSlug);
+  const locationName = input.locationName?.trim() || challenge.venue;
+  const locationSlug =
+    slugifyLocation(input.locationSlug || locationName) ||
+    slugifyLocation(challenge.venue);
+  const bayName = input.bayName?.trim() || challenge.bayLabel;
   const e6EventCode = await getSavedEventCode(normalizedChallengeSlug);
 
   if (!e6EventCode) {
@@ -341,6 +404,10 @@ export async function createClubhouseEntryRecord(input: {
     resultStatus: "Pending E6 Result",
     e6EventCode,
     stripeCheckoutSessionId: input.stripeCheckoutSessionId,
+    locationSlug,
+    locationName,
+    bayName,
+    amountCents: challenge.entryFeeCents,
     createdAt: timestamp,
     updatedAt: timestamp,
   };

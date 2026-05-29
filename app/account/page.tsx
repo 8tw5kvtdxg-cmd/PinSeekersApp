@@ -48,7 +48,32 @@ type PlayerAccount = {
   username: string;
   email: string;
   phone: string;
+  emailVerified: boolean;
 };
+
+function getInitialVerificationMessage(type: "notice" | "error") {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  const verificationStatus = new URLSearchParams(window.location.search).get(
+    "verification",
+  );
+
+  if (type === "notice" && verificationStatus === "success") {
+    return "Email verified. You can now enter paid challenges.";
+  }
+
+  if (type === "error" && verificationStatus === "failed") {
+    return "Verification link is invalid or expired.";
+  }
+
+  if (type === "error" && verificationStatus === "missing") {
+    return "Verification link is missing.";
+  }
+
+  return "";
+}
 
 export default function AccountPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -60,8 +85,14 @@ export default function AccountPage() {
   const [emailOrLogin, setEmailOrLogin] = useState("");
   const [password, setPassword] = useState("");
   const [playerAccount, setPlayerAccount] = useState<PlayerAccount | null>(null);
-  const [accountError, setAccountError] = useState("");
+  const [accountError, setAccountError] = useState(() =>
+    getInitialVerificationMessage("error"),
+  );
+  const [accountNotice, setAccountNotice] = useState(() =>
+    getInitialVerificationMessage("notice"),
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResendingVerification, setIsResendingVerification] = useState(false);
   const [isLoadingSession, setIsLoadingSession] = useState(true);
 
   useEffect(() => {
@@ -150,6 +181,11 @@ export default function AccountPage() {
 
       setPlayerAccount(data.user);
       setIsLoggedIn(true);
+      setAccountNotice(
+        mode === "create"
+          ? "Account created. Check your email to verify before entering a challenge."
+          : "",
+      );
     } catch (error) {
       setAccountError(
         error instanceof Error ? error.message : "Could not access account.",
@@ -164,6 +200,41 @@ export default function AccountPage() {
     setPlayerAccount(null);
     setIsLoggedIn(false);
     setPassword("");
+  }
+
+  async function resendVerification() {
+    setIsResendingVerification(true);
+    setAccountError("");
+    setAccountNotice("");
+
+    try {
+      const response = await fetch("/api/account/resend-verification", {
+        method: "POST",
+      });
+      const data = (await response.json()) as {
+        sent?: boolean;
+        alreadyVerified?: boolean;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Verification email could not be sent.");
+      }
+
+      setAccountNotice(
+        data.alreadyVerified
+          ? "Email is already verified."
+          : "Verification email sent. Check your inbox.",
+      );
+    } catch (error) {
+      setAccountError(
+        error instanceof Error
+          ? error.message
+          : "Verification email could not be sent.",
+      );
+    } finally {
+      setIsResendingVerification(false);
+    }
   }
 
   const playerLabel = playerAccount?.username || playerAccount?.email || "Player";
@@ -319,6 +390,11 @@ export default function AccountPage() {
                   {accountError}
                 </p>
               ) : null}
+              {accountNotice ? (
+                <p className="rounded-md bg-[#eef7e9] px-4 py-3 text-sm font-bold text-[#2f6b3f]">
+                  {accountNotice}
+                </p>
+              ) : null}
               <p className="text-sm leading-6 text-[#6b756f]">
                 Player entries and results appear after a paid challenge entry
                 is created and verified.
@@ -383,6 +459,41 @@ export default function AccountPage() {
             <LogOut size={17} /> Logout
           </button>
         </div>
+
+        {accountError ? (
+          <p className="mt-6 rounded-md bg-[#fff5f2] px-4 py-3 text-sm font-bold text-[#9a3324]">
+            {accountError}
+          </p>
+        ) : null}
+        {accountNotice ? (
+          <p className="mt-6 rounded-md bg-[#eef7e9] px-4 py-3 text-sm font-bold text-[#2f6b3f]">
+            {accountNotice}
+          </p>
+        ) : null}
+
+        {!playerAccount?.emailVerified ? (
+          <section className="mt-6 rounded-lg border border-[#e0b95f] bg-[#fff8e8] p-5">
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+              <div>
+                <p className="text-sm font-black uppercase tracking-[0.14em] text-[#8a6419]">
+                  Email verification required
+                </p>
+                <p className="mt-2 text-sm leading-6 text-[#5f5133]">
+                  Verify {playerAccount?.email} before entering paid challenges
+                  or unlocking event codes.
+                </p>
+              </div>
+              <button
+                className="inline-flex h-11 items-center justify-center rounded-md bg-[#18211f] px-5 text-sm font-black text-white transition hover:bg-[#2a3935]"
+                disabled={isResendingVerification}
+                type="button"
+                onClick={resendVerification}
+              >
+                {isResendingVerification ? "Sending..." : "Resend email"}
+              </button>
+            </div>
+          </section>
+        ) : null}
 
         {activeTab === "dashboard" ? (
           <div className="mt-10 grid gap-6 lg:grid-cols-[0.82fr_1.18fr]">

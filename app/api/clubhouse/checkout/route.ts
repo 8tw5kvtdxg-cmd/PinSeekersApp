@@ -1,14 +1,23 @@
 import { getClubhouseChallenge } from "@/lib/clubhouse";
+import { getCurrentVerifiedPlayer } from "@/lib/player-auth";
 import { getAppUrl, getStripe } from "@/lib/stripe";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const { player, error, status } = await getCurrentVerifiedPlayer();
+
+  if (error) {
+    return Response.json({ error }, { status });
+  }
+
   const body = (await request.json()) as {
     challengeSlug?: unknown;
     playerName?: unknown;
     phoneNumber?: unknown;
     e6DisplayName?: unknown;
+    locationSlug?: unknown;
+    bayName?: unknown;
   };
   const challengeSlug =
     typeof body.challengeSlug === "string" ? body.challengeSlug : "";
@@ -17,6 +26,9 @@ export async function POST(request: Request) {
     typeof body.phoneNumber === "string" ? body.phoneNumber.trim() : "";
   const e6DisplayName =
     typeof body.e6DisplayName === "string" ? body.e6DisplayName.trim() : "";
+  const locationSlug =
+    typeof body.locationSlug === "string" ? body.locationSlug.trim() : "";
+  const bayName = typeof body.bayName === "string" ? body.bayName.trim() : "";
   const challenge = getClubhouseChallenge(challengeSlug);
 
   if (!challenge) {
@@ -50,6 +62,11 @@ export async function POST(request: Request) {
       ],
       metadata: {
         challengeSlug: challenge.slug,
+        userId: player.id,
+        userEmail: player.email,
+        locationSlug,
+        locationName: challenge.venue,
+        bayName,
         playerName,
         phoneNumber,
         e6DisplayName,
@@ -57,6 +74,11 @@ export async function POST(request: Request) {
       payment_intent_data: {
         metadata: {
           challengeSlug: challenge.slug,
+          userId: player.id,
+          userEmail: player.email,
+          locationSlug,
+          locationName: challenge.venue,
+          bayName,
           playerName,
           phoneNumber,
           e6DisplayName,

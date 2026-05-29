@@ -4,9 +4,11 @@ import {
   ClipboardCheck,
   KeyRound,
   ListChecks,
+  MapPin,
   PencilLine,
   ShieldCheck,
   Trophy,
+  UsersRound,
 } from "lucide-react";
 import { AdminLogoutForm } from "@/app/admin/logout-form";
 import { ChallengeAdminCard } from "@/app/admin/challenges/challenge-admin-card";
@@ -44,6 +46,18 @@ export default async function AdminChallengesPage() {
               className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
             >
               <Trophy size={18} /> Long Drive log
+            </Link>
+            <Link
+              href="/admin/locations"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
+            >
+              <MapPin size={18} /> Locations
+            </Link>
+            <Link
+              href="/admin/users"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
+            >
+              <UsersRound size={18} /> User log
             </Link>
             <Link
               href="/admin/results"

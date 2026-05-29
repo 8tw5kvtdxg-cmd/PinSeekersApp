@@ -4,6 +4,7 @@ import {
   KeyRound,
   PencilLine,
   Trophy,
+  UsersRound,
 } from "lucide-react";
 import { AdminLogoutForm } from "@/app/admin/logout-form";
 import { LiveEntryLog } from "@/app/admin/entries/live-entry-log";
@@ -46,6 +47,12 @@ export default async function AdminEntriesPage() {
               className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
             >
               <Trophy size={18} /> Long Drive log
+            </Link>
+            <Link
+              href="/admin/users"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
+            >
+              <UsersRound size={18} /> User log
             </Link>
             <Link
               href="/admin/results"
