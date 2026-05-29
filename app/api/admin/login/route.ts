@@ -7,11 +7,11 @@ import {
 
 function getSafeNextPath(value: FormDataEntryValue | null) {
   if (typeof value !== "string" || !value.startsWith("/admin")) {
-    return "/admin/challenges";
+    return "/admin";
   }
 
   if (value.startsWith("/admin/login")) {
-    return "/admin/challenges";
+    return "/admin";
   }
 
   return value;
@@ -50,4 +50,3 @@ export async function POST(request: Request) {
 
   return response;
 }
-

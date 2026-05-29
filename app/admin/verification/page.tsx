@@ -6,6 +6,7 @@ import {
   PencilLine,
   UsersRound,
 } from "lucide-react";
+import { AdminHomeLink } from "@/app/admin/admin-home-link";
 import { AdminLogoutForm } from "@/app/admin/logout-form";
 import { LiveVerificationQueue } from "@/app/admin/verification/live-verification-queue";
 import { requireAdminSession } from "@/lib/admin-auth";
@@ -40,6 +41,7 @@ export default async function AdminVerificationPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <AdminHomeLink />
             <Link
               href="/admin/entries"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"

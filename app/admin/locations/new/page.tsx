@@ -1,3 +1,4 @@
+import { AdminHomeLink } from "@/app/admin/admin-home-link";
 import { LocationForm } from "@/app/admin/locations/new/location-form";
 import { requireAdminSession } from "@/lib/admin-auth";
 
@@ -10,6 +11,9 @@ export default async function NewAdminLocationPage() {
         <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
           Partner locations
         </p>
+        <div className="mt-6">
+          <AdminHomeLink />
+        </div>
         <h1 className="mt-4 text-4xl font-black sm:text-5xl">
           Create location
         </h1>

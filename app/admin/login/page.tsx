@@ -13,7 +13,7 @@ export default async function AdminLoginPage({
   const nextPath =
     typeof params.next === "string" && params.next.startsWith("/admin")
       ? params.next
-      : "/admin/challenges";
+      : "/admin";
 
   if (isAuthenticated) {
     redirect(nextPath);
@@ -88,4 +88,3 @@ export default async function AdminLoginPage({
     </main>
   );
 }
-

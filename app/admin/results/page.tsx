@@ -5,6 +5,7 @@ import {
   ListChecks,
   UsersRound,
 } from "lucide-react";
+import { AdminHomeLink } from "@/app/admin/admin-home-link";
 import { AdminLogoutForm } from "@/app/admin/logout-form";
 import { ResultLogTable } from "@/app/admin/results/result-log-table";
 import { requireAdminSession } from "@/lib/admin-auth";
@@ -33,6 +34,7 @@ export default async function AdminResultsPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <AdminHomeLink />
             <Link
               href="/admin/challenges"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
