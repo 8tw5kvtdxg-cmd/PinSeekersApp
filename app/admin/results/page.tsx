@@ -29,8 +29,8 @@ export default async function AdminResultsPage() {
               Manual result log
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-[#53605a]">
-              Enter verified E6 results for each paid entry. Public leaderboards
-              use entries marked Verified.
+              Enter verified E6 results for each registered entry. Public
+              result views use entries marked Verified.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">

@@ -86,15 +86,13 @@ const resultUnitOptions: {
   challengeType: SimulatorChallengeType;
 }[] = [
   { label: "ft / in", value: "ft/in", challengeType: "CLOSEST_TO_PIN" },
-  { label: "yd", value: "yd", challengeType: "LONGEST_DRIVE" },
 ];
 
 const challengeOptions: {
   label: string;
   value: SimulatorChallengeType;
 }[] = [
-  { label: "Closest to the Pin", value: "CLOSEST_TO_PIN" },
-  { label: "Longest Drive", value: "LONGEST_DRIVE" },
+  { label: "Hole-in-One Challenge", value: "CLOSEST_TO_PIN" },
 ];
 
 const providerOptions = [
@@ -237,9 +235,7 @@ function challengeLabel(session?: SimulatorSession | null) {
     return "Simulator challenge";
   }
 
-  return session.challengeType === "LONGEST_DRIVE"
-    ? "Longest Drive"
-    : "Closest to the Pin";
+  return "Hole-in-One Challenge";
 }
 
 function providerLabel(value?: string) {
@@ -317,9 +313,6 @@ export default function OperatorSessionPage() {
     notes: "",
   });
 
-  const resultUnit =
-    resultUnitOptions.find((option) => option.value === resultForm.resultUnit)
-      ?.label ?? resultForm.resultUnit;
   const resultChallengeType =
     resultUnitOptions.find((option) => option.value === resultForm.resultUnit)
       ?.challengeType ?? session?.challengeType;
@@ -351,16 +344,12 @@ export default function OperatorSessionPage() {
   const sortedResults = useMemo(
     () =>
       [...results].sort((a, b) => {
-        if (session?.challengeType === "LONGEST_DRIVE") {
-          return (b.normalizedValue ?? 0) - (a.normalizedValue ?? 0);
-        }
-
         return (
           (a.normalizedValue ?? Number.POSITIVE_INFINITY) -
           (b.normalizedValue ?? Number.POSITIVE_INFINITY)
         );
       }),
-    [results, session?.challengeType],
+    [results],
   );
 
   const loadSession = async () => {
@@ -376,28 +365,21 @@ export default function OperatorSessionPage() {
 
     setSession(payload.session);
     setSessionForm(editFormFromSession(payload.session));
+    setResultForm((current) => ({
+      ...current,
+      resultUnit: "ft/in",
+    }));
     setResults(payload.results);
     setMessage("Session loaded from the local backend.");
   };
 
   useEffect(() => {
-    loadSession().catch((error: unknown) => {
+    void Promise.resolve().then(loadSession).catch((error: unknown) => {
       setMessage(
         error instanceof Error ? error.message : "Session could not be loaded.",
       );
     });
   }, [pin2WinSessionId]);
-
-  useEffect(() => {
-    if (!session) {
-      return;
-    }
-
-    setResultForm((current) => ({
-      ...current,
-      resultUnit: session.challengeType === "LONGEST_DRIVE" ? "yd" : "ft/in",
-    }));
-  }, [session]);
 
   const updateStatus = async (status: SimulatorSessionStatus) => {
     setIsBusy(true);
@@ -438,7 +420,7 @@ export default function OperatorSessionPage() {
     if (key === "challengeType") {
       setResultForm((current) => ({
         ...current,
-        resultUnit: value === "LONGEST_DRIVE" ? "yd" : "ft/in",
+        resultUnit: "ft/in",
       }));
     }
   };

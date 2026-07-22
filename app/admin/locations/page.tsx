@@ -144,7 +144,7 @@ export default async function AdminLocationsPage({
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-[#53605a]">
               Create partner venues, generate bay-specific QR entry links, and
-              review paid entry revenue grouped by location.
+              review registered challenge revenue grouped by location.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -370,7 +370,7 @@ export default async function AdminLocationsPage({
                   <div className="mt-5 grid gap-3 sm:grid-cols-2">
                     <div className="rounded-md bg-white p-4">
                       <p className="text-xs font-black uppercase tracking-[0.12em] text-[#59655f]">
-                        Paid entries
+                        Registered entries
                       </p>
                       <p className="mt-2 text-2xl font-black">
                         {selectedRevenueSummary.entryCount}

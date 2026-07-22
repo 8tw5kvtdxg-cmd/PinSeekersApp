@@ -217,7 +217,7 @@ export default async function AdminUsersPage() {
             },
             {
               icon: ReceiptText,
-              label: "Tracked payments",
+              label: "Tracked bookings",
               value: totalPayments,
             },
           ].map((item) => {
@@ -328,7 +328,7 @@ export default async function AdminUsersPage() {
                               {user._count.entries} entries
                             </span>
                             <span className="rounded-md bg-[#f5efdf] px-3 py-2 text-xs font-black text-[#6a4c1f]">
-                              {user._count.payments} payments
+                              {user._count.payments} payment records
                             </span>
                           </div>
                         </td>

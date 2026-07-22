@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  ArrowRight,
   BadgeCheck,
   ExternalLink,
   Globe,
@@ -10,8 +9,9 @@ import {
 } from "lucide-react";
 
 const playerDetails = [
-  "Scan the challenge QR code from the bay.",
-  "Pay your entry and receive the E6 Event Join Code.",
+  "Book the premium Pin2Win reservation through Alamo Golf Den.",
+  "Scan the challenge QR code when you arrive at the bay.",
+  "Confirm the matched booking details to reveal the E6 Event Join Code.",
   "Play the challenge in E6 during your simulator session.",
 ];
 
@@ -32,16 +32,18 @@ export default function LocationsPage() {
             Play Pin2Win at Alamo Golf Den
           </h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-white/74">
-            Our current challenge experience is built for players already at
-            the simulator bay. Scan the QR code, choose your event, and use the
-            E6 code shown after payment to join the challenge.
+            Book the premium Pin2Win reservation through Alamo Golf Den first.
+            When you arrive at the simulator bay, scan the QR code and enter
+            the matched booking details to reveal the E6 Event Join Code.
           </p>
-          <Link
-            href="/play"
+          <a
+            href="https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml"
+            target="_blank"
+            rel="noreferrer"
             className="mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#a8c878] px-6 text-sm font-black text-[#101816] transition hover:bg-[#c1df8d]"
           >
-            Choose a challenge <ArrowRight size={18} />
-          </Link>
+            Book at Alamo Golf Den <ExternalLink size={18} />
+          </a>
         </section>
 
         <section className="mt-8 rounded-lg border border-[#ded6c8] bg-white p-6">
@@ -82,8 +84,8 @@ export default function LocationsPage() {
             <Trophy className="text-[#2f6b3f]" size={30} />
             <h2 className="mt-4 text-2xl font-black">E6 Clubhouse events</h2>
             <p className="mt-3 leading-7 text-[#59655f]">
-              After you enter, use the E6 Event Join Code from your confirmation
-              page to play inside E6.
+              After you confirm the booking, use the E6 Event Join Code
+              from your confirmation page to play inside E6.
             </p>
           </article>
           <article className="rounded-lg border border-[#ded6c8] bg-white p-5">
@@ -100,7 +102,7 @@ export default function LocationsPage() {
           <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
             What to expect
           </p>
-          <ul className="mt-5 grid gap-3 md:grid-cols-3">
+          <ul className="mt-5 grid gap-3 md:grid-cols-4">
             {playerDetails.map((detail) => (
               <li key={detail} className="flex gap-3 leading-7 text-[#59655f]">
                 <BadgeCheck className="mt-1 shrink-0 text-[#2f6b3f]" size={20} />

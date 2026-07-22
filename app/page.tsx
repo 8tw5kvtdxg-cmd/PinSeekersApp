@@ -3,69 +3,57 @@ import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
-  CreditCard,
+  ClipboardCheck,
+  ExternalLink,
   MonitorPlay,
   QrCode,
   Trophy,
 } from "lucide-react";
-import { MonthlyPrizePot } from "@/app/components/monthly-prize-pot";
 import { clubhouseChallengeSlugs } from "@/lib/clubhouse";
-import { getClubhousePotSummary } from "@/lib/clubhouse-entry-store";
+
+const alamoBookingUrl = "https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml";
 
 const playerSteps = [
   {
-    title: "Scan",
-    description: "Open the Pin2Win challenge page from the simulator bay.",
+    title: "Book",
+    description: "Reserve the premium Pin2Win time through Alamo Golf Den.",
+    icon: ClipboardCheck,
+  },
+  {
+    title: "Arrive",
+    description: "Use your simulator reservation and locate the Pin2Win QR code.",
     icon: QrCode,
   },
   {
-    title: "Pay",
-    description: "Enter your player details and complete your challenge entry.",
-    icon: CreditCard,
-  },
-  {
-    title: "Play",
-    description: "Use the E6 event code shown after checkout and take your shot.",
+    title: "Unlock",
+    description: "Confirm the matched booking details to reveal the E6 code.",
     icon: MonitorPlay,
   },
   {
-    title: "Win",
-    description: "Chase the monthly leaderboard or the hole-in-one prize.",
+    title: "Swing",
+    description: "Enter the E6 event and take your shot at the hole-in-one prize.",
     icon: Trophy,
   },
 ];
 
 const challengeTypes = [
   {
-    name: "Monthly Closest to the Pin",
+    name: "Hole-in-One Challenge",
     description:
-      "Aim tight, post your verified result, compete for the monthly payout, and take your shot at the $10,000 hole-in-one prize.",
-    href: `/play/${clubhouseChallengeSlugs.closestToPin}`,
-    slug: clubhouseChallengeSlugs.closestToPin,
-    featuredPrize: "Monthly payout + $10,000 ace prize",
-  },
-  {
-    name: "Monthly Longest Drive",
-    description:
-      "Step up, swing big, and see if your longest verified drive can hold the top spot.",
-    href: `/play/${clubhouseChallengeSlugs.longestDrive}`,
-    slug: clubhouseChallengeSlugs.longestDrive,
-    featuredPrize: "Monthly payout",
+      "Book the premium Alamo reservation, confirm your booking onsite, and take your shot at the $10,000 prize.",
+    href: `/play/${clubhouseChallengeSlugs.holeInOne}`,
+    slug: clubhouseChallengeSlugs.holeInOne,
+    featuredPrize: "$10,000 ace prize",
   },
 ];
 
 const playerBenefits = [
-  "Optional paid skill challenges available right from the simulator bay.",
-  "Verified Closest to the Pin entrants are also eligible for the $10,000 hole-in-one prize.",
-  "Monthly Closest to the Pin and Longest Drive payouts for verified winners.",
+  "Premium challenge reservations are booked through Alamo Golf Den.",
+  "Verified entrants are eligible for the $10,000 hole-in-one prize.",
   "Use your E6 username so your result can be matched correctly.",
 ];
 
 export default async function Home() {
-  const potSummaries = await Promise.all(
-    challengeTypes.map((challenge) => getClubhousePotSummary(challenge.slug)),
-  );
-
   return (
     <main className="min-h-screen bg-[#f8f4ec] text-[#18211f]">
       <section className="relative isolate min-h-[84vh] overflow-hidden bg-[#101816] text-white">
@@ -83,29 +71,30 @@ export default async function Home() {
           <div className="grid flex-1 items-center gap-12 py-16 lg:grid-cols-[minmax(0,0.95fr)_minmax(340px,0.55fr)]">
             <div className="max-w-3xl">
               <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-bold text-[#a8c878] backdrop-blur">
-                <QrCode size={16} /> Pay. Play. Win.
+                <QrCode size={16} /> Book. Register. Play.
               </p>
               <h1 className="text-5xl font-black leading-[0.98] tracking-normal sm:text-6xl lg:text-7xl">
-                Take your shot at real golf challenge payouts.
+                Take one swing at a $10,000 hole-in-one.
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-white/78">
-                Scan the Pin2Win QR code at the bay, pay your entry, play the
-                challenge in E6, and compete for monthly winner payouts or a
-                $10,000 hole-in-one prize opportunity through Closest to the
-                Pin.
+                Book a premium challenge reservation through Alamo Golf Den,
+                arrive for your simulator time, scan the Pin2Win QR code, and
+                confirm your matched booking to reveal the E6 Event Join Code.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/play"
+                <a
+                  href={alamoBookingUrl}
+                  target="_blank"
+                  rel="noreferrer"
                   className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#a8c878] px-6 text-sm font-black text-[#101816] shadow-lg shadow-black/20 transition hover:bg-[#c1df8d]"
                 >
-                  Enter a Challenge <ArrowRight size={18} />
-                </Link>
+                  Book at Alamo Golf Den <ExternalLink size={18} />
+                </a>
                 <Link
-                  href="/leaderboard"
+                  href="/play"
                   className="inline-flex h-12 items-center justify-center rounded-md border border-white/24 px-6 text-sm font-bold text-white transition hover:bg-white/10"
                 >
-                  View leaderboard
+                  QR registration
                 </Link>
               </div>
             </div>
@@ -115,10 +104,10 @@ export default async function Home() {
                 <Trophy className="text-[#a8c878]" size={34} />
                 <div>
                   <p className="text-sm font-bold text-[#a8c878]">
-                    Prize opportunities
+                    Active challenge
                   </p>
                   <h2 className="mt-1 text-2xl font-black">
-                    Pay. Play. Win.
+                    Book. Register. Play.
                   </h2>
                 </div>
               </div>
@@ -129,22 +118,21 @@ export default async function Home() {
                   </p>
                   <p className="mt-2 text-4xl font-black">$10,000</p>
                   <p className="mt-2 text-sm leading-6 text-white/70">
-                    Verified Closest to the Pin entrants are also eligible if
-                    they hit the ace.
+                    Verified entrants are eligible if they hit the ace.
                   </p>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="rounded-lg border border-white/12 bg-white/8 p-4">
-                    <p className="text-sm font-black">Closest to the Pin</p>
+                    <p className="text-sm font-black">One active challenge</p>
                     <p className="mt-2 text-sm leading-6 text-white/66">
-                      Monthly winner payout plus $10,000 hole-in-one
-                      eligibility for verified entrants.
+                      Simple onsite flow: book with Alamo, scan the QR, submit
+                      the booking details, and play.
                     </p>
                   </div>
                   <div className="rounded-lg border border-white/12 bg-white/8 p-4">
-                    <p className="text-sm font-black">Longest Drive</p>
+                    <p className="text-sm font-black">E6 event code</p>
                     <p className="mt-2 text-sm leading-6 text-white/66">
-                      Monthly competition with payout to the verified winner.
+                      Revealed only after the onsite booking is confirmed.
                     </p>
                   </div>
                 </div>
@@ -163,12 +151,13 @@ export default async function Home() {
             How it works
           </p>
           <h2 className="mt-4 text-4xl font-black leading-tight">
-            Pay. Play. Win.
+            Book. Register. Play.
           </h2>
           <p className="mt-5 text-lg leading-8 text-[#53605a]">
-            Pin2Win keeps the entry process quick so you can spend your session
-            competing. Pick the payout challenge, complete your entry, then use
-            the code shown on your confirmation page to join the event in E6.
+            Pin2Win keeps the registration process quick so you can spend your
+            session competing. Book through Alamo Golf Den first, then scan the
+            QR code onsite and confirm the matched booking details to join the
+            event in E6.
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -196,22 +185,22 @@ export default async function Home() {
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
               <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-                Payout challenges
+                One challenge
               </p>
               <h2 className="mt-4 text-4xl font-black">
-                Choose what you want to win.
+                Book the challenge, confirm onsite, take the shot.
               </h2>
             </div>
             <Link
               href="/play"
               className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white transition hover:bg-[#2a3935]"
             >
-              Choose a challenge <ArrowRight size={17} />
+              Start registration <ArrowRight size={17} />
             </Link>
           </div>
 
-          <div className="mt-9 grid gap-5 md:grid-cols-2">
-            {challengeTypes.map((challenge, index) => (
+          <div className="mt-9 grid gap-5">
+            {challengeTypes.map((challenge) => (
               <article
                 key={challenge.name}
                 className="rounded-lg border border-[#e4ddcf] bg-[#fbf8f1] p-6"
@@ -224,11 +213,6 @@ export default async function Home() {
                 <p className="mt-3 leading-7 text-[#59655f]">
                   {challenge.description}
                 </p>
-                <MonthlyPrizePot
-                  challengeSlug={challenge.slug}
-                  initialSummary={potSummaries[index]}
-                  className="mt-5"
-                />
                 <Link
                   href={challenge.href}
                   className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#2f6b3f] px-5 text-sm font-black text-[#2f6b3f] transition hover:bg-[#e3edd8]"

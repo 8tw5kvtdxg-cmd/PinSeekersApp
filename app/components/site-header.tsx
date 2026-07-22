@@ -10,7 +10,6 @@ const navigation = [
   { href: "/#how-it-works", label: "How it works" },
   { href: "/locations", label: "Locations" },
   { href: "/rent", label: "Before you play" },
-  { href: "/leaderboard", label: "Leaderboard" },
   { href: "/contact", label: "Contact" },
 ];
 

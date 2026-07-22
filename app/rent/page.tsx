@@ -58,7 +58,7 @@ export default function RentBayPage() {
             <p className="mt-5 text-lg leading-8 text-[#53605a]">
               Pin2Win is for the challenge entry, not the bay reservation. Once
               your simulator time is set, scan the QR code at the bay to enter
-              closest-to-the-pin or longest-drive events.
+              the Hole-in-One challenge.
             </p>
             <div className="mt-8 rounded-lg bg-[#18211f] p-6 text-white">
               <Trophy className="text-[#a8c878]" size={30} />

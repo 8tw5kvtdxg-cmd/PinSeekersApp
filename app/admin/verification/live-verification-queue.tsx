@@ -67,7 +67,7 @@ function SearchResults({
     <section className="mt-6 overflow-hidden rounded-lg border border-[#ded6c8] bg-white">
       <div className="border-b border-[#ece5d8] bg-[#fbf8f1] px-5 py-4">
         <p className="text-sm font-black text-[#18211f]">
-          Search results for "{query.trim()}"
+          Search results for &quot;{query.trim()}&quot;
         </p>
         <p className="mt-1 text-sm font-bold text-[#59655f]">
           {entries.length} matching {entries.length === 1 ? "entry" : "entries"}
@@ -104,7 +104,7 @@ function SearchResults({
                   E6: {entry.e6DisplayName} · {challengeName(entry.challengeSlug)}
                 </p>
                 <p className="mt-2 text-sm font-bold text-[#59655f]">
-                  Paid: {entry.paidAt} · Window: {entry.validFrom} -{" "}
+                  Registered: {entry.paidAt} · Window: {entry.validFrom} -{" "}
                   {entry.validUntil}
                 </p>
               </div>
@@ -116,7 +116,7 @@ function SearchResults({
                   Code revealed: {entry.e6EventCode}
                 </p>
                 <p className="font-bold text-[#59655f]">
-                  Result: {entry.result ?? "Awaiting E6 leaderboard result"}
+                  Result: {entry.result ?? "Awaiting E6 result"}
                 </p>
               </div>
             </div>
@@ -139,7 +139,7 @@ function QueueColumn({
       <div className="bg-[#18211f] px-5 py-4 text-white">
         <h2 className="text-xl font-black">{title}</h2>
         <p className="mt-1 text-sm font-bold text-white/62">
-          {entries.length} pending paid entries
+          {entries.length} pending registered entries
         </p>
       </div>
 
@@ -148,7 +148,7 @@ function QueueColumn({
           <ClipboardCheck className="mx-auto text-[#2f6b3f]" size={34} />
           <h3 className="mt-4 text-xl font-black">No entries yet</h3>
           <p className="mt-3 text-sm leading-6 text-[#59655f]">
-            New paid entries for this challenge will appear here automatically.
+            New venue-booked entries for this challenge will appear here automatically.
           </p>
         </div>
       ) : (
@@ -180,7 +180,7 @@ function QueueColumn({
               <div>
                 <p className="font-black">{entry.id}</p>
                 <p className="mt-1 font-bold text-[#59655f]">
-                  Paid: {entry.paidAt}
+                  Registered: {entry.paidAt}
                 </p>
               </div>
               <div>
@@ -193,7 +193,7 @@ function QueueColumn({
               </div>
               <div>
                 <p className="font-black text-[#2f6b3f]">
-                  {entry.result ?? "Awaiting E6 leaderboard result"}
+                  {entry.result ?? "Awaiting E6 result"}
                 </p>
                 <p className="mt-1 font-bold text-[#59655f]">
                   {challengeName(entry.challengeSlug)}
@@ -235,7 +235,7 @@ export function LiveVerificationQueue({
     () => [
       {
         icon: ClipboardCheck,
-        label: "Paid entries",
+        label: "Registered entries",
         value: String(entries.length),
       },
       {
@@ -297,7 +297,7 @@ export function LiveVerificationQueue({
   }
 
   useEffect(() => {
-    refreshEntries();
+    void Promise.resolve().then(refreshEntries);
 
     function refreshWhenVisible() {
       if (document.visibilityState === "visible") {
@@ -316,21 +316,12 @@ export function LiveVerificationQueue({
     };
   }, []);
 
-  const closestToPinEntries = useMemo(
+  const challengeEntries = useMemo(
     () =>
       entries.filter(
         (entry) =>
           normalizeChallengeSlug(entry.challengeSlug) ===
-          clubhouseChallengeSlugs.closestToPin,
-      ),
-    [entries],
-  );
-  const longestDriveEntries = useMemo(
-    () =>
-      entries.filter(
-        (entry) =>
-          normalizeChallengeSlug(entry.challengeSlug) ===
-          clubhouseChallengeSlugs.longestDrive,
+          clubhouseChallengeSlugs.holeInOne,
       ),
     [entries],
   );
@@ -344,23 +335,14 @@ export function LiveVerificationQueue({
         : [],
     [entries, normalizedQuery],
   );
-  const visibleClosestToPinEntries = useMemo(
+  const visibleChallengeEntries = useMemo(
     () =>
       normalizedQuery
-        ? closestToPinEntries.filter((entry) =>
+        ? challengeEntries.filter((entry) =>
             searchableText(entry).includes(normalizedQuery),
           )
-        : closestToPinEntries,
-    [closestToPinEntries, normalizedQuery],
-  );
-  const visibleLongestDriveEntries = useMemo(
-    () =>
-      normalizedQuery
-        ? longestDriveEntries.filter((entry) =>
-            searchableText(entry).includes(normalizedQuery),
-          )
-        : longestDriveEntries,
-    [longestDriveEntries, normalizedQuery],
+        : challengeEntries,
+    [challengeEntries, normalizedQuery],
   );
 
   return (
@@ -371,7 +353,7 @@ export function LiveVerificationQueue({
             Live verification monitor
           </p>
           <p className="mt-1 text-sm font-bold text-[#59655f]">
-            Auto-refreshing every 2.5 seconds. Last updated: {lastUpdated}
+            Auto-refreshing every second. Last updated: {lastUpdated}
           </p>
           {error ? (
             <p className="mt-2 text-sm font-bold text-[#9a3324]">{error}</p>
@@ -444,14 +426,10 @@ export function LiveVerificationQueue({
 
       <SearchResults entries={searchResults} query={query} />
 
-      <div className="mt-10 grid gap-6 xl:grid-cols-2">
+      <div className="mt-10 grid gap-6">
         <QueueColumn
-          title="Closest to the Pin"
-          entries={visibleClosestToPinEntries}
-        />
-        <QueueColumn
-          title="Longest Drive"
-          entries={visibleLongestDriveEntries}
+          title="Hole-in-One Challenge"
+          entries={visibleChallengeEntries}
         />
       </div>
     </>

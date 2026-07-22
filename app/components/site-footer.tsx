@@ -19,14 +19,14 @@ export function SiteFooter() {
             PIN2WIN
           </Link>
           <p className="mt-4 max-w-xl leading-7 text-white/66">
-            Live golf simulator challenges for players chasing monthly payouts,
-            growing prize pots, and verified leaderboard results.
+            Live golf simulator challenges for players taking a verified shot
+            at a hole-in-one prize.
           </p>
           <p className="mt-6 text-sm leading-6 text-white/46">
-            Disclaimers: Prize eligibility, payout amounts, challenge rules,
+            Disclaimers: Prize eligibility, prize amounts, challenge rules,
             location availability, and entry requirements may vary by venue.
             Players must follow posted rules and local eligibility requirements.
-            No purchase or paid entry should be offered where prohibited by law.
+            No prize entry should be offered where prohibited by law.
           </p>
         </div>
 

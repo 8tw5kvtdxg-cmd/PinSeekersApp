@@ -26,15 +26,15 @@ const statusOptions: ClubhouseEntryRecord["resultStatus"][] = [
 ];
 
 function resultUnitForChallenge(challenge: ClubhouseChallenge) {
-  return challenge.type === "CLOSEST_TO_PIN" ? "inches" : "yards";
+  return challenge.type === "HOLE_IN_ONE" ? "inches" : "yards";
 }
 
 function resultHelpText(challenge: ClubhouseChallenge) {
-  if (challenge.type === "CLOSEST_TO_PIN") {
-    return "Paid entries appear automatically. Enter feet and inches later; lower total distance wins.";
+  if (challenge.type === "HOLE_IN_ONE") {
+    return "Registered entries appear automatically. Enter feet and inches later; lower total distance wins.";
   }
 
-  return "Paid entries appear automatically. Enter a result later using yards as the sort value; higher wins.";
+  return "Registered entries appear automatically. Enter a result later using yards as the sort value; higher wins.";
 }
 
 function formatNumber(value: number) {
@@ -152,7 +152,7 @@ export function ResultLogTable({
       });
 
       if (!response.ok) {
-        throw new Error("Could not refresh paid entries.");
+        throw new Error("Could not refresh registered entries.");
       }
 
       const data = (await response.json()) as {
@@ -164,7 +164,7 @@ export function ResultLogTable({
       mergeDrafts(nextEntries);
     } catch (error) {
       setTableError(
-        error instanceof Error ? error.message : "Could not refresh paid entries.",
+        error instanceof Error ? error.message : "Could not refresh registered entries.",
       );
     } finally {
       if (showButtonState) {
@@ -323,7 +323,7 @@ export function ResultLogTable({
 
   async function deleteEntry(entryId: string) {
     const confirmed = window.confirm(
-      `Delete entry ${entryId}? This removes it from the result log and leaderboard.`,
+      `Delete entry ${entryId}? This removes it from the result log and verified results.`,
     );
 
     if (!confirmed) {
@@ -374,7 +374,7 @@ export function ResultLogTable({
             {resultHelpText(challenge)}
           </p>
           <p className="mt-2 text-xs font-black uppercase tracking-[0.12em] text-[#a8c878]">
-            {visibleEntries.length} payment-verified entrant
+            {visibleEntries.length} booking-registered entrant
             {visibleEntries.length === 1 ? "" : "s"} logged
           </p>
           {tableError ? (
@@ -397,9 +397,9 @@ export function ResultLogTable({
       {visibleEntries.length === 0 ? (
         <div className="p-8 text-center">
           <CheckCircle2 className="mx-auto text-[#2f6b3f]" size={34} />
-          <h3 className="mt-4 text-xl font-black">No paid entries yet</h3>
+          <h3 className="mt-4 text-xl font-black">No registered entries yet</h3>
           <p className="mt-3 text-sm leading-6 text-[#59655f]">
-            Paid entries for this challenge will appear here after checkout.
+            Venue-booked entries for this challenge will appear here after QR registration.
           </p>
         </div>
       ) : (
@@ -411,9 +411,9 @@ export function ResultLogTable({
                 <th className="px-4 py-3">Player</th>
                 <th className="px-4 py-3">Phone</th>
                 <th className="px-4 py-3">E6 Username</th>
-                <th className="px-4 py-3">Payment</th>
-                <th className="px-4 py-3">Paid</th>
-                {challenge.type === "CLOSEST_TO_PIN" ? (
+                <th className="px-4 py-3">Booking</th>
+                <th className="px-4 py-3">Registered</th>
+                {challenge.type === "HOLE_IN_ONE" ? (
                   <>
                     <th className="px-4 py-3">Feet</th>
                     <th className="px-4 py-3">Inches</th>
@@ -463,7 +463,7 @@ export function ResultLogTable({
                     <td className="px-4 py-4 align-top text-[#59655f]">
                       {entry.paidAt}
                     </td>
-                    {challenge.type === "CLOSEST_TO_PIN" ? (
+                    {challenge.type === "HOLE_IN_ONE" ? (
                       <>
                         <td className="px-4 py-4 align-top">
                           <div className="flex items-center gap-2">
@@ -554,7 +554,7 @@ export function ResultLogTable({
                     <td className="px-4 py-4 align-top">
                       <input
                         className="h-10 w-56 rounded-md border border-[#ded6c8] px-3 outline-none focus:border-[#2f6b3f]"
-                        placeholder="Leaderboard note or evidence"
+                        placeholder="Result note or evidence"
                         value={draft.evidence}
                         onChange={(event) =>
                           updateDraft(entry.id, { evidence: event.target.value })

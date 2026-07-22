@@ -5,13 +5,13 @@ const areas = [
   {
     href: "/play",
     title: "Player flow",
-    description: "QR landing, challenge selection, profile capture, and paid entry.",
+    description: "Booking funnel, QR landing, profile capture, and code-gated entry.",
     icon: ArrowRight,
   },
   {
     href: "/leaderboard",
-    title: "Leaderboard",
-    description: "Challenge standings after staff enters simulator results.",
+    title: "Verified results",
+    description: "Challenge results after staff enters simulator outcomes.",
     icon: Trophy,
   },
   {
@@ -44,9 +44,9 @@ export default function AppHomePage() {
         <div className="mt-10 max-w-3xl">
           <h1 className="text-4xl font-black sm:text-5xl">Core app workspace</h1>
           <p className="mt-5 text-lg leading-8 text-[#53605a]">
-            The POC is centered on the first business flow: scan, select, sign
-            up, pay, play with staff assistance, enter results, and update the
-            leaderboard.
+            The POC is centered on the first business flow: book through Alamo,
+            scan onsite, sign up, confirm the matched booking, play, enter
+            results, and update the verified result log.
           </p>
         </div>
 

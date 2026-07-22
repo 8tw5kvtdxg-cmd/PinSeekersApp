@@ -114,12 +114,14 @@ export default function SiteNotesPage() {
   const [message, setMessage] = useState("Site notes ready.");
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(storageKey);
+    window.setTimeout(() => {
+      const saved = window.localStorage.getItem(storageKey);
 
-    if (saved) {
-      setNotes({ ...defaultNotes, ...JSON.parse(saved) });
-      setMessage("Saved site notes loaded.");
-    }
+      if (saved) {
+        setNotes({ ...defaultNotes, ...JSON.parse(saved) });
+        setMessage("Saved site notes loaded.");
+      }
+    }, 0);
   }, []);
 
   const completedChecks = useMemo(

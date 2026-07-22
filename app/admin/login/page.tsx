@@ -43,7 +43,7 @@ export default async function AdminLoginPage({
           </div>
 
           <p className="mt-5 leading-7 text-[#59655f]">
-            Sign in before changing event codes, reviewing paid entries, or
+            Sign in before changing event codes, reviewing registered entries, or
             opening the verification tools.
           </p>
 

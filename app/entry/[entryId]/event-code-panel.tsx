@@ -12,39 +12,48 @@ export function EventCodePanel({
   fallbackEventCode,
   entryId,
 }: EventCodePanelProps) {
-  const [playerName, setPlayerName] = useState<string | null>(null);
-  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
-  const [e6DisplayName, setE6DisplayName] = useState<string | null>(null);
+  const [savedPlayer, setSavedPlayer] = useState<{
+    playerName: string | null;
+    phoneNumber: string | null;
+    e6DisplayName: string | null;
+  }>({
+    playerName: null,
+    phoneNumber: null,
+    e6DisplayName: null,
+  });
 
   useEffect(() => {
-    const savedEntry = window.localStorage.getItem(`pin2win-entry-${entryId}`);
+    window.setTimeout(() => {
+      const savedEntry = window.localStorage.getItem(`pin2win-entry-${entryId}`);
 
-    if (!savedEntry) {
-      return;
-    }
-
-    try {
-      const entry = JSON.parse(savedEntry) as {
-        playerName?: unknown;
-        phoneNumber?: unknown;
-        e6DisplayName?: unknown;
-      };
-
-      if (typeof entry.playerName === "string") {
-        setPlayerName(entry.playerName);
+      if (!savedEntry) {
+        return;
       }
 
-      if (typeof entry.phoneNumber === "string") {
-        setPhoneNumber(entry.phoneNumber);
-      }
+      try {
+        const entry = JSON.parse(savedEntry) as {
+          playerName?: unknown;
+          phoneNumber?: unknown;
+          e6DisplayName?: unknown;
+        };
 
-      if (typeof entry.e6DisplayName === "string") {
-        setE6DisplayName(entry.e6DisplayName);
+        setSavedPlayer({
+          playerName:
+            typeof entry.playerName === "string" ? entry.playerName : null,
+          phoneNumber:
+            typeof entry.phoneNumber === "string" ? entry.phoneNumber : null,
+          e6DisplayName:
+            typeof entry.e6DisplayName === "string"
+              ? entry.e6DisplayName
+              : null,
+        });
+      } catch {
+        window.localStorage.removeItem(`pin2win-entry-${entryId}`);
       }
-    } catch {
-      window.localStorage.removeItem(`pin2win-entry-${entryId}`);
-    }
+    }, 0);
   }, [entryId]);
+
+  const { playerName, phoneNumber, e6DisplayName } = savedPlayer;
 
   return (
     <div className="rounded-lg bg-[#fbf8f1] p-5">

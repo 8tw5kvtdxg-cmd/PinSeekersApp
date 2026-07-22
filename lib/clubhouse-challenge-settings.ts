@@ -119,7 +119,7 @@ export async function updateClubhouseChallengeSetting(input: {
   const endsAt = parseDateTimeInput(input.endsAt);
 
   if (startsAt && endsAt && startsAt >= endsAt) {
-    throw new Error("Monthly event end must be after the start.");
+    throw new Error("Event end must be after the start.");
   }
 
   const setting = await prisma.clubhouseChallengeSetting.upsert({

@@ -7,7 +7,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Pin2Win | Golf Challenges",
   description:
-    "QR-powered golf simulator challenges for venues, players, and live leaderboards.",
+    "QR-powered golf simulator hole-in-one challenges for venues and players.",
 };
 
 export default function RootLayout({

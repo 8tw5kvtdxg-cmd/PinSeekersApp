@@ -2,49 +2,42 @@ import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
-  CreditCard,
+  ClipboardCheck,
+  ExternalLink,
   MonitorPlay,
   QrCode,
   Trophy,
 } from "lucide-react";
-import { MonthlyPrizePot } from "@/app/components/monthly-prize-pot";
 import { clubhouseChallengeSlugs } from "@/lib/clubhouse";
-import { getClubhousePotSummary } from "@/lib/clubhouse-entry-store";
+
+const alamoBookingUrl = "https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml";
 
 const challenges = [
   {
-    name: "Monthly Closest to the Pin",
+    name: "Hole-in-One Challenge",
     location: "Alamo Golf Den",
     description:
-      "Aim for the flag, post your verified result in E6, compete for the monthly winner payout, and stay eligible for the $10,000 hole-in-one prize.",
-    href: `/play/${clubhouseChallengeSlugs.closestToPin}`,
-    slug: clubhouseChallengeSlugs.closestToPin,
-  },
-  {
-    name: "Monthly Longest Drive",
-    location: "Alamo Golf Den",
-    description:
-      "Take your biggest swing and compete for the longest verified drive of the month.",
-    href: `/play/${clubhouseChallengeSlugs.longestDrive}`,
-    slug: clubhouseChallengeSlugs.longestDrive,
+      "Book through Alamo Golf Den, confirm your matched booking onsite, and take your shot at the $10,000 prize.",
+    href: `/play/${clubhouseChallengeSlugs.holeInOne}`,
+    slug: clubhouseChallengeSlugs.holeInOne,
   },
 ];
 
 const steps = [
   {
-    title: "Choose a challenge",
-    description: "Select the event you want to enter at the simulator bay.",
-    icon: Trophy,
+    title: "Book with Alamo",
+    description: "Choose the premium Pin2Win booking option on Alamo Golf Den's scheduler.",
+    icon: ClipboardCheck,
   },
   {
-    title: "Add player details",
-    description: "Enter your full name, phone number, and E6 account name before checkout.",
+    title: "Scan onsite",
+    description: "When you arrive for your simulator time, scan the Pin2Win QR code.",
+    icon: QrCode,
+  },
+  {
+    title: "Confirm booking",
+    description: "Confirm the matched booking details to unlock the challenge.",
     icon: BadgeCheck,
-  },
-  {
-    title: "Pay the entry fee",
-    description: "Your confirmation page shows your Pin2Win entry ID.",
-    icon: CreditCard,
   },
   {
     title: "Use the E6 code",
@@ -54,10 +47,6 @@ const steps = [
 ];
 
 export default async function PlayPage() {
-  const potSummaries = await Promise.all(
-    challenges.map((challenge) => getClubhousePotSummary(challenge.slug)),
-  );
-
   return (
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
       <div className="mx-auto max-w-6xl">
@@ -74,16 +63,16 @@ export default async function PlayPage() {
               Play now
             </p>
             <h1 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">
-              Pay. Play. Win.
+              Book. Register. Play.
             </h1>
             <p className="mt-5 text-lg leading-8 text-[#53605a]">
-              Choose a payout challenge, enter your player information, and
-              complete payment. Your confirmation page will show the E6 Event
-              Join Code you need for your shot at the monthly leaderboard.
+              Book the premium challenge reservation through Alamo Golf Den.
+              When you arrive, scan the Pin2Win QR code and confirm the matched
+              booking details to reveal the E6 Event Join Code.
             </p>
             <p className="mt-4 rounded-lg border border-[#ded6c8] bg-white p-4 text-sm font-bold leading-6 text-[#53605a]">
-              Closest to the Pin entries also include $10,000 hole-in-one
-              eligibility for verified entrants.
+              The active Pin2Win experience is currently the $10,000
+              hole-in-one challenge.
             </p>
             <div className="mt-8 rounded-lg bg-[#18211f] p-6 text-white">
               <div className="flex items-center gap-3">
@@ -112,18 +101,26 @@ export default async function PlayPage() {
                   );
                 })}
               </ol>
+              <a
+                href={alamoBookingUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#a8c878] px-5 text-sm font-black text-[#101816] transition hover:bg-[#c1df8d]"
+              >
+                Book at Alamo Golf Den <ExternalLink size={17} />
+              </a>
             </div>
           </div>
 
           <section className="rounded-lg border border-[#ded6c8] bg-white p-6 shadow-xl shadow-[#18211f]/8">
             <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-              Available challenges
+              Available challenge
             </p>
-            <h2 className="mt-2 text-2xl font-black">
-              Monthly payout competitions
-            </h2>
+              <h2 className="mt-2 text-2xl font-black">
+                Active challenge
+              </h2>
             <div className="mt-6 grid gap-4">
-              {challenges.map((challenge, index) => (
+              {challenges.map((challenge) => (
                 <article
                   key={challenge.name}
                   className="rounded-lg border border-[#ded6c8] bg-[#fbf8f1] p-5"
@@ -136,16 +133,11 @@ export default async function PlayPage() {
                   <p className="mt-3 leading-7 text-[#59655f]">
                     {challenge.description}
                   </p>
-                  <MonthlyPrizePot
-                    challengeSlug={challenge.slug}
-                    initialSummary={potSummaries[index]}
-                    className="mt-5"
-                  />
                   <Link
                     href={challenge.href}
                     className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white transition hover:bg-[#2a3935]"
                   >
-                  Enter challenge <ArrowRight size={17} />
+                  QR registration <ArrowRight size={17} />
                 </Link>
                 </article>
               ))}
