@@ -55,12 +55,11 @@ export default async function PlayPage() {
               <QrCode size={16} /> Challenge lobby
             </p>
             <h1 className="mt-5 text-4xl font-black leading-tight sm:text-5xl">
-              Start the active Pin2Win experience.
+              Open the active challenge.
             </h1>
             <p className="mt-5 text-lg leading-8 text-[#51615b]">
-              Pin2Win gives players a quick path from QR scan to event-code
-              access while helping partner venues run a polished simulator
-              challenge.
+              Select the current Hole-in-One Challenge, create or log into your
+              account, and unlock the simulator event code after activation.
             </p>
           </div>
 
@@ -81,9 +80,9 @@ export default async function PlayPage() {
             </div>
 
             <p className="mt-5 leading-7 text-white/74">
-              A focused golf entertainment activation for partner simulator
-              locations, powered by QR registration, checkout, event-code
-              access, and result tracking.
+              Use this page if you arrived from the site navigation. If you
+              scanned a venue QR code, your location and bay details are already
+              attached to the next step.
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
