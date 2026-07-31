@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { DevConsoleFilter } from "@/app/components/dev-console-filter";
 import { SiteFooter } from "@/app/components/site-footer";
 import { SiteHeader } from "@/app/components/site-header";
 import "./globals.css";
@@ -22,7 +21,6 @@ export default function RootLayout({
         <div className="pt-[72px]">{children}</div>
         <SiteFooter />
       </body>
-      <DevConsoleFilter />
     </html>
   );
 }
