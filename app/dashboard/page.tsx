@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ClipboardList, Flag, PencilLine } from "lucide-react";
 
 const queue = [
-  { player: "Jordan Smith", challenge: "Closest to the Pin", status: "Paid entry" },
-  { player: "Taylor Kim", challenge: "Longest Drive", status: "Ready for staff" },
-  { player: "Avery Jones", challenge: "Closest to the Pin", status: "Awaiting shots" },
+  { player: "Jordan Smith", challenge: "Hole-in-One Challenge", status: "Registered" },
+  { player: "Taylor Kim", challenge: "Hole-in-One Challenge", status: "Ready for review" },
+  { player: "Avery Jones", challenge: "Hole-in-One Challenge", status: "Awaiting result" },
 ];
 
 export default function DashboardPage() {
@@ -20,8 +20,8 @@ export default function DashboardPage() {
             <h1 className="mt-4 text-4xl font-black sm:text-5xl">Admin dashboard</h1>
             <p className="mt-5 text-lg leading-8 text-[#53605a]">
               Staff manually starts the simulator session, enters shot data, and
-              posts the result. This keeps the POC honest while payments and
-              entries are validated.
+              posts the result. This keeps the POC honest while registrations
+              and entries are validated.
             </p>
           </section>
 
@@ -58,7 +58,7 @@ export default function DashboardPage() {
               ))}
             </div>
             <button className="mt-5 h-12 rounded-md bg-[#2f6b3f] px-6 text-sm font-black text-white transition hover:bg-[#3f7f4c]">
-              Save result and update leaderboard
+              Save result and update verified results
             </button>
           </section>
         </div>

@@ -1,16 +1,9 @@
-import Link from "next/link";
 import {
-  ClipboardCheck,
   Globe,
-  ListChecks,
   MapPin,
-  PencilLine,
   QrCode,
-  Trophy,
-  UsersRound,
 } from "lucide-react";
-import { AdminHomeLink } from "@/app/admin/admin-home-link";
-import { AdminLogoutForm } from "@/app/admin/logout-form";
+import { AdminShell } from "@/app/admin/admin-shell";
 import { ChallengeAdminCard } from "@/app/admin/challenges/challenge-admin-card";
 import { clubhouseChallenges } from "@/lib/clubhouse";
 import { listClubhouseChallengeSettings } from "@/lib/clubhouse-challenge-settings";
@@ -73,63 +66,11 @@ export default async function AdminChallengesPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
-      <div className="mx-auto max-w-6xl">
-        <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
-          <div>
-            <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-              Global E6 setup
-            </p>
-            <h1 className="mt-4 text-4xl font-black sm:text-5xl">
-              Challenge codes
-            </h1>
-            <p className="mt-5 max-w-3xl text-lg leading-8 text-[#53605a]">
-              Manage the shared monthly E6 Event Join Codes used by every
-              partner location QR flow.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <AdminHomeLink />
-            <Link
-              href="/admin/entries"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white transition hover:bg-[#2a3935]"
-            >
-              <ListChecks size={18} /> Entry log
-            </Link>
-            <Link
-              href="/admin/entries/longest-drive"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
-            >
-              <Trophy size={18} /> Long Drive log
-            </Link>
-            <Link
-              href="/admin/locations"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
-            >
-              <MapPin size={18} /> Locations
-            </Link>
-            <Link
-              href="/admin/users"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
-            >
-              <UsersRound size={18} /> User log
-            </Link>
-            <Link
-              href="/admin/results"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
-            >
-              <PencilLine size={18} /> Log results
-            </Link>
-            <Link
-              href="/admin/verification"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
-            >
-              <ClipboardCheck size={18} /> Review results
-            </Link>
-            <AdminLogoutForm />
-          </div>
-        </div>
-
+    <AdminShell
+      eyebrow="Global simulator setup"
+      title="Challenge codes"
+      description="Manage the shared simulator event code used by every partner location QR flow."
+    >
         <section className="mt-10 grid gap-6">
           {clubhouseChallenges.map((challenge) => (
             <ChallengeAdminCard
@@ -154,7 +95,7 @@ export default async function AdminChallengesPage() {
               <h2 className="text-2xl font-black">Location QR access</h2>
               <p className="mt-2 text-sm leading-6 text-[#59655f]">
                 These QR links point customers into the correct location and
-                bay flow. The E6 codes above stay shared globally.
+                bay flow. The simulator event codes above stay shared globally.
               </p>
             </div>
           </div>
@@ -220,7 +161,6 @@ export default async function AdminChallengesPage() {
           </div>
         </section>
 
-      </div>
-    </main>
+    </AdminShell>
   );
 }

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  ClipboardCheck,
   KeyRound,
   ListChecks,
   PencilLine,
@@ -36,8 +35,8 @@ export default async function AdminVerificationPage() {
               Verification queue
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-[#53605a]">
-              Compare paid Pin2Win entries with E6 Clubhouse leaderboard results
-              before approving prize eligibility.
+              Compare registered Pin2Win entries with simulator result records
+              before finalizing the leaderboard and operating records.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -46,13 +45,7 @@ export default async function AdminVerificationPage() {
               href="/admin/entries"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
             >
-              <ListChecks size={18} /> Closest log
-            </Link>
-            <Link
-              href="/admin/entries/longest-drive"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
-            >
-              <ClipboardCheck size={18} /> Long Drive log
+              <ListChecks size={18} /> Entry log
             </Link>
             <Link
               href="/admin/users"

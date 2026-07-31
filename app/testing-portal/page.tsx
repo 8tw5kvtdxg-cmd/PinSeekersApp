@@ -27,8 +27,7 @@ const challengeOptions: {
   label: string;
   value: SimulatorChallengeType;
 }[] = [
-  { label: "Closest to the Pin", value: "CLOSEST_TO_PIN" },
-  { label: "Longest Drive", value: "LONGEST_DRIVE" },
+  { label: "Hole-in-One Challenge", value: "CLOSEST_TO_PIN" },
 ];
 
 type SimulatorPayload = {
@@ -98,7 +97,7 @@ export default function TestingPortalPage() {
   };
 
   useEffect(() => {
-    loadSimulatorData().catch((error: unknown) => {
+    void Promise.resolve().then(loadSimulatorData).catch((error: unknown) => {
       setPortalMessage(
         error instanceof Error
           ? error.message
@@ -107,7 +106,7 @@ export default function TestingPortalPage() {
     });
   }, []);
 
-  const closestToPinResults = useMemo(
+  const holeInOneResults = useMemo(
     () =>
       testResults
         .filter((result) => result.challengeType === "CLOSEST_TO_PIN")
@@ -116,13 +115,6 @@ export default function TestingPortalPage() {
             (a.normalizedValue ?? Number.POSITIVE_INFINITY) -
             (b.normalizedValue ?? Number.POSITIVE_INFINITY),
         ),
-    [testResults],
-  );
-  const longestDriveResults = useMemo(
-    () =>
-      testResults
-        .filter((result) => result.challengeType === "LONGEST_DRIVE")
-        .sort((a, b) => (b.normalizedValue ?? 0) - (a.normalizedValue ?? 0)),
     [testResults],
   );
   const pendingSyncCount = testResults.filter(
@@ -352,17 +344,12 @@ export default function TestingPortalPage() {
               These saved results are for off-site validation only. Open a test
               session to edit setup information or capture results.
             </p>
-            <div className="mt-5 grid gap-5 xl:grid-cols-2">
+            <div className="mt-5 grid gap-5">
               {[
                 {
-                  title: "Closest to the Pin",
+                  title: "Hole-in-One Challenge",
                   hint: "Lower distance ranks higher",
-                  rows: closestToPinResults,
-                },
-                {
-                  title: "Longest Drive",
-                  hint: "Higher distance ranks higher",
-                  rows: longestDriveResults,
+                  rows: holeInOneResults,
                 },
               ].map((board) => (
                 <div

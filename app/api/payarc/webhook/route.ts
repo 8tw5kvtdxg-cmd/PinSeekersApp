@@ -1,0 +1,114 @@
+import {
+  createClubhouseEntryRecord,
+  getClubhouseEntryRecordByPayarcCheckoutId,
+} from "@/lib/clubhouse-entry-store";
+import {
+  listPayarcCheckoutRecords,
+  updatePayarcCheckoutRecord,
+} from "@/lib/payarc-checkout-store";
+
+export const dynamic = "force-dynamic";
+
+function payloadTextIncludes(payload: unknown, value: string) {
+  return JSON.stringify(payload).includes(value);
+}
+
+function readNestedString(payload: unknown, fields: string[]) {
+  let current = payload;
+
+  for (const field of fields) {
+    if (!current || typeof current !== "object" || Array.isArray(current)) {
+      return "";
+    }
+
+    current = (current as Record<string, unknown>)[field];
+  }
+
+  return typeof current === "string" ? current : "";
+}
+
+function webhookLooksSuccessful(payload: unknown) {
+  const text = JSON.stringify(payload).toLowerCase();
+
+  return (
+    text.includes("success") ||
+    text.includes("submitted_for_settlement") ||
+    text.includes("captured")
+  );
+}
+
+export async function POST(request: Request) {
+  const payload = (await request.json().catch(() => null)) as unknown;
+
+  if (!payload) {
+    return Response.json({ received: false }, { status: 400 });
+  }
+
+  const checkouts = await listPayarcCheckoutRecords();
+  const checkout = checkouts.find(
+    (record) =>
+      payloadTextIncludes(payload, record.id) ||
+      payloadTextIncludes(payload, record.payarcOrderId),
+  );
+
+  if (!checkout) {
+    return Response.json({ received: true, matched: false });
+  }
+
+  if (!webhookLooksSuccessful(payload)) {
+    await updatePayarcCheckoutRecord(checkout.id, { status: "Failed" });
+
+    return Response.json({ received: true, matched: true, status: "Failed" });
+  }
+
+  const chargeId =
+    readNestedString(payload, [
+      "api_response",
+      "original",
+      "data",
+      "id",
+    ]) || readNestedString(payload, ["data", "id"]);
+  const updatedCheckout = await updatePayarcCheckoutRecord(checkout.id, {
+    status: "Succeeded",
+    payarcChargeId: chargeId || undefined,
+  });
+
+  if (!updatedCheckout) {
+    return Response.json({ received: true, matched: false });
+  }
+
+  const existingEntry = await getClubhouseEntryRecordByPayarcCheckoutId(
+    updatedCheckout.id,
+  );
+
+  if (existingEntry) {
+    return Response.json({
+      received: true,
+      matched: true,
+      entryId: existingEntry.id,
+    });
+  }
+
+  const entry = await createClubhouseEntryRecord({
+    challengeSlug: updatedCheckout.challengeSlug,
+    playerName: updatedCheckout.playerName,
+    phoneNumber: updatedCheckout.phoneNumber,
+    e6DisplayName: updatedCheckout.e6DisplayName,
+    payarcCheckoutId: updatedCheckout.id,
+    payarcOrderId: updatedCheckout.payarcOrderId,
+    venueBookingReference: `Payarc order ${updatedCheckout.payarcOrderId}`,
+    locationSlug: updatedCheckout.locationSlug,
+    locationName: updatedCheckout.locationName,
+    bayName: updatedCheckout.bayName,
+  });
+
+  await updatePayarcCheckoutRecord(updatedCheckout.id, {
+    entryId: entry.id,
+  });
+
+  return Response.json({
+    received: true,
+    matched: true,
+    entryId: entry.id,
+  });
+}

@@ -4,7 +4,7 @@ import {
   CalendarClock,
   CheckCircle2,
   ShieldCheck,
-  Trophy,
+  UserCheck,
 } from "lucide-react";
 import { EventCodePanel } from "@/app/entry/[entryId]/event-code-panel";
 import { getClubhouseEntryRecord } from "@/lib/clubhouse-entry-store";
@@ -29,7 +29,7 @@ export default async function EntryConfirmationPage({
     loggedEntry?.challengeSlug ??
     savedEntry?.challengeSlug ??
     challengeSlug ??
-    clubhouseChallengeSlugs.closestToPin;
+    clubhouseChallengeSlugs.holeInOne;
   const challenge = getClubhouseChallenge(resolvedChallengeSlug);
 
   if (!challenge) {
@@ -44,8 +44,8 @@ export default async function EntryConfirmationPage({
     e6DisplayName: "Saved on this device",
     paymentStatus: "Succeeded" as const,
     paidAt: "Just now",
-    validFrom: "Starts after payment",
-    validUntil: `${challenge.playWindowMinutes} minutes after payment`,
+    validFrom: "Starts after code submission",
+    validUntil: `${challenge.playWindowMinutes} minutes after code submission`,
     attemptLimit: 1,
     resultStatus: "Pending E6 Result" as const,
   };
@@ -66,7 +66,7 @@ export default async function EntryConfirmationPage({
               <CheckCircle2 className="text-[#a8c878]" size={30} />
               <div>
                 <p className="text-sm font-black uppercase tracking-[0.16em] text-white/62">
-                  Paid entry confirmation
+                  Entry confirmation
                 </p>
                 <h1 className="mt-2 text-3xl font-black">{entry.id}</h1>
               </div>
@@ -77,7 +77,7 @@ export default async function EntryConfirmationPage({
             <div>
               <h2 className="text-2xl font-black">{challenge.name}</h2>
               <p className="mt-3 text-base leading-7 text-[#59655f]">
-                Keep this screen available while you enter the E6 event and
+                Keep this screen available while you enter the simulator event and
                 complete the challenge.
               </p>
 
@@ -98,13 +98,13 @@ export default async function EntryConfirmationPage({
                 </div>
                 <div>
                   <dt className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
-                    E6 display name
+                    Simulator display name
                   </dt>
                   <dd className="mt-1 font-black">{entry.e6DisplayName}</dd>
                 </div>
                 <div>
                   <dt className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
-                    Payment
+                    Registration
                   </dt>
                   <dd className="mt-1 font-black">{entry.paymentStatus}</dd>
                 </div>
@@ -136,19 +136,19 @@ export default async function EntryConfirmationPage({
               </p>
             </div>
             <div>
-              <Trophy className="text-[#2f6b3f]" size={24} />
-              <h3 className="mt-3 font-black">Prize eligibility</h3>
+              <UserCheck className="text-[#2f6b3f]" size={24} />
+              <h3 className="mt-3 font-black">Result matching</h3>
               <p className="mt-2 text-sm leading-6 text-[#59655f]">
-                Your result must match this paid entry before it can qualify for
-                prizes.
+                Your result must match this registered entry before it can
+                appear in Pin2Win records.
               </p>
             </div>
             <div>
               <ShieldCheck className="text-[#2f6b3f]" size={24} />
               <h3 className="mt-3 font-black">Verification</h3>
               <p className="mt-2 text-sm leading-6 text-[#59655f]">
-                Pin2Win verifies prize results against the E6 Clubhouse
-                leaderboard before payout.
+                Pin2Win verifies submitted results against the simulator record
+                before final review.
               </p>
             </div>
           </div>

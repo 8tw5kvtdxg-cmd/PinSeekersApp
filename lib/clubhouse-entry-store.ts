@@ -2,16 +2,25 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { ClubhouseEntry } from "@/lib/clubhouse";
 import {
-  clubhouseChallenges,
   getClubhouseChallenge,
   normalizeChallengeSlug,
 } from "@/lib/clubhouse";
 import { getClubhouseEventCode } from "@/lib/clubhouse-challenge-settings";
+import {
+  getBookingVerificationRecord,
+  updateBookingVerificationStatus,
+} from "@/lib/booking-verification-store";
 import { slugifyLocation } from "@/lib/location-utils";
 
 export type ClubhouseEntryRecord = ClubhouseEntry & {
   e6EventCode: string;
   stripeCheckoutSessionId?: string;
+  payarcCheckoutId?: string;
+  payarcOrderId?: string;
+  venueBookingReference?: string;
+  bookingVerificationId?: string;
+  bookingVerificationStatus?: "Pending Match" | "Auto Verified" | "Needs Review";
+  paymentMethod: "Stripe" | "Venue booking" | "Payarc";
   locationSlug: string;
   locationName: string;
   bayName?: string;
@@ -32,18 +41,6 @@ export type ClubhouseLeaderboardRow = {
   paidAt: string;
   resultStatus: ClubhouseEntryRecord["resultStatus"];
 };
-
-export type ClubhousePotSummary = {
-  challengeSlug: string;
-  challengeName: string;
-  entryCount: number;
-  revenueCents: number;
-  potCents: number;
-  potRate: number;
-};
-
-const potRate = 0.05;
-const monthlyStartingPotCents = 5000;
 
 const entriesPath = path.join(process.cwd(), ".pin2win-clubhouse-entries.json");
 async function readJsonObject<T extends Record<string, unknown>>(
@@ -85,29 +82,6 @@ export async function listClubhouseEntryRecordsForChallenge(challengeSlug: strin
   return entries.filter(
     (entry) => normalizeChallengeSlug(entry.challengeSlug) === normalizedSlug,
   );
-}
-
-export async function getClubhousePotSummaries() {
-  const entries = await listClubhouseEntryRecords();
-
-  return clubhouseChallenges.map((challenge) => {
-    const paidEntries = entries.filter(
-      (entry) =>
-        normalizeChallengeSlug(entry.challengeSlug) === challenge.slug &&
-        entry.paymentStatus === "Succeeded" &&
-        Boolean(entry.stripeCheckoutSessionId),
-    );
-    const revenueCents = paidEntries.length * challenge.entryFeeCents;
-
-    return {
-      challengeSlug: challenge.slug,
-      challengeName: challenge.name,
-      entryCount: paidEntries.length,
-      revenueCents,
-      potCents: monthlyStartingPotCents + Math.round(revenueCents * potRate),
-      potRate,
-    };
-  });
 }
 
 export async function getClubhouseLocationRevenueSummaries() {
@@ -158,13 +132,6 @@ export async function listClubhouseEntryRecordsForLocation(locationSlug: string)
 
     return entryLocationSlug === normalizedLocationSlug;
   });
-}
-
-export async function getClubhousePotSummary(challengeSlug: string) {
-  const normalizedSlug = normalizeChallengeSlug(challengeSlug);
-  const summaries = await getClubhousePotSummaries();
-
-  return summaries.find((summary) => summary.challengeSlug === normalizedSlug);
 }
 
 export async function getClubhouseEntryRecord(entryId: string) {
@@ -246,7 +213,7 @@ export async function getClubhouseLeaderboardRows(challengeSlug: string) {
       entry.resultUnit,
   );
   const sortedEntries = eligibleEntries.sort((a, b) => {
-    if (challenge?.type === "CLOSEST_TO_PIN") {
+    if (challenge?.type === "HOLE_IN_ONE") {
       return (a.resultValue ?? 0) - (b.resultValue ?? 0);
     }
 
@@ -261,7 +228,7 @@ export async function getClubhouseLeaderboardRows(challengeSlug: string) {
     challengeSlug: normalizeChallengeSlug(entry.challengeSlug),
     result: entry.result ?? "",
     resultValue: entry.resultValue ?? 0,
-    resultUnit: entry.resultUnit ?? (challenge?.type === "CLOSEST_TO_PIN" ? "inches" : "yards"),
+    resultUnit: entry.resultUnit ?? (challenge?.type === "HOLE_IN_ONE" ? "inches" : "yards"),
     paidAt: entry.paidAt,
     resultStatus: entry.resultStatus,
   }));
@@ -277,6 +244,20 @@ export async function getClubhouseEntryRecordByStripeSessionId(
   return (
     Object.values(entries).find(
       (entry) => entry.stripeCheckoutSessionId === stripeCheckoutSessionId,
+    ) ?? null
+  );
+}
+
+export async function getClubhouseEntryRecordByPayarcCheckoutId(
+  payarcCheckoutId: string,
+) {
+  const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
+    entriesPath,
+  );
+
+  return (
+    Object.values(entries).find(
+      (entry) => entry.payarcCheckoutId === payarcCheckoutId,
     ) ?? null
   );
 }
@@ -322,6 +303,10 @@ export async function createClubhouseEntryRecord(input: {
   phoneNumber: string;
   e6DisplayName: string;
   stripeCheckoutSessionId?: string;
+  payarcCheckoutId?: string;
+  payarcOrderId?: string;
+  venueBookingReference?: string;
+  bookingVerificationId?: string;
   locationSlug?: string;
   locationName?: string;
   bayName?: string;
@@ -337,7 +322,7 @@ export async function createClubhouseEntryRecord(input: {
   const e6DisplayName = input.e6DisplayName.trim();
 
   if (!playerName || !phoneNumber || !e6DisplayName) {
-    throw new Error("Player name, phone number, and E6 account name are required.");
+    throw new Error("Player name, phone number, and simulator account name are required.");
   }
 
   const normalizedChallengeSlug = normalizeChallengeSlug(input.challengeSlug);
@@ -347,9 +332,24 @@ export async function createClubhouseEntryRecord(input: {
     slugifyLocation(challenge.venue);
   const bayName = input.bayName?.trim() || challenge.bayLabel;
   const e6EventCode = await getClubhouseEventCode(normalizedChallengeSlug);
+  const bookingVerification = input.bookingVerificationId
+    ? await getBookingVerificationRecord(input.bookingVerificationId)
+    : null;
 
   if (!e6EventCode) {
-    throw new Error("E6 Event Join Code is not available.");
+    throw new Error("Simulator event code is not available.");
+  }
+
+  if (input.bookingVerificationId && !bookingVerification) {
+    throw new Error("Booking verification record was not found.");
+  }
+
+  if (
+    bookingVerification &&
+    (bookingVerification.status === "Used" ||
+      bookingVerification.status === "Rejected")
+  ) {
+    throw new Error("This booking is no longer available for entry.");
   }
 
   const existing = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
@@ -364,6 +364,16 @@ export async function createClubhouseEntryRecord(input: {
 
     if (existingStripeEntry) {
       return existingStripeEntry;
+    }
+  }
+
+  if (input.payarcCheckoutId) {
+    const existingPayarcEntry = Object.values(existing).find(
+      (entry) => entry.payarcCheckoutId === input.payarcCheckoutId,
+    );
+
+    if (existingPayarcEntry) {
+      return existingPayarcEntry;
     }
   }
 
@@ -387,6 +397,16 @@ export async function createClubhouseEntryRecord(input: {
     resultStatus: "Pending E6 Result",
     e6EventCode,
     stripeCheckoutSessionId: input.stripeCheckoutSessionId,
+    payarcCheckoutId: input.payarcCheckoutId,
+    payarcOrderId: input.payarcOrderId,
+    venueBookingReference: input.venueBookingReference?.trim() || undefined,
+    bookingVerificationId: bookingVerification?.id,
+    bookingVerificationStatus: bookingVerification ? "Auto Verified" : "Needs Review",
+    paymentMethod: input.payarcCheckoutId
+      ? "Payarc"
+      : input.stripeCheckoutSessionId
+      ? "Stripe"
+      : "Venue booking",
     locationSlug,
     locationName,
     bayName,
@@ -397,6 +417,14 @@ export async function createClubhouseEntryRecord(input: {
 
   existing[entryId] = entry;
   await writeJson(entriesPath, existing);
+
+  if (bookingVerification) {
+    await updateBookingVerificationStatus({
+      bookingId: bookingVerification.id,
+      status: "Used",
+      matchedEntryId: entryId,
+    });
+  }
 
   return entry;
 }

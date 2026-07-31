@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
   CheckCircle2,
+  ClipboardCheck,
   Clock,
   CreditCard,
+  ExternalLink,
   Eye,
   KeyRound,
   LockKeyhole,
@@ -16,14 +18,12 @@ import {
   UserPlus,
   UserRound,
 } from "lucide-react";
-import { MonthlyPrizePot } from "@/app/components/monthly-prize-pot";
 import type { ClubhouseChallenge } from "@/lib/clubhouse";
-import { formatEntryFee } from "@/lib/clubhouse";
-import type { ClubhousePotSummary } from "@/lib/clubhouse-entry-store";
+
+const alamoBookingUrl = "https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml";
 
 type EntryFlowProps = {
   challenge: ClubhouseChallenge;
-  initialPotSummary?: ClubhousePotSummary | null;
 };
 
 type PlayerAccount = {
@@ -40,6 +40,48 @@ type EntryDraft = {
   phoneNumber: string;
   e6DisplayName: string;
 };
+
+type BookingMatch = {
+  id: string;
+  maskedName: string;
+  maskedEmail: string;
+  locationName: string;
+  bayName?: string;
+  productName: string;
+  reservationLabel: string;
+  status: string;
+};
+
+type PayarcCheckout = {
+  id: string;
+  amountCents: number;
+  payarcOrderId: string;
+  payarcOrderToken: string;
+  paymentFormUrl: string;
+  checkoutScriptUrl: string;
+};
+
+type PayArcModal = {
+  renderModal: () => void;
+  closeModal?: () => void;
+  on: (
+    eventName: "paymentCompleted" | "paymentDeclined",
+    callback: () => void,
+  ) => void;
+};
+
+type PayArcConstructor = new (config: {
+  amount: number;
+  orderId: string;
+  orderToken: string;
+  viewScheme?: "light" | "dark";
+}) => PayArcModal;
+
+declare global {
+  interface Window {
+    PayArc?: PayArcConstructor;
+  }
+}
 
 function readEntryDraft(storageKey: string): EntryDraft {
   if (typeof window === "undefined") {
@@ -81,7 +123,7 @@ function getInitialQrParam(name: string) {
   return new URLSearchParams(window.location.search).get(name) ?? "";
 }
 
-export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
+export function EntryFlow({ challenge }: EntryFlowProps) {
   const storageKey = `pin2win-entry-draft-${challenge.slug}`;
   const draft = readEntryDraft(storageKey);
   const accessSectionRef = useRef<HTMLDivElement>(null);
@@ -93,6 +135,10 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
   const [playerName, setPlayerName] = useState(draft.playerName);
   const [phoneNumber, setPhoneNumber] = useState(draft.phoneNumber);
   const [e6DisplayName, setE6DisplayName] = useState(draft.e6DisplayName);
+  const [venueBookingReference, setVenueBookingReference] = useState("");
+  const [bookingMatch, setBookingMatch] = useState<BookingMatch | null>(null);
+  const [confirmedBookingId, setConfirmedBookingId] = useState("");
+  const [isLoadingBookingMatch, setIsLoadingBookingMatch] = useState(false);
   const [entryId, setEntryId] = useState("");
   const [playerAccount, setPlayerAccount] = useState<PlayerAccount | null>(null);
   const [accountMode, setAccountMode] = useState<"create" | "login">("create");
@@ -102,11 +148,13 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
   const [accountError, setAccountError] = useState("");
   const [accountNotice, setAccountNotice] = useState("");
   const [paymentError, setPaymentError] = useState("");
+  const [paymentNotice, setPaymentNotice] = useState("");
   const [isLoadingAccount, setIsLoadingAccount] = useState(true);
   const [isSubmittingAccount, setIsSubmittingAccount] = useState(false);
   const [isResendingVerification, setIsResendingVerification] = useState(false);
-  const [isStartingCheckout, setIsStartingCheckout] = useState(false);
   const [isCreatingEntry, setIsCreatingEntry] = useState(false);
+  const [isStartingPayarcCheckout, setIsStartingPayarcCheckout] =
+    useState(false);
 
   useEffect(() => {
     async function loadPlayerAccount() {
@@ -130,6 +178,44 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
 
     void loadPlayerAccount();
   }, []);
+
+  useEffect(() => {
+    async function loadBookingMatch() {
+      setIsLoadingBookingMatch(true);
+
+      try {
+        const params = new URLSearchParams();
+
+        if (locationSlug) {
+          params.set("location", locationSlug);
+        }
+
+        if (bayName) {
+          params.set("bay", bayName);
+        }
+
+        if (playerAccount?.emailVerified && playerAccount.email) {
+          params.set("email", playerAccount.email);
+        }
+
+        const response = await fetch(
+          `/api/clubhouse/bookings/match?${params.toString()}`,
+          { cache: "no-store" },
+        );
+        const data = (await response.json()) as {
+          booking?: BookingMatch | null;
+        };
+
+        setBookingMatch(response.ok ? data.booking ?? null : null);
+      } catch {
+        setBookingMatch(null);
+      } finally {
+        setIsLoadingBookingMatch(false);
+      }
+    }
+
+    void loadBookingMatch();
+  }, [bayName, locationSlug, playerAccount?.email, playerAccount?.emailVerified]);
 
   async function submitAccountForm() {
     const trimmedUsername = username.trim();
@@ -187,10 +273,10 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
       setPassword("");
       setAccountNotice(
         accountMode === "create"
-          ? "Account created. Check your email to verify before payment."
+          ? "Account created. Check your email to verify before continuing."
           : data.user.emailVerified
           ? "Logged in. You can continue this entry."
-          : "Logged in. Verify your email before payment.",
+          : "Logged in. Verify your email before continuing.",
       );
     } catch (error) {
       setAccountError(
@@ -239,7 +325,6 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
   const hasEntryDetails = Boolean(
     playerName.trim() && phoneNumber.trim() && e6DisplayName.trim(),
   );
-  const canStartPayment = isVerifiedPlayer && hasEntryDetails;
 
   function savePlayerInfo(nextEntryId = entryId) {
     const trimmedPlayerName = playerName.trim();
@@ -248,6 +333,9 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
 
     if (!trimmedPlayerName || !trimmedPhoneNumber || !trimmedE6DisplayName) {
       setAccountReady(false);
+      setPaymentError(
+        "Enter your name, phone number, and simulator account name before continuing.",
+      );
       return;
     }
 
@@ -277,7 +365,102 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
     return true;
   }
 
-  async function simulatePayment() {
+  function storeEntryDraft(entry: {
+    id: string;
+    challengeSlug: string;
+    playerName: string;
+    phoneNumber?: string;
+    e6DisplayName: string;
+  }) {
+    window.localStorage.setItem(
+      `pin2win-entry-${entry.id}`,
+      JSON.stringify({
+        challengeSlug: entry.challengeSlug,
+        playerName: entry.playerName,
+        phoneNumber: entry.phoneNumber ?? phoneNumber,
+        e6DisplayName: entry.e6DisplayName,
+      }),
+    );
+  }
+
+  function revealEntryCode(entry: {
+    id: string;
+    challengeSlug: string;
+    playerName: string;
+    phoneNumber?: string;
+    e6DisplayName: string;
+    e6EventCode: string;
+  }) {
+    storeEntryDraft(entry);
+    setEventCode(entry.e6EventCode);
+    setEntryId(entry.id);
+    setPaymentReady(true);
+    window.setTimeout(() => {
+      accessSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }, 50);
+  }
+
+  async function loadPayarcScript(scriptUrl: string) {
+    if (window.PayArc) {
+      return;
+    }
+
+    await new Promise<void>((resolve, reject) => {
+      const existingScript = document.querySelector<HTMLScriptElement>(
+        `script[src="${scriptUrl}"]`,
+      );
+
+      if (existingScript) {
+        existingScript.addEventListener("load", () => resolve(), {
+          once: true,
+        });
+        existingScript.addEventListener(
+          "error",
+          () => reject(new Error("Payarc checkout could not be loaded.")),
+          { once: true },
+        );
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = scriptUrl;
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = () =>
+        reject(new Error("Payarc checkout could not be loaded."));
+      document.body.appendChild(script);
+    });
+  }
+
+  async function completePayarcCheckout(checkoutId: string) {
+    const response = await fetch("/api/payarc/checkout/complete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ checkoutId }),
+    });
+    const data = (await response.json()) as {
+      entry?: {
+        id: string;
+        challengeSlug: string;
+        playerName: string;
+        phoneNumber?: string;
+        e6DisplayName: string;
+        e6EventCode: string;
+      };
+      error?: string;
+    };
+
+    if (!response.ok || !data.entry) {
+      throw new Error(data.error ?? "Could not confirm Payarc checkout.");
+    }
+
+    revealEntryCode(data.entry);
+  }
+
+  async function startPayarcCheckout() {
     const wasSaved = savePlayerInfo();
 
     if (!wasSaved) {
@@ -285,7 +468,94 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
     }
 
     if (!isVerifiedPlayer) {
-      setPaymentError("Verify your email before creating a paid entry.");
+      setPaymentError("Verify your email before checkout.");
+      return;
+    }
+
+    setIsStartingPayarcCheckout(true);
+    setPaymentError("");
+    setPaymentNotice("");
+
+    try {
+      const response = await fetch("/api/payarc/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          challengeSlug: challenge.slug,
+          playerName,
+          phoneNumber,
+          e6DisplayName,
+          locationSlug,
+          bayName,
+        }),
+      });
+      const data = (await response.json()) as {
+        checkout?: PayarcCheckout;
+        error?: string;
+      };
+
+      if (!response.ok || !data.checkout) {
+        throw new Error(data.error ?? "Could not start Payarc checkout.");
+      }
+
+      const checkout = data.checkout;
+
+      await loadPayarcScript(checkout.checkoutScriptUrl);
+
+      if (!window.PayArc) {
+        window.open(checkout.paymentFormUrl, "_blank", "noopener");
+        setPaymentNotice(
+          "Payarc opened in a new tab. Return here after payment if the event code does not appear automatically.",
+        );
+        return;
+      }
+
+      const payarc = new window.PayArc({
+        amount: checkout.amountCents,
+        orderId: checkout.payarcOrderId,
+        orderToken: checkout.payarcOrderToken,
+        viewScheme: "light",
+      });
+
+      payarc.on("paymentCompleted", () => {
+        setPaymentNotice("Payment received. Preparing your event code...");
+        void completePayarcCheckout(checkout.id).catch((caughtError) => {
+          setPaymentError(
+            caughtError instanceof Error
+              ? caughtError.message
+              : "Could not confirm Payarc checkout.",
+          );
+        });
+      });
+      payarc.on("paymentDeclined", () => {
+        setPaymentError("Payment was declined. Please try another card.");
+      });
+      payarc.renderModal();
+    } catch (error) {
+      setPaymentError(
+        error instanceof Error ? error.message : "Could not start checkout.",
+      );
+    } finally {
+      setIsStartingPayarcCheckout(false);
+    }
+  }
+
+  async function createVenueEntry() {
+    const wasSaved = savePlayerInfo();
+
+    if (!wasSaved) {
+      return;
+    }
+
+    if (!isVerifiedPlayer) {
+      setPaymentError("Verify your email before creating an entry.");
+      return;
+    }
+
+    if (!confirmedBookingId) {
+      setPaymentError(
+        "Confirm the matched Alamo booking before revealing the event code.",
+      );
       return;
     }
 
@@ -301,6 +571,8 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
           playerName,
           phoneNumber,
           e6DisplayName,
+          venueBookingReference,
+          bookingVerificationId: confirmedBookingId,
           locationSlug,
           bayName,
         }),
@@ -318,87 +590,16 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
       };
 
       if (!response.ok || !data.entry) {
-        throw new Error(data.error ?? "Could not create paid entry.");
+        throw new Error(data.error ?? "Could not create entry.");
       }
 
-      window.localStorage.setItem(
-        `pin2win-entry-${data.entry.id}`,
-        JSON.stringify({
-          challengeSlug: data.entry.challengeSlug,
-          playerName: data.entry.playerName,
-          phoneNumber: data.entry.phoneNumber ?? phoneNumber,
-          e6DisplayName: data.entry.e6DisplayName,
-        }),
-      );
-
-      setEventCode(data.entry.e6EventCode);
-      setEntryId(data.entry.id);
-      setPaymentReady(true);
-      window.setTimeout(() => {
-        accessSectionRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      }, 50);
+      revealEntryCode(data.entry);
     } catch (error) {
       setPaymentError(
-        error instanceof Error ? error.message : "Could not create paid entry.",
+        error instanceof Error ? error.message : "Could not create entry.",
       );
     } finally {
       setIsCreatingEntry(false);
-    }
-  }
-
-  async function startStripeCheckout() {
-    const wasSaved = savePlayerInfo();
-
-    if (!wasSaved) {
-      return;
-    }
-
-    if (!playerAccount) {
-      setPaymentError("Create or login to your account before payment.");
-      return;
-    }
-
-    if (!playerAccount.emailVerified) {
-      setPaymentError("Verify your email before payment.");
-      return;
-    }
-
-    setIsStartingCheckout(true);
-    setPaymentError("");
-
-    try {
-      const response = await fetch("/api/clubhouse/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          challengeSlug: challenge.slug,
-          playerName,
-          phoneNumber,
-          e6DisplayName,
-          locationSlug,
-          bayName,
-        }),
-      });
-      const data = (await response.json()) as {
-        checkoutUrl?: string;
-        error?: string;
-      };
-
-      if (!response.ok || !data.checkoutUrl) {
-        throw new Error(data.error ?? "Could not start Stripe Checkout.");
-      }
-
-      window.location.href = data.checkoutUrl;
-    } catch (error) {
-      setPaymentError(
-        error instanceof Error
-          ? error.message
-          : "Could not start Stripe Checkout.",
-      );
-      setIsStartingCheckout(false);
     }
   }
 
@@ -412,15 +613,17 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
           {challenge.name}
         </h1>
         <p className="mt-5 text-lg leading-8 text-[#53605a]">
-          Pay through Pin2Win to create a unique eligible entry, then use the E6
-          Event Join Code inside the official E6 Clubhouse event.
+          Create or load your Pin2Win account, pay securely through Payarc, and
+          reveal the simulator event code for your 15-minute hole-in-one attempt.
         </p>
-        <div className="mt-6 max-w-md">
-          <MonthlyPrizePot
-            challengeSlug={challenge.slug}
-            initialSummary={initialPotSummary}
-          />
-        </div>
+        <a
+          href={alamoBookingUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#2f6b3f] transition hover:border-[#2f6b3f]"
+        >
+          Backup venue booking option <ExternalLink size={17} />
+        </a>
         {locationSlug ? (
           <div className="mt-4 rounded-lg border border-[#ded6c8] bg-white p-4">
             <p className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
@@ -436,7 +639,7 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
           {[
             ["Venue", challenge.venue],
-            ["Entry", formatEntryFee(challenge.entryFeeCents)],
+            ["Checkout", "Payarc"],
             ["Window", `${challenge.playWindowMinutes} min`],
           ].map(([label, value]) => (
             <div key={label} className="rounded-lg bg-white p-4">
@@ -467,15 +670,14 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
       <section className="rounded-lg border border-[#ded6c8] bg-white p-6 shadow-xl shadow-[#18211f]/8">
         <div>
           <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-            Paid entry
+          Challenge registration
           </p>
           <h2 className="mt-2 text-2xl font-black">
-            Unlock the E6 event code
+            Unlock the simulator event code
           </h2>
           <p className="mt-3 text-sm leading-6 text-[#59655f]">
-            Checkout is handled securely by Stripe. After payment, your
-            confirmation page will show your Pin2Win entry ID and the E6 Event
-            Join Code.
+            Verify your email, enter the player details, and complete checkout.
+            Pin2Win will then show your entry ID and simulator event code.
           </p>
         </div>
 
@@ -530,7 +732,7 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
                 </div>
                 {!playerAccount.emailVerified ? (
                   <p className="mt-3 text-sm font-bold text-[#8a6419]">
-                    Check your inbox and verify your email before payment.
+                    Check your inbox and verify your email before continuing.
                   </p>
                 ) : null}
               </div>
@@ -629,7 +831,7 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
                 <div>
                   <h3 className="font-black">2. Entry details</h3>
                   <p className="text-sm text-[#59655f]">
-                    Match this entry to the player and E6 display name.
+                    Match this entry to the player and simulator display name.
                   </p>
                 </div>
               </div>
@@ -669,7 +871,7 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
               />
               <input
                 className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
-                placeholder="E6 Account Name"
+                placeholder="Simulator Account Name"
                 value={e6DisplayName}
                 suppressHydrationWarning
                 onChange={(event) => {
@@ -679,12 +881,12 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
                   setEntryId("");
                   setPaymentError("");
                 }}
-                aria-label="E6 display name"
+                aria-label="Simulator display name"
               />
             </div>
             {!accountReady && (playerName || phoneNumber || e6DisplayName) ? (
               <p className="mt-3 text-sm font-bold text-[#6b756f]">
-                Save player info before payment so this entry uses your name.
+                Save player info before continuing so this entry uses your name.
               </p>
             ) : null}
             <button
@@ -701,9 +903,9 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
               <div className="flex items-center gap-3">
                 <CreditCard className="text-[#2f6b3f]" size={24} />
                 <div>
-                  <h3 className="font-black">3. Entry payment</h3>
+                  <h3 className="font-black">3. Secure checkout</h3>
                   <p className="text-sm text-[#59655f]">
-                    Create one eligible attempt for this E6 event.
+                    Pay the challenge entry fee to unlock the event code.
                   </p>
                 </div>
               </div>
@@ -711,53 +913,124 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
                 <CheckCircle2 className="text-[#2f6b3f]" size={22} />
               ) : null}
             </div>
+            <div className="mt-4 rounded-md bg-[#fbf8f1] p-4">
+              <p className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
+                Challenge entry
+              </p>
+              <p className="mt-1 text-2xl font-black">
+                ${(challenge.entryFeeCents / 100).toFixed(0)}
+              </p>
+              <p className="mt-2 text-sm font-bold leading-6 text-[#59655f]">
+                Payment is handled by Payarc. The event code appears here after
+                checkout completes.
+              </p>
+            </div>
             <button
               className="mt-4 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-5 text-sm font-black text-white transition hover:bg-[#3f7f4c] disabled:cursor-not-allowed disabled:bg-[#ded6c8] disabled:text-[#6b756f]"
-              disabled={
-                isStartingCheckout ||
-                isCreatingEntry ||
-                !canStartPayment
-              }
+              disabled={isStartingPayarcCheckout || paymentReady}
               type="button"
-              onClick={startStripeCheckout}
+              onClick={startPayarcCheckout}
             >
-              <CreditCard size={17} />
-              {isStartingCheckout
-                ? "Opening Stripe..."
-                : `Pay ${formatEntryFee(challenge.entryFeeCents)} with Stripe`}
-            </button>
-            <button
-              className="mt-3 inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-4 text-xs font-black text-[#53605a] transition hover:bg-[#f5efdf] disabled:cursor-not-allowed disabled:bg-[#f5efdf] disabled:text-[#87908a]"
-              disabled={
-                isStartingCheckout ||
-                isCreatingEntry ||
-                !canStartPayment
-              }
-              type="button"
-              onClick={simulatePayment}
-            >
-              {paymentReady ? <CheckCircle2 size={15} /> : <CreditCard size={15} />}
-              {isCreatingEntry
-                ? "Creating test entry..."
+              {paymentReady ? <CheckCircle2 size={17} /> : <CreditCard size={17} />}
+              {isStartingPayarcCheckout
+                ? "Starting checkout..."
                 : paymentReady
-                ? "Test entry created"
-                : "Testing only: simulate payment"}
+                ? "Entry created"
+                : "Pay and reveal event code"}
             </button>
             {paymentError ? (
               <p className="mt-3 text-sm font-bold text-[#9a3324]">
                 {paymentError}
               </p>
             ) : null}
+            {paymentNotice ? (
+              <p className="mt-3 text-sm font-bold text-[#2f6b3f]">
+                {paymentNotice}
+              </p>
+            ) : null}
             {!isVerifiedPlayer ? (
               <p className="mt-3 text-sm font-bold text-[#6b756f]">
-                Login and verify your email to enable payment.
+                Login and verify your email to continue.
               </p>
             ) : null}
             {isVerifiedPlayer && !hasEntryDetails ? (
               <p className="mt-3 text-sm font-bold text-[#6b756f]">
-                Enter your name, phone number, and E6 account name to enable payment.
+                Enter your name, phone number, and simulator account name to continue.
               </p>
             ) : null}
+
+            <details className="mt-5 rounded-md border border-[#ece5d8] bg-white p-4">
+              <summary className="cursor-pointer text-sm font-black text-[#2f6b3f]">
+                Use venue booking verification instead
+              </summary>
+              <div className="mt-4 grid gap-3">
+                {isLoadingBookingMatch ? (
+                  <p className="rounded-md bg-[#fbf8f1] p-3 text-sm font-bold text-[#59655f]">
+                    Checking today&apos;s Alamo bookings for this QR location...
+                  </p>
+                ) : bookingMatch ? (
+                  <div className="rounded-md border border-[#d9e8d1] bg-[#f3faef] p-4">
+                    <p className="text-xs font-black uppercase tracking-[0.12em] text-[#2f6b3f]">
+                      Possible booking found
+                    </p>
+                    <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+                      <div>
+                        <dt className="font-black text-[#87908a]">Name</dt>
+                        <dd className="mt-1 font-black">{bookingMatch.maskedName}</dd>
+                      </div>
+                      <div>
+                        <dt className="font-black text-[#87908a]">Email</dt>
+                        <dd className="mt-1 font-black">{bookingMatch.maskedEmail}</dd>
+                      </div>
+                      <div>
+                        <dt className="font-black text-[#87908a]">Time</dt>
+                        <dd className="mt-1 font-black">
+                          {bookingMatch.reservationLabel}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="font-black text-[#87908a]">Booking</dt>
+                        <dd className="mt-1 font-black">
+                          {bookingMatch.productName}
+                        </dd>
+                      </div>
+                    </dl>
+                    <button
+                      className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#18211f] px-4 text-sm font-black text-white transition hover:bg-[#2a3935]"
+                      type="button"
+                      onClick={() => {
+                        setConfirmedBookingId(bookingMatch.id);
+                        setVenueBookingReference("");
+                        setPaymentReady(false);
+                        setEntryId("");
+                        setPaymentError("");
+                      }}
+                    >
+                      <CheckCircle2 size={17} />
+                      {confirmedBookingId === bookingMatch.id
+                        ? "Booking confirmed"
+                        : "Yes, this is my booking"}
+                    </button>
+                  </div>
+                ) : (
+                  <p className="rounded-md bg-[#fff8e8] p-3 text-sm font-bold leading-6 text-[#6b5a30]">
+                    No unused Pin2Win booking was found for this location
+                    window.
+                  </p>
+                )}
+              </div>
+              <button
+                className="mt-4 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white transition hover:bg-[#2a3935] disabled:cursor-not-allowed disabled:bg-[#ded6c8] disabled:text-[#6b756f]"
+                disabled={isCreatingEntry}
+                type="button"
+                onClick={createVenueEntry}
+              >
+                <ClipboardCheck size={17} />
+                {isCreatingEntry
+                  ? "Creating entry..."
+                  : "Confirm booking and reveal event code"}
+              </button>
+            </details>
           </div>
 
           <div ref={accessSectionRef} className="rounded-lg bg-[#fbf8f1] p-5">
@@ -767,7 +1040,7 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
               ) : (
                 <LockKeyhole className="text-[#87908a]" size={26} />
               )}
-              <h3 className="text-xl font-black">4. E6 access</h3>
+              <h3 className="text-xl font-black">4. Simulator access</h3>
             </div>
             <dl className="mt-5 grid gap-4">
               <div>
@@ -775,15 +1048,15 @@ export function EntryFlow({ challenge, initialPotSummary }: EntryFlowProps) {
                   Pin2Win Entry ID
                 </dt>
                 <dd className="mt-1 rounded-md bg-white px-4 py-3 font-black">
-                  {paymentReady && entryId ? entryId : "Created after payment"}
+                  {paymentReady && entryId ? entryId : "Created after registration"}
                 </dd>
               </div>
               <div>
                 <dt className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
-                  E6 Event Join Code
+                  Simulator Event Code
                 </dt>
                 <dd className="mt-1 rounded-md bg-white px-4 py-3 font-black">
-                  {paymentReady ? eventCode : "Hidden until payment succeeds"}
+                  {paymentReady ? eventCode : "Hidden until registration is complete"}
                 </dd>
               </div>
               <div className="flex gap-3 text-sm leading-6 text-[#59655f]">

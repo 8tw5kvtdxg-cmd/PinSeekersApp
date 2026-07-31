@@ -1,4 +1,4 @@
-export type ClubhouseChallengeType = "CLOSEST_TO_PIN" | "LONGEST_DRIVE";
+export type ClubhouseChallengeType = "HOLE_IN_ONE";
 
 export type ClubhouseChallenge = {
   slug: string;
@@ -45,74 +45,49 @@ export type VerificationRecord = ClubhouseEntry & {
 };
 
 export const clubhouseChallengeSlugs = {
-  closestToPin: "alamo-closest-pin-monthly",
-  longestDrive: "alamo-long-drive-monthly",
+  holeInOne: "alamo-hole-in-one-challenge",
 } as const;
 
 const legacyChallengeSlugMap: Record<string, string> = {
-  "alamo-closest-pin-weekly": clubhouseChallengeSlugs.closestToPin,
-  "alamo-long-drive-weekly": clubhouseChallengeSlugs.longestDrive,
+  "alamo-closest-pin-weekly": clubhouseChallengeSlugs.holeInOne,
+  "alamo-closest-pin-monthly": clubhouseChallengeSlugs.holeInOne,
+  "alamo-long-drive-weekly": clubhouseChallengeSlugs.holeInOne,
+  "alamo-long-drive-monthly": clubhouseChallengeSlugs.holeInOne,
+  "alamo-hole-in-one-monthly": clubhouseChallengeSlugs.holeInOne,
 };
 
 export const clubhouseChallenges: ClubhouseChallenge[] = [
   {
-    slug: clubhouseChallengeSlugs.closestToPin,
-    name: "Closest to the Pin Monthly",
-    type: "CLOSEST_TO_PIN",
+    slug: clubhouseChallengeSlugs.holeInOne,
+    name: "Hole-in-One Challenge",
+    type: "HOLE_IN_ONE",
     venue: "All partner locations",
-    bayLabel: "Any active E6 2026 bay",
+    bayLabel: "Any active simulator bay",
     entryFeeCents: 2000,
     status: "Ready",
     startsAt: "May 22, 2026, 10:00 AM",
     endsAt: "May 24, 2026, 8:00 PM",
-    playWindowMinutes: 10,
-    e6EventName: "Pin2Win CTP Monthly Qualifier",
+    playWindowMinutes: 15,
+    e6EventName: "Pin2Win Hole-in-One Challenge",
     e6JoinCode: "E6-P2W-7429",
     e6QueueCode: "QUEUE-118",
     e6ClubhouseUrl: "https://e6golf.com/clubhouse",
-    prizeSummary: "$20 entry. Monthly prize pot starts at $50 and grows with paid entries.",
+    prizeSummary: "A featured Pin2Win golf entertainment experience for partner simulator locations.",
     instructions: [
-      "Scan the Pin2Win QR code before starting your E6 attempt.",
+      "Scan the Pin2Win QR code at the partner location.",
       "Create or load your Pin2Win player account.",
-      "Pay the entry fee to unlock the E6 Event Join Code.",
-      "Enter the E6 code in the Event option once the event is active.",
-      "Use the same E6 display name shown on your Pin2Win entry.",
+      "Enter the required player and simulator account information.",
+      "Complete checkout through Pin2Win to unlock the simulator event code.",
+      "Enter the event code in the simulator software once the event is active.",
+      "Use the same simulator display name shown on your Pin2Win entry.",
     ],
     eligibilityRules: [
-      "Only paid Pin2Win entries are prize-eligible.",
-      "Verified Closest to the Pin entrants are also eligible for the $10,000 hole-in-one prize.",
-      "One Pin2Win entry equals one eligible E6 attempt window.",
-      "Shared or reused E6 codes do not create prize eligibility.",
-      "Results must match the Pin2Win player record, E6 display name, and play window.",
-      "Prize results are verified against the E6 Clubhouse leaderboard before payout.",
-    ],
-  },
-  {
-    slug: clubhouseChallengeSlugs.longestDrive,
-    name: "Long Drive Monthly",
-    type: "LONGEST_DRIVE",
-    venue: "All partner locations",
-    bayLabel: "Any active E6 2026 bay",
-    entryFeeCents: 2000,
-    status: "Draft",
-    startsAt: "May 22, 2026, 10:00 AM",
-    endsAt: "May 24, 2026, 8:00 PM",
-    playWindowMinutes: 10,
-    e6EventName: "Pin2Win Long Drive Monthly",
-    e6JoinCode: "Pending E6 event finalization",
-    e6QueueCode: "Generated after event start",
-    e6ClubhouseUrl: "https://e6golf.com/clubhouse",
-    prizeSummary: "$20 entry. Monthly prize pot starts at $50 and grows with paid entries.",
-    instructions: [
-      "Finalize the matching E6 Clubhouse event before opening paid entries.",
-      "Load the E6 Event Join Code into the Pin2Win admin record.",
-      "Reveal the E6 code only after payment succeeds.",
-      "Verify prize-eligible results against the E6 leaderboard.",
-    ],
-    eligibilityRules: [
-      "The E6 code can be shared by the event, but Pin2Win eligibility is unique per paid entry.",
-      "Only results inside the valid play window are eligible.",
-      "Duplicate unpaid E6 attempts can be rejected during verification.",
+      "Only verified Pin2Win entries are included in official challenge records.",
+      "Players must complete the Pin2Win entry flow before accessing the event code.",
+      "One Pin2Win entry equals one eligible simulator attempt window.",
+      "Shared or reused event codes do not create a valid Pin2Win entry.",
+      "Results must match the Pin2Win player record, simulator display name, and play window.",
+      "Results are verified against the simulator result record before final review.",
     ],
   },
 ];
@@ -120,7 +95,7 @@ export const clubhouseChallenges: ClubhouseChallenge[] = [
 export const clubhouseEntries: ClubhouseEntry[] = [
   {
     id: "P2W-ENTRY-20260522-0042",
-    challengeSlug: clubhouseChallengeSlugs.closestToPin,
+    challengeSlug: clubhouseChallengeSlugs.holeInOne,
     playerName: "Jordan Smith",
     phoneNumber: "(210) 555-0101",
     e6DisplayName: "JSmith-SA",
@@ -131,11 +106,11 @@ export const clubhouseEntries: ClubhouseEntry[] = [
     attemptLimit: 1,
     resultStatus: "Needs Review",
     result: "4 ft 8 in",
-    evidence: "E6 Clubhouse leaderboard screenshot pending admin review",
+    evidence: "Simulator result screenshot pending admin review",
   },
   {
     id: "P2W-ENTRY-20260522-0043",
-    challengeSlug: clubhouseChallengeSlugs.closestToPin,
+    challengeSlug: clubhouseChallengeSlugs.holeInOne,
     playerName: "Maya Chen",
     phoneNumber: "(210) 555-0102",
     e6DisplayName: "MayaC",
@@ -146,7 +121,7 @@ export const clubhouseEntries: ClubhouseEntry[] = [
     attemptLimit: 1,
     resultStatus: "Verified",
     result: "3 ft 2 in",
-    evidence: "Verified against E6 Clubhouse leaderboard",
+    evidence: "Verified against simulator result record",
   },
 ];
 
@@ -156,14 +131,14 @@ export const verificationQueue: VerificationRecord[] = [
     rank: 2,
     e6LeaderboardResult: "4 ft 8 in",
     reviewNote:
-      "Payment succeeded before play window. E6 display name matches paid entry.",
+      "Venue booking was registered before play window. Simulator display name matches Pin2Win entry.",
   },
   {
     ...clubhouseEntries[1],
     rank: 1,
     e6LeaderboardResult: "3 ft 2 in",
     reviewNote:
-      "Verified winner candidate. Keep E6 leaderboard proof attached before payout.",
+      "Verified result candidate. Keep E6 result proof attached before approval.",
   },
 ];
 

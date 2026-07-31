@@ -26,6 +26,10 @@ function challengeName(challengeSlug: string) {
   );
 }
 
+function resultStatusLabel(status: ClubhouseEntryRecord["resultStatus"]) {
+  return status === "Pending E6 Result" ? "Pending Simulator Result" : status;
+}
+
 export function LiveEntryLog({
   initialEntries,
   challengeFilter,
@@ -116,7 +120,7 @@ export function LiveEntryLog({
         {[
           {
             icon: CreditCard,
-            label: "Paid entries",
+            label: "Registered entries",
             value: String(visibleEntries.length),
           },
           {
@@ -175,10 +179,10 @@ export function LiveEntryLog({
         {visibleEntries.length === 0 ? (
           <div className="p-8 text-center">
             <CreditCard className="mx-auto text-[#2f6b3f]" size={34} />
-            <h2 className="mt-4 text-2xl font-black">No paid entries yet</h2>
+            <h2 className="mt-4 text-2xl font-black">No registered entries yet</h2>
             <p className="mt-3 text-sm leading-6 text-[#59655f]">
-              Scan the QR code and complete Stripe Checkout to create the first
-              paid entry record.
+              Scan the QR code after booking through the venue to create the
+              first registered entry record.
             </p>
           </div>
         ) : (
@@ -208,7 +212,7 @@ export function LiveEntryLog({
                   Phone: {entry.phoneNumber ?? "Not provided"}
                 </p>
                 <p className="mt-1 text-sm font-bold text-[#59655f]">
-                  E6: {entry.e6DisplayName}
+                  Simulator: {entry.e6DisplayName}
                 </p>
               </div>
               <div>
@@ -225,11 +229,21 @@ export function LiveEntryLog({
               </div>
               <div>
                 <span className="inline-flex rounded-full bg-[#e3edd8] px-3 py-1 text-xs font-black text-[#2f6b3f]">
-                  {entry.resultStatus}
+                  {resultStatusLabel(entry.resultStatus)}
                 </span>
                 <p className="mt-3 text-sm font-bold text-[#59655f]">
-                  Payment: {entry.paymentStatus}
+                  Payment: {entry.paymentMethod ?? "Venue booking"}
                 </p>
+                {entry.bookingVerificationId ? (
+                  <p className="mt-1 text-xs font-black text-[#2f6b3f]">
+                    Match: {entry.bookingVerificationId}
+                  </p>
+                ) : null}
+                {entry.bookingVerificationStatus ? (
+                  <p className="mt-1 text-xs font-bold text-[#59655f]">
+                    {entry.bookingVerificationStatus}
+                  </p>
+                ) : null}
               </div>
             </article>
           ))

@@ -7,7 +7,7 @@ import {
   ArrowRight,
   BadgeDollarSign,
   CheckCircle2,
-  CreditCard,
+  ClipboardCheck,
   Flag,
   Gauge,
   Lock,
@@ -26,18 +26,18 @@ const challengeSteps = [
     icon: QrCode,
   },
   {
-    title: "Pick a challenge",
-    detail: "Choose Closest to the Pin or Longest Drive before you enter.",
+    title: "Open the challenge",
+    detail: "Start the active Hole-in-One challenge before you enter.",
     icon: Trophy,
   },
   {
-    title: "Pay and play",
-    detail: "Pay securely at checkout to enter and start your session.",
-    icon: CreditCard,
+    title: "Unlock and play",
+    detail: "Complete the entry flow, then reveal the simulator event code.",
+    icon: ClipboardCheck,
   },
   {
     title: "Track the board",
-    detail: "See where your posted shot lands on the monthly leaderboard.",
+    detail: "See whether your submitted result has been reviewed.",
     icon: Flag,
   },
 ];
@@ -61,7 +61,7 @@ function getInitialVerificationMessage(type: "notice" | "error") {
   );
 
   if (type === "notice" && verificationStatus === "success") {
-    return "Email verified. You can now enter paid challenges.";
+    return "Email verified. You can now register challenge entries.";
   }
 
   if (type === "error" && verificationStatus === "failed") {
@@ -396,8 +396,8 @@ export default function AccountPage() {
                 </p>
               ) : null}
               <p className="text-sm leading-6 text-[#6b756f]">
-                Player entries and results appear after a paid challenge entry
-                is created and verified.
+                Player entries and results appear after a registered challenge
+                entry is created and verified.
               </p>
             </form>
           </section>
@@ -421,8 +421,8 @@ export default function AccountPage() {
               Player dashboard
             </h1>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-[#53605a]">
-              Welcome, {playerLabel}. Your paid entries, verified results, and
-              leaderboard status will appear here after you enter a challenge.
+              Welcome, {playerLabel}. Your registered entries, verified results, and
+              review status will appear here after you enter a challenge.
             </p>
           </div>
           <div className="grid grid-cols-2 rounded-md bg-[#e8dfcf] p-1">
@@ -479,7 +479,7 @@ export default function AccountPage() {
                   Email verification required
                 </p>
                 <p className="mt-2 text-sm leading-6 text-[#5f5133]">
-                  Verify {playerAccount?.email} before entering paid challenges
+                  Verify {playerAccount?.email} before registering challenges
                   or unlocking event codes.
                 </p>
               </div>
@@ -540,8 +540,8 @@ export default function AccountPage() {
                   <ArrowRight className="text-[#2f6b3f]" size={24} />
                 </div>
                 <p className="mt-4 leading-7 text-[#59655f]">
-                  Jump back into Play Now to choose a challenge, pay the entry,
-                  and start another scored session.
+                  Jump back into Play Now to choose a challenge, complete your
+                  Pin2Win entry, and start another scored session.
                 </p>
               </Link>
             </div>
@@ -550,13 +550,12 @@ export default function AccountPage() {
               <section className="grid gap-4 md:grid-cols-2">
                 <div className="rounded-lg border border-[#ded6c8] bg-white p-5">
                   <div className="flex items-center gap-3">
-                    <CreditCard className="text-[#2f6b3f]" size={26} />
-                    <h2 className="text-xl font-black">Secure checkout</h2>
+                    <ClipboardCheck className="text-[#2f6b3f]" size={26} />
+                    <h2 className="text-xl font-black">Pin2Win entry</h2>
                   </div>
                   <p className="mt-4 text-sm leading-6 text-[#59655f]">
-                    Payments are handled during each challenge entry through
-                    Stripe. No saved payment method is displayed in this
-                    dashboard.
+                    Use Play Now onsite to complete checkout and reveal the
+                    simulator event code for the active experience.
                   </p>
                   <Link
                     href="/play"
@@ -568,7 +567,7 @@ export default function AccountPage() {
                 <div className="rounded-lg border border-[#ded6c8] bg-white p-5">
                   <div className="flex items-center gap-3">
                     <Gauge className="text-[#2f6b3f]" size={26} />
-                    <h2 className="text-xl font-black">Leaderboard status</h2>
+                    <h2 className="text-xl font-black">Result status</h2>
                   </div>
                   <div className="mt-4 rounded-md bg-[#fbf8f1] p-4">
                     <p className="text-xs font-black uppercase tracking-[0.12em] text-[#6b756f]">
@@ -603,7 +602,7 @@ export default function AccountPage() {
         ) : (
           <section className="mt-10 rounded-lg border border-[#ded6c8] bg-white p-6">
             <div className="flex items-center gap-3">
-              <CreditCard className="text-[#2f6b3f]" size={28} />
+              <Settings className="text-[#2f6b3f]" size={28} />
               <h2 className="text-2xl font-black">Account settings</h2>
             </div>
             <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -628,9 +627,9 @@ export default function AccountPage() {
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="mt-0.5 text-[#2f6b3f]" size={22} />
                 <p className="text-sm leading-6 text-[#405047]">
-                  This page is ready for real account data. Payment details are
-                  handled through Stripe checkout when a player enters a
-                  challenge.
+                  This page is ready for real account data. Booking payment
+                  details are handled by Alamo Golf Den before a player
+                  registers a challenge entry.
                 </p>
               </div>
             </div>

@@ -106,9 +106,7 @@ export function ChallengeAdminCard({
               Shared across locations
             </span>
             <span className="rounded-full bg-[#f2eadb] px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-[#53605a]">
-              {challenge.type === "CLOSEST_TO_PIN"
-                ? "Closest to the Pin"
-                : "Longest Drive"}
+              Hole-in-One
             </span>
           </div>
           <h2 className="mt-4 text-2xl font-black">{challenge.name}</h2>
@@ -135,12 +133,12 @@ export function ChallengeAdminCard({
         <div className="w-full rounded-lg bg-[#fbf8f1] p-5 lg:max-w-xl">
           <div className="flex items-center gap-3">
             <KeyRound className="text-[#2f6b3f]" size={24} />
-            <h3 className="text-xl font-black">Global E6 event code</h3>
+            <h3 className="text-xl font-black">Global simulator event code</h3>
           </div>
           <div className="mt-5 grid gap-4">
             <label className="grid gap-2">
               <span className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
-                E6 Event Join Code
+                Simulator Event Code
               </span>
               <input
                 className="h-12 rounded-md border border-[#ded6c8] bg-white px-4 font-black text-[#18211f] outline-none focus:border-[#2f6b3f]"
@@ -154,7 +152,7 @@ export function ChallengeAdminCard({
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="grid gap-2">
                 <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
-                  <CalendarClock size={15} /> Monthly start
+                  <CalendarClock size={15} /> Event start
                 </span>
                 <input
                   className="h-12 rounded-md border border-[#ded6c8] bg-white px-4 font-bold text-[#18211f] outline-none focus:border-[#2f6b3f]"
@@ -168,7 +166,7 @@ export function ChallengeAdminCard({
               </label>
               <label className="grid gap-2">
                 <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
-                  <CalendarClock size={15} /> Monthly end
+                  <CalendarClock size={15} /> Event end
                 </span>
                 <input
                   className="h-12 rounded-md border border-[#ded6c8] bg-white px-4 font-bold text-[#18211f] outline-none focus:border-[#2f6b3f]"

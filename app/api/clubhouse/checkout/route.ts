@@ -1,110 +1,11 @@
-import { getClubhouseChallenge } from "@/lib/clubhouse";
-import { getCurrentVerifiedPlayer } from "@/lib/player-auth";
-import { getAppUrl, getStripe } from "@/lib/stripe";
-
 export const dynamic = "force-dynamic";
 
-export async function POST(request: Request) {
-  const { player, error, status } = await getCurrentVerifiedPlayer();
-
-  if (error) {
-    return Response.json({ error }, { status });
-  }
-
-  const body = (await request.json()) as {
-    challengeSlug?: unknown;
-    playerName?: unknown;
-    phoneNumber?: unknown;
-    e6DisplayName?: unknown;
-    locationSlug?: unknown;
-    bayName?: unknown;
-  };
-  const challengeSlug =
-    typeof body.challengeSlug === "string" ? body.challengeSlug : "";
-  const playerName = typeof body.playerName === "string" ? body.playerName.trim() : "";
-  const phoneNumber =
-    typeof body.phoneNumber === "string" ? body.phoneNumber.trim() : "";
-  const e6DisplayName =
-    typeof body.e6DisplayName === "string" ? body.e6DisplayName.trim() : "";
-  const locationSlug =
-    typeof body.locationSlug === "string" ? body.locationSlug.trim() : "";
-  const bayName = typeof body.bayName === "string" ? body.bayName.trim() : "";
-  const challenge = getClubhouseChallenge(challengeSlug);
-
-  if (!challenge) {
-    return Response.json({ error: "Challenge not found." }, { status: 404 });
-  }
-
-  if (!playerName || !phoneNumber || !e6DisplayName) {
-    return Response.json(
-      { error: "Full name, phone number, and E6 account name are required." },
-      { status: 400 },
-    );
-  }
-
-  try {
-    const stripe = getStripe();
-    const appUrl = getAppUrl(request);
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: challenge.name,
-              description: `${challenge.venue} - ${challenge.e6EventName}`,
-            },
-            unit_amount: challenge.entryFeeCents,
-          },
-          quantity: 1,
-        },
-      ],
-      metadata: {
-        challengeSlug: challenge.slug,
-        userId: player.id,
-        userEmail: player.email,
-        locationSlug,
-        locationName: challenge.venue,
-        bayName,
-        playerName,
-        phoneNumber,
-        e6DisplayName,
-      },
-      payment_intent_data: {
-        metadata: {
-          challengeSlug: challenge.slug,
-          userId: player.id,
-          userEmail: player.email,
-          locationSlug,
-          locationName: challenge.venue,
-          bayName,
-          playerName,
-          phoneNumber,
-          e6DisplayName,
-        },
-      },
-      success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/play/${challenge.slug}?checkout=cancelled`,
-    });
-
-    if (!session.url) {
-      return Response.json(
-        { error: "Stripe did not return a checkout URL." },
-        { status: 500 },
-      );
-    }
-
-    return Response.json({ checkoutUrl: session.url });
-  } catch (error) {
-    return Response.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Could not start Stripe Checkout.",
-      },
-      { status: 500 },
-    );
-  }
+export async function POST() {
+  return Response.json(
+    {
+      error:
+        "Legacy checkout is disabled. Use the active Pin2Win QR checkout flow.",
+    },
+    { status: 410 },
+  );
 }

@@ -112,14 +112,14 @@ export async function updateClubhouseChallengeSetting(input: {
     typeof input.e6EventCode === "string" ? input.e6EventCode.trim() : "";
 
   if (!e6EventCode) {
-    throw new Error("E6 Event Join Code is required.");
+    throw new Error("Simulator event code is required.");
   }
 
   const startsAt = parseDateTimeInput(input.startsAt);
   const endsAt = parseDateTimeInput(input.endsAt);
 
   if (startsAt && endsAt && startsAt >= endsAt) {
-    throw new Error("Monthly event end must be after the start.");
+    throw new Error("Event end must be after the start.");
   }
 
   const setting = await prisma.clubhouseChallengeSetting.upsert({

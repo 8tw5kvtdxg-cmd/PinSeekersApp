@@ -12,39 +12,48 @@ export function EventCodePanel({
   fallbackEventCode,
   entryId,
 }: EventCodePanelProps) {
-  const [playerName, setPlayerName] = useState<string | null>(null);
-  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
-  const [e6DisplayName, setE6DisplayName] = useState<string | null>(null);
+  const [savedPlayer, setSavedPlayer] = useState<{
+    playerName: string | null;
+    phoneNumber: string | null;
+    e6DisplayName: string | null;
+  }>({
+    playerName: null,
+    phoneNumber: null,
+    e6DisplayName: null,
+  });
 
   useEffect(() => {
-    const savedEntry = window.localStorage.getItem(`pin2win-entry-${entryId}`);
+    window.setTimeout(() => {
+      const savedEntry = window.localStorage.getItem(`pin2win-entry-${entryId}`);
 
-    if (!savedEntry) {
-      return;
-    }
-
-    try {
-      const entry = JSON.parse(savedEntry) as {
-        playerName?: unknown;
-        phoneNumber?: unknown;
-        e6DisplayName?: unknown;
-      };
-
-      if (typeof entry.playerName === "string") {
-        setPlayerName(entry.playerName);
+      if (!savedEntry) {
+        return;
       }
 
-      if (typeof entry.phoneNumber === "string") {
-        setPhoneNumber(entry.phoneNumber);
-      }
+      try {
+        const entry = JSON.parse(savedEntry) as {
+          playerName?: unknown;
+          phoneNumber?: unknown;
+          e6DisplayName?: unknown;
+        };
 
-      if (typeof entry.e6DisplayName === "string") {
-        setE6DisplayName(entry.e6DisplayName);
+        setSavedPlayer({
+          playerName:
+            typeof entry.playerName === "string" ? entry.playerName : null,
+          phoneNumber:
+            typeof entry.phoneNumber === "string" ? entry.phoneNumber : null,
+          e6DisplayName:
+            typeof entry.e6DisplayName === "string"
+              ? entry.e6DisplayName
+              : null,
+        });
+      } catch {
+        window.localStorage.removeItem(`pin2win-entry-${entryId}`);
       }
-    } catch {
-      window.localStorage.removeItem(`pin2win-entry-${entryId}`);
-    }
+    }, 0);
   }, [entryId]);
+
+  const { playerName, phoneNumber, e6DisplayName } = savedPlayer;
 
   return (
     <div className="rounded-lg bg-[#fbf8f1] p-5">
@@ -60,19 +69,19 @@ export function EventCodePanel({
             </p>
           ) : null}
           <p className="mt-1 text-sm font-bold text-[#59655f]">
-            E6: {e6DisplayName ?? "E6 account needed"}
+            Simulator: {e6DisplayName ?? "Simulator account needed"}
           </p>
         </div>
       ) : null}
       <div className="flex items-center gap-3">
         <KeyRound className="text-[#2f6b3f]" size={26} />
-        <h2 className="text-xl font-black">E6 Event Join Code</h2>
+        <h2 className="text-xl font-black">Simulator Event Code</h2>
       </div>
       <p className="mt-4 rounded-md bg-white px-4 py-4 text-2xl font-black tracking-[0.08em]">
         {fallbackEventCode}
       </p>
       <p className="mt-3 text-sm leading-6 text-[#59655f]">
-        Enter this in E6 2026 using the Event option after the E6 event has
+        Enter this in the simulator software after the challenge event has
         started.
       </p>
     </div>

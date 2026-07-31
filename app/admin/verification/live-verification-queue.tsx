@@ -52,6 +52,10 @@ function searchableText(entry: ClubhouseEntryRecord) {
     .toLowerCase();
 }
 
+function resultStatusLabel(status: ClubhouseEntryRecord["resultStatus"]) {
+  return status === "Pending E6 Result" ? "Pending Simulator Result" : status;
+}
+
 function SearchResults({
   entries,
   query,
@@ -67,7 +71,7 @@ function SearchResults({
     <section className="mt-6 overflow-hidden rounded-lg border border-[#ded6c8] bg-white">
       <div className="border-b border-[#ece5d8] bg-[#fbf8f1] px-5 py-4">
         <p className="text-sm font-black text-[#18211f]">
-          Search results for "{query.trim()}"
+          Search results for &quot;{query.trim()}&quot;
         </p>
         <p className="mt-1 text-sm font-bold text-[#59655f]">
           {entries.length} matching {entries.length === 1 ? "entry" : "entries"}
@@ -79,7 +83,7 @@ function SearchResults({
           <Search className="mx-auto text-[#2f6b3f]" size={34} />
           <h2 className="mt-4 text-2xl font-black">No matching entries</h2>
           <p className="mt-3 text-sm leading-6 text-[#59655f]">
-            Try a full name, phone number, E6 username, Pin2Win entry ID,
+            Try a full name, phone number, simulator username, Pin2Win entry ID,
             challenge name, or event code.
           </p>
         </div>
@@ -101,22 +105,22 @@ function SearchResults({
                   Phone: {entry.phoneNumber ?? "Not provided"}
                 </p>
                 <p className="mt-2 text-sm font-bold text-[#59655f]">
-                  E6: {entry.e6DisplayName} · {challengeName(entry.challengeSlug)}
+                  Simulator: {entry.e6DisplayName} · {challengeName(entry.challengeSlug)}
                 </p>
                 <p className="mt-2 text-sm font-bold text-[#59655f]">
-                  Paid: {entry.paidAt} · Window: {entry.validFrom} -{" "}
+                  Registered: {entry.paidAt} · Window: {entry.validFrom} -{" "}
                   {entry.validUntil}
                 </p>
               </div>
               <div className="grid gap-2 text-sm lg:min-w-56">
                 <span className="inline-flex w-fit rounded-full bg-[#e3edd8] px-3 py-1 text-xs font-black text-[#2f6b3f]">
-                  {entry.resultStatus}
+                  {resultStatusLabel(entry.resultStatus)}
                 </span>
                 <p className="font-bold text-[#59655f]">
                   Code revealed: {entry.e6EventCode}
                 </p>
                 <p className="font-bold text-[#59655f]">
-                  Result: {entry.result ?? "Awaiting E6 leaderboard result"}
+                  Result: {entry.result ?? "Awaiting simulator result"}
                 </p>
               </div>
             </div>
@@ -139,7 +143,7 @@ function QueueColumn({
       <div className="bg-[#18211f] px-5 py-4 text-white">
         <h2 className="text-xl font-black">{title}</h2>
         <p className="mt-1 text-sm font-bold text-white/62">
-          {entries.length} pending paid entries
+          {entries.length} pending registered entries
         </p>
       </div>
 
@@ -148,7 +152,7 @@ function QueueColumn({
           <ClipboardCheck className="mx-auto text-[#2f6b3f]" size={34} />
           <h3 className="mt-4 text-xl font-black">No entries yet</h3>
           <p className="mt-3 text-sm leading-6 text-[#59655f]">
-            New paid entries for this challenge will appear here automatically.
+            New venue-booked entries for this challenge will appear here automatically.
           </p>
         </div>
       ) : (
@@ -167,12 +171,12 @@ function QueueColumn({
                   Phone: {entry.phoneNumber ?? "Not provided"}
                 </p>
                 <p className="mt-1 text-sm font-bold text-[#59655f]">
-                  E6: {entry.e6DisplayName}
+                  Simulator: {entry.e6DisplayName}
                 </p>
               </div>
               <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#e3edd8] px-3 py-1 text-xs font-black text-[#2f6b3f]">
                 <CheckCircle2 size={14} />
-                {entry.resultStatus}
+                {resultStatusLabel(entry.resultStatus)}
               </span>
             </div>
 
@@ -180,7 +184,7 @@ function QueueColumn({
               <div>
                 <p className="font-black">{entry.id}</p>
                 <p className="mt-1 font-bold text-[#59655f]">
-                  Paid: {entry.paidAt}
+                  Registered: {entry.paidAt}
                 </p>
               </div>
               <div>
@@ -193,7 +197,7 @@ function QueueColumn({
               </div>
               <div>
                 <p className="font-black text-[#2f6b3f]">
-                  {entry.result ?? "Awaiting E6 leaderboard result"}
+                  {entry.result ?? "Awaiting simulator result"}
                 </p>
                 <p className="mt-1 font-bold text-[#59655f]">
                   {challengeName(entry.challengeSlug)}
@@ -235,7 +239,7 @@ export function LiveVerificationQueue({
     () => [
       {
         icon: ClipboardCheck,
-        label: "Paid entries",
+        label: "Registered entries",
         value: String(entries.length),
       },
       {
@@ -297,7 +301,7 @@ export function LiveVerificationQueue({
   }
 
   useEffect(() => {
-    refreshEntries();
+    void Promise.resolve().then(refreshEntries);
 
     function refreshWhenVisible() {
       if (document.visibilityState === "visible") {
@@ -316,21 +320,12 @@ export function LiveVerificationQueue({
     };
   }, []);
 
-  const closestToPinEntries = useMemo(
+  const challengeEntries = useMemo(
     () =>
       entries.filter(
         (entry) =>
           normalizeChallengeSlug(entry.challengeSlug) ===
-          clubhouseChallengeSlugs.closestToPin,
-      ),
-    [entries],
-  );
-  const longestDriveEntries = useMemo(
-    () =>
-      entries.filter(
-        (entry) =>
-          normalizeChallengeSlug(entry.challengeSlug) ===
-          clubhouseChallengeSlugs.longestDrive,
+          clubhouseChallengeSlugs.holeInOne,
       ),
     [entries],
   );
@@ -344,23 +339,14 @@ export function LiveVerificationQueue({
         : [],
     [entries, normalizedQuery],
   );
-  const visibleClosestToPinEntries = useMemo(
+  const visibleChallengeEntries = useMemo(
     () =>
       normalizedQuery
-        ? closestToPinEntries.filter((entry) =>
+        ? challengeEntries.filter((entry) =>
             searchableText(entry).includes(normalizedQuery),
           )
-        : closestToPinEntries,
-    [closestToPinEntries, normalizedQuery],
-  );
-  const visibleLongestDriveEntries = useMemo(
-    () =>
-      normalizedQuery
-        ? longestDriveEntries.filter((entry) =>
-            searchableText(entry).includes(normalizedQuery),
-          )
-        : longestDriveEntries,
-    [longestDriveEntries, normalizedQuery],
+        : challengeEntries,
+    [challengeEntries, normalizedQuery],
   );
 
   return (
@@ -371,7 +357,7 @@ export function LiveVerificationQueue({
             Live verification monitor
           </p>
           <p className="mt-1 text-sm font-bold text-[#59655f]">
-            Auto-refreshing every 2.5 seconds. Last updated: {lastUpdated}
+            Auto-refreshing every second. Last updated: {lastUpdated}
           </p>
           {error ? (
             <p className="mt-2 text-sm font-bold text-[#9a3324]">{error}</p>
@@ -420,7 +406,7 @@ export function LiveVerificationQueue({
               />
               <input
                 className="h-12 w-full rounded-md border border-[#ded6c8] bg-[#fbf8f1] pl-12 pr-4 text-base font-bold text-[#18211f] outline-none transition placeholder:text-[#87908a] focus:border-[#2f6b3f] focus:bg-white"
-                placeholder="Search full name, phone, E6 username, entry ID, event code..."
+                placeholder="Search full name, phone, simulator username, entry ID, event code..."
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
               />
@@ -437,21 +423,17 @@ export function LiveVerificationQueue({
           </div>
         </label>
         <p className="mt-3 text-sm font-bold text-[#59655f]">
-          Searches across Full Name, phone number, E6 username, Pin2Win Entry
-          ID, challenge, status, result, and E6 event code.
+          Searches across Full Name, phone number, simulator username, Pin2Win
+          Entry ID, challenge, status, result, and event code.
         </p>
       </section>
 
       <SearchResults entries={searchResults} query={query} />
 
-      <div className="mt-10 grid gap-6 xl:grid-cols-2">
+      <div className="mt-10 grid gap-6">
         <QueueColumn
-          title="Closest to the Pin"
-          entries={visibleClosestToPinEntries}
-        />
-        <QueueColumn
-          title="Longest Drive"
-          entries={visibleLongestDriveEntries}
+          title="Hole-in-One Challenge"
+          entries={visibleChallengeEntries}
         />
       </div>
     </>

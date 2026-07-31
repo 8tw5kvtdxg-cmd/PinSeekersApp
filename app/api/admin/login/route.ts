@@ -28,7 +28,7 @@ export async function POST(request: Request) {
   if (
     typeof username !== "string" ||
     typeof password !== "string" ||
-    !validateAdminCredentials(username, password)
+    !validateAdminCredentials(username.trim(), password.trim())
   ) {
     loginUrl.searchParams.set("error", "1");
 
