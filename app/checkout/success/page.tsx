@@ -6,12 +6,10 @@ export default async function CheckoutSuccessPage() {
   return (
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
       <div className="mx-auto max-w-xl rounded-lg border border-[#ded6c8] bg-white p-6">
-        <h1 className="text-3xl font-black">Checkout is disabled</h1>
+        <h1 className="text-3xl font-black">Return to your entry</h1>
         <p className="mt-4 leading-7 text-[#59655f]">
-          Pin2Win entries are now created after the customer books through
-          Alamo Golf Den. Return to the challenge page when onsite, confirm the
-          matched booking details, and complete registration to reveal the E6
-          Event Join Code.
+          Complete the QR registration flow to create your Pin2Win entry,
+          confirm checkout, and reveal the simulator event code.
         </p>
         <Link
           href="/play"

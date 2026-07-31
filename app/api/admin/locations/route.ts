@@ -1,4 +1,5 @@
 import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
+import type { SimulatorProvider } from "@/app/generated/prisma/client";
 import { clubhouseChallenges } from "@/lib/clubhouse";
 import { getPrismaClient } from "@/lib/prisma";
 import {
@@ -9,6 +10,20 @@ import {
 
 export const dynamic = "force-dynamic";
 
+const simulatorProviderValues: SimulatorProvider[] = [
+  "TRUGOLF_APOGEE_E6",
+  "E6_CONNECT",
+  "FLIGHTSCOPE_E6",
+  "OTHER",
+];
+
+function isSimulatorProvider(value: unknown): value is SimulatorProvider {
+  return (
+    typeof value === "string" &&
+    simulatorProviderValues.includes(value as SimulatorProvider)
+  );
+}
+
 async function parseLocationBody(request: Request) {
   const body = (await request.json()) as {
     locationId?: unknown;
@@ -18,6 +33,8 @@ async function parseLocationBody(request: Request) {
     city?: unknown;
     state?: unknown;
     websiteUrl?: unknown;
+    simulatorProvider?: unknown;
+    simulatorSoftwareName?: unknown;
     bays?: unknown;
   };
   const name = typeof body.name === "string" ? body.name.trim() : "";
@@ -32,6 +49,15 @@ async function parseLocationBody(request: Request) {
     rawWebsiteUrl && !rawWebsiteUrl.startsWith("http")
       ? `https://${rawWebsiteUrl}`
       : rawWebsiteUrl;
+  const simulatorProvider: SimulatorProvider = isSimulatorProvider(
+    body.simulatorProvider,
+  )
+    ? body.simulatorProvider
+    : "OTHER";
+  const simulatorSoftwareName =
+    typeof body.simulatorSoftwareName === "string"
+      ? body.simulatorSoftwareName.trim()
+      : "";
   const bayNames = Array.isArray(body.bays)
     ? body.bays
         .filter((bay): bay is string => typeof bay === "string")
@@ -48,6 +74,8 @@ async function parseLocationBody(request: Request) {
     city,
     state,
     websiteUrl,
+    simulatorProvider,
+    simulatorSoftwareName,
     bayNames,
   };
 }
@@ -66,8 +94,17 @@ export async function POST(request: Request) {
     );
   }
 
-  const { name, slug, address, city, state, websiteUrl, bayNames } =
-    await parseLocationBody(request);
+  const {
+    name,
+    slug,
+    address,
+    city,
+    state,
+    websiteUrl,
+    simulatorProvider,
+    simulatorSoftwareName,
+    bayNames,
+  } = await parseLocationBody(request);
 
   if (!name || !slug) {
     return Response.json(
@@ -88,6 +125,8 @@ export async function POST(request: Request) {
         city: city || null,
         state: state || null,
         websiteUrl: websiteUrl || null,
+        simulatorProvider,
+        simulatorSoftwareName: simulatorSoftwareName || null,
         bays: {
           create: uniqueBayNames.map((bayName) => ({
             name: bayName,
@@ -139,6 +178,8 @@ export async function PATCH(request: Request) {
     city,
     state,
     websiteUrl,
+    simulatorProvider,
+    simulatorSoftwareName,
     bayNames,
   } = await parseLocationBody(request);
 
@@ -163,6 +204,8 @@ export async function PATCH(request: Request) {
           city: city || null,
           state: state || null,
           websiteUrl: websiteUrl || null,
+          simulatorProvider,
+          simulatorSoftwareName: simulatorSoftwareName || null,
         },
       });
 

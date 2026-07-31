@@ -112,7 +112,7 @@ export async function updateClubhouseChallengeSetting(input: {
     typeof input.e6EventCode === "string" ? input.e6EventCode.trim() : "";
 
   if (!e6EventCode) {
-    throw new Error("E6 Event Join Code is required.");
+    throw new Error("Simulator event code is required.");
   }
 
   const startsAt = parseDateTimeInput(input.startsAt);

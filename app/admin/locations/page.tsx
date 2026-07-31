@@ -43,11 +43,35 @@ const existingLocations = [
     city: "San Antonio",
     state: "TX 78213",
     websiteUrl: "https://alamogolfden.com",
+    simulatorProvider: "E6_CONNECT",
+    simulatorSoftwareName: null,
     isActive: true,
     isEditable: false,
     bays: [{ id: "existing-alamo-general", name: "General QR" }],
   },
 ];
+
+const simulatorProviderLabels: Record<string, string> = {
+  TRUGOLF_APOGEE_E6: "TruGolf Apogee + E6",
+  E6_CONNECT: "E6 Connect",
+  FLIGHTSCOPE_E6: "FlightScope + E6",
+  MANUAL: "Manual / Staff Verified",
+  OTHER: "Other / To be confirmed",
+};
+
+function formatSimulatorProvider(value: string | null | undefined) {
+  return simulatorProviderLabels[value ?? "OTHER"] ?? simulatorProviderLabels.OTHER;
+}
+
+function formatSimulatorSoftware(location: {
+  simulatorProvider: string | null | undefined;
+  simulatorSoftwareName: string | null | undefined;
+}) {
+  return (
+    location.simulatorSoftwareName?.trim() ||
+    formatSimulatorProvider(location.simulatorProvider)
+  );
+}
 
 type AdminLocationCard = {
   id: string;
@@ -57,6 +81,8 @@ type AdminLocationCard = {
   city: string | null;
   state: string | null;
   websiteUrl: string | null;
+  simulatorProvider: string;
+  simulatorSoftwareName: string | null;
   isActive: boolean;
   isEditable: boolean;
   bays: { id: string; name: string }[];
@@ -100,6 +126,8 @@ export default async function AdminLocationsPage({
         city: location.city,
         state: location.state,
         websiteUrl: location.websiteUrl,
+        simulatorProvider: location.simulatorProvider,
+        simulatorSoftwareName: location.simulatorSoftwareName,
         isActive: location.isActive,
         isEditable: true,
         bays: location.bays.map((bay) => ({
@@ -140,11 +168,11 @@ export default async function AdminLocationsPage({
               Partner locations
             </p>
             <h1 className="mt-4 text-4xl font-black sm:text-5xl">
-              Location QR and revenue log
+              Partner QR and revenue log
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-[#53605a]">
               Create partner venues, generate bay-specific QR entry links, and
-              review registered challenge revenue grouped by location.
+              review registered challenge revenue grouped by partner.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -153,7 +181,7 @@ export default async function AdminLocationsPage({
               href="/admin/locations/new"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white transition hover:bg-[#2a3935]"
             >
-              <Plus size={18} /> New location
+              <Plus size={18} /> Add new partner
             </Link>
             <Link
               href="/admin/users"
@@ -186,7 +214,7 @@ export default async function AdminLocationsPage({
         <section className="mt-10 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-lg border border-[#ded6c8] bg-white">
             <div className="border-b border-[#ded6c8] px-5 py-4">
-              <h2 className="text-xl font-black">Locations</h2>
+              <h2 className="text-xl font-black">Partners</h2>
             </div>
             {!prisma ? (
               <p className="p-5 text-sm font-bold text-[#59655f]">
@@ -235,6 +263,9 @@ export default async function AdminLocationsPage({
                             <Globe size={16} /> {location.websiteUrl.replace(/^https?:\/\//, "")}
                           </span>
                         ) : null}
+                        <p className="mt-2 text-sm font-black text-[#59655f]">
+                          Simulator: {formatSimulatorSoftware(location)}
+                        </p>
                       </div>
                       <span className="rounded-md bg-[#eef7e9] px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#2f6b3f]">
                         {location.isActive ? "Active" : "Inactive"}
@@ -349,6 +380,9 @@ export default async function AdminLocationsPage({
                           <ExternalLink size={14} />
                         </a>
                       ) : null}
+                      <p className="mt-2 text-sm font-black text-[#59655f]">
+                        Simulator: {formatSimulatorSoftware(selectedLocation)}
+                      </p>
                     </div>
                     <p className="text-2xl font-black text-[#2f6b3f]">
                       {formatCurrency(selectedRevenueSummary.revenueCents)}
@@ -359,7 +393,7 @@ export default async function AdminLocationsPage({
                       href={`/admin/locations/${selectedLocation.id}/edit`}
                       className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-4 text-sm font-black text-white transition hover:bg-[#2a3935]"
                     >
-                      <PencilLine size={17} /> Edit location
+                      <PencilLine size={17} /> Edit partner
                     </Link>
                   ) : (
                     <p className="mt-5 rounded-md bg-white px-4 py-3 text-sm font-bold text-[#59655f]">

@@ -32,6 +32,17 @@ export default async function EditAdminLocationPage({
     notFound();
   }
 
+  const simulatorSoftwareOptions = (
+    await prisma.location.findMany({
+      distinct: ["simulatorSoftwareName"],
+      orderBy: { simulatorSoftwareName: "asc" },
+      select: { simulatorSoftwareName: true },
+      where: { simulatorSoftwareName: { not: null } },
+    })
+  )
+    .map((savedLocation) => savedLocation.simulatorSoftwareName)
+    .filter((name): name is string => Boolean(name));
+
   return (
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
       <div className="mx-auto max-w-5xl">
@@ -58,6 +69,7 @@ export default async function EditAdminLocationPage({
         <LocationForm
           mode="edit"
           locationId={location.id}
+          simulatorSoftwareOptions={simulatorSoftwareOptions}
           initialValues={{
             name: location.name,
             slug: location.slug,
@@ -65,6 +77,8 @@ export default async function EditAdminLocationPage({
             city: location.city ?? "",
             state: location.state ?? "",
             websiteUrl: location.websiteUrl ?? "",
+            simulatorProvider: location.simulatorProvider,
+            simulatorSoftwareName: location.simulatorSoftwareName ?? "",
             bays: location.bays.map((bay) => bay.name),
           }}
         />

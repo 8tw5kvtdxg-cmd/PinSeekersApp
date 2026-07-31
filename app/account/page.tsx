@@ -32,7 +32,7 @@ const challengeSteps = [
   },
   {
     title: "Unlock and play",
-    detail: "Confirm the matched Alamo booking, then reveal the E6 code.",
+    detail: "Complete the entry flow, then reveal the simulator event code.",
     icon: ClipboardCheck,
   },
   {
@@ -540,8 +540,8 @@ export default function AccountPage() {
                   <ArrowRight className="text-[#2f6b3f]" size={24} />
                 </div>
                 <p className="mt-4 leading-7 text-[#59655f]">
-                  Jump back into Play Now to choose a challenge, enter your
-                  Alamo booking details, and start another scored session.
+                  Jump back into Play Now to choose a challenge, complete your
+                  Pin2Win entry, and start another scored session.
                 </p>
               </Link>
             </div>
@@ -551,11 +551,11 @@ export default function AccountPage() {
                 <div className="rounded-lg border border-[#ded6c8] bg-white p-5">
                   <div className="flex items-center gap-3">
                     <ClipboardCheck className="text-[#2f6b3f]" size={26} />
-                    <h2 className="text-xl font-black">Alamo booking</h2>
+                    <h2 className="text-xl font-black">Pin2Win entry</h2>
                   </div>
                   <p className="mt-4 text-sm leading-6 text-[#59655f]">
-                    Booking is handled by Alamo Golf Den. Use Play Now onsite
-                    to confirm the matched booking and reveal the E6 Event Join Code.
+                    Use Play Now onsite to complete checkout and reveal the
+                    simulator event code for the active experience.
                   </p>
                   <Link
                     href="/play"

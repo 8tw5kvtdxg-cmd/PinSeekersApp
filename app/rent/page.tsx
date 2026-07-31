@@ -25,13 +25,13 @@ const sessionSteps = [
   {
     title: "Pay to enter",
     description:
-      "Complete your entry and get the E6 Event Join Code on your confirmation page.",
+      "Complete your entry and get the simulator event code on your confirmation page.",
     icon: CreditCard,
   },
   {
     title: "Play the challenge",
     description:
-      "Enter the code in E6, take your shots, and check where you stand.",
+      "Enter the code in the simulator software, take your shots, and check where you stand.",
     icon: MonitorPlay,
   },
 ];
@@ -66,7 +66,7 @@ export default function RentBayPage() {
                 Challenge entry happens at the bay
               </h2>
               <p className="mt-3 leading-7 text-white/74">
-                Keep your E6 username handy. You will use it when you enter so
+                Keep your simulator username handy. You will use it when you enter so
                 your challenge result can be matched after play.
               </p>
             </div>
@@ -114,7 +114,7 @@ export default function RentBayPage() {
           </h2>
           <p className="mt-4 max-w-3xl leading-8 text-[#59655f]">
             When your bay is active, open the Pin2Win challenge page, complete
-            your entry, and use the E6 code to join the event. The challenge is
+            your entry, and use the event code to join the event. The challenge is
             designed to fit into the simulator session you already booked.
           </p>
           <Link

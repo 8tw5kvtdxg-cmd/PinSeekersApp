@@ -26,6 +26,10 @@ function challengeName(challengeSlug: string) {
   );
 }
 
+function resultStatusLabel(status: ClubhouseEntryRecord["resultStatus"]) {
+  return status === "Pending E6 Result" ? "Pending Simulator Result" : status;
+}
+
 export function LiveEntryLog({
   initialEntries,
   challengeFilter,
@@ -208,7 +212,7 @@ export function LiveEntryLog({
                   Phone: {entry.phoneNumber ?? "Not provided"}
                 </p>
                 <p className="mt-1 text-sm font-bold text-[#59655f]">
-                  E6: {entry.e6DisplayName}
+                  Simulator: {entry.e6DisplayName}
                 </p>
               </div>
               <div>
@@ -225,10 +229,10 @@ export function LiveEntryLog({
               </div>
               <div>
                 <span className="inline-flex rounded-full bg-[#e3edd8] px-3 py-1 text-xs font-black text-[#2f6b3f]">
-                  {entry.resultStatus}
+                  {resultStatusLabel(entry.resultStatus)}
                 </span>
                 <p className="mt-3 text-sm font-bold text-[#59655f]">
-                  Booking: {entry.paymentMethod ?? "Venue booking"}
+                  Payment: {entry.paymentMethod ?? "Venue booking"}
                 </p>
                 {entry.bookingVerificationId ? (
                   <p className="mt-1 text-xs font-black text-[#2f6b3f]">

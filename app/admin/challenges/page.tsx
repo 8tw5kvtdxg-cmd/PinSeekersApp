@@ -67,9 +67,9 @@ export default async function AdminChallengesPage() {
 
   return (
     <AdminShell
-      eyebrow="Global E6 setup"
+      eyebrow="Global simulator setup"
       title="Challenge codes"
-      description="Manage the shared E6 Event Join Code used by every partner location QR flow."
+      description="Manage the shared simulator event code used by every partner location QR flow."
     >
         <section className="mt-10 grid gap-6">
           {clubhouseChallenges.map((challenge) => (
@@ -95,7 +95,7 @@ export default async function AdminChallengesPage() {
               <h2 className="text-2xl font-black">Location QR access</h2>
               <p className="mt-2 text-sm leading-6 text-[#59655f]">
                 These QR links point customers into the correct location and
-                bay flow. The E6 codes above stay shared globally.
+                bay flow. The simulator event codes above stay shared globally.
               </p>
             </div>
           </div>

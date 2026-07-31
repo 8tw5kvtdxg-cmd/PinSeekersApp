@@ -5,9 +5,9 @@ import { SiteHeader } from "@/app/components/site-header";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Pin2Win | Golf Challenges",
+  title: "Pin2Win | Golf Entertainment for Simulator Venues",
   description:
-    "QR-powered golf simulator hole-in-one challenges for venues and players.",
+    "QR-powered golf entertainment, simulator challenge access, and partner marketing tools for indoor golf simulator venues.",
 };
 
 export default function RootLayout({
@@ -17,14 +17,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
-      <head>
-        <DevConsoleFilter />
-      </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <SiteHeader />
         <div className="pt-[72px]">{children}</div>
         <SiteFooter />
       </body>
+      <DevConsoleFilter />
     </html>
   );
 }

@@ -15,7 +15,7 @@ export default async function AdminBookingsPage() {
     <AdminShell
       eyebrow="Booking verification"
       title="Alamo booking queue"
-      description="Store CC’d booking confirmations, match them to QR scans, and prevent reused bookings from revealing the E6 Event Join Code."
+      description="Store CC’d booking confirmations, match them to QR scans, and prevent reused bookings from revealing the simulator event code."
     >
       <section className="mt-8 rounded-lg border border-[#ded6c8] bg-white p-5">
         <div className="flex items-start gap-3">

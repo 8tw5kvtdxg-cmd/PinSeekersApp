@@ -62,7 +62,7 @@ export const clubhouseChallenges: ClubhouseChallenge[] = [
     name: "Hole-in-One Challenge",
     type: "HOLE_IN_ONE",
     venue: "All partner locations",
-    bayLabel: "Any active E6 2026 bay",
+    bayLabel: "Any active simulator bay",
     entryFeeCents: 2000,
     status: "Ready",
     startsAt: "May 22, 2026, 10:00 AM",
@@ -72,22 +72,22 @@ export const clubhouseChallenges: ClubhouseChallenge[] = [
     e6JoinCode: "E6-P2W-7429",
     e6QueueCode: "QUEUE-118",
     e6ClubhouseUrl: "https://e6golf.com/clubhouse",
-    prizeSummary: "Premium Alamo booking required. Verified entrants are eligible for the $10,000 hole-in-one prize.",
+    prizeSummary: "A featured Pin2Win golf entertainment experience for partner simulator locations.",
     instructions: [
-      "Book the premium Pin2Win reservation through Alamo Golf Den.",
-      "Arrive for the simulator reservation and scan the Pin2Win QR code.",
+      "Scan the Pin2Win QR code at the partner location.",
       "Create or load your Pin2Win player account.",
-      "Confirm the matched Alamo booking details to unlock the E6 Event Join Code.",
-      "Enter the E6 code in the Event option once the event is active.",
-      "Use the same E6 display name shown on your Pin2Win entry.",
+      "Enter the required player and simulator account information.",
+      "Complete checkout through Pin2Win to unlock the simulator event code.",
+      "Enter the event code in the simulator software once the event is active.",
+      "Use the same simulator display name shown on your Pin2Win entry.",
     ],
     eligibilityRules: [
-      "Only verified premium Alamo bookings registered through Pin2Win are prize-eligible.",
-      "Verified entrants are eligible for the $10,000 hole-in-one prize.",
-      "One Pin2Win entry equals one eligible E6 attempt window.",
-      "Shared or reused E6 codes do not create prize eligibility.",
-      "Results must match the Pin2Win player record, E6 display name, and play window.",
-      "Prize results are verified against the E6 Clubhouse result record before approval.",
+      "Only verified Pin2Win entries are included in official challenge records.",
+      "Players must complete the Pin2Win entry flow before accessing the event code.",
+      "One Pin2Win entry equals one eligible simulator attempt window.",
+      "Shared or reused event codes do not create a valid Pin2Win entry.",
+      "Results must match the Pin2Win player record, simulator display name, and play window.",
+      "Results are verified against the simulator result record before final review.",
     ],
   },
 ];
@@ -106,7 +106,7 @@ export const clubhouseEntries: ClubhouseEntry[] = [
     attemptLimit: 1,
     resultStatus: "Needs Review",
     result: "4 ft 8 in",
-    evidence: "E6 Clubhouse result screenshot pending admin review",
+    evidence: "Simulator result screenshot pending admin review",
   },
   {
     id: "P2W-ENTRY-20260522-0043",
@@ -121,7 +121,7 @@ export const clubhouseEntries: ClubhouseEntry[] = [
     attemptLimit: 1,
     resultStatus: "Verified",
     result: "3 ft 2 in",
-    evidence: "Verified against E6 Clubhouse result record",
+    evidence: "Verified against simulator result record",
   },
 ];
 
@@ -131,14 +131,14 @@ export const verificationQueue: VerificationRecord[] = [
     rank: 2,
     e6LeaderboardResult: "4 ft 8 in",
     reviewNote:
-      "Venue booking was registered before play window. E6 display name matches Pin2Win entry.",
+      "Venue booking was registered before play window. Simulator display name matches Pin2Win entry.",
   },
   {
     ...clubhouseEntries[1],
     rank: 1,
     e6LeaderboardResult: "3 ft 2 in",
     reviewNote:
-      "Verified prize candidate. Keep E6 result proof attached before approval.",
+      "Verified result candidate. Keep E6 result proof attached before approval.",
   },
 ];
 

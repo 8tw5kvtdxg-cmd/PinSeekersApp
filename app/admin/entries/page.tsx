@@ -15,7 +15,7 @@ export default async function AdminEntriesPage() {
     <AdminShell
       eyebrow="Live entries"
       title="Hole-in-One entry log"
-      description="Monitor QR registrations, matched Alamo bookings, E6 usernames, and result status for the active challenge."
+      description="Monitor QR registrations, matched Alamo bookings, simulator usernames, and result status for the active challenge."
     >
       <LiveEntryLog
         initialEntries={initialEntries}

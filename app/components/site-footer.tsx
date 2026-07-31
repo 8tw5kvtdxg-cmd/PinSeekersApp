@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Mail, MapPin, Share2, Users } from "lucide-react";
+import { Building2, Mail, QrCode, Share2, Users } from "lucide-react";
 
 export function SiteFooter() {
   const pathname = usePathname();
@@ -12,21 +12,24 @@ export function SiteFooter() {
   }
 
   return (
-    <footer className="bg-[#101816] px-6 py-12 text-white sm:px-10 lg:px-12">
+    <footer className="bg-[#0f1b18] px-6 py-12 text-white sm:px-10 lg:px-12">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.2fr_0.8fr_0.9fr]">
         <div>
-          <Link href="/" className="text-xl font-black tracking-[0.12em]">
-            PIN2WIN
+          <Link href="/" className="flex items-center gap-3 text-xl font-black">
+            <span className="flex size-9 items-center justify-center rounded-md bg-[#b7d37c] text-sm text-[#0f1b18]">
+              P2W
+            </span>
+            <span>Pin2Win</span>
           </Link>
           <p className="mt-4 max-w-xl leading-7 text-white/66">
-            Live golf simulator challenges for players taking a verified shot
-            at a hole-in-one prize.
+            Golf entertainment and marketing experiences for simulator venues,
+            powered by QR entry, simulator challenge access, and partner
+            promotion.
           </p>
           <p className="mt-6 text-sm leading-6 text-white/46">
-            Disclaimers: Prize eligibility, prize amounts, challenge rules,
-            location availability, and entry requirements may vary by venue.
-            Players must follow posted rules and local eligibility requirements.
-            No prize entry should be offered where prohibited by law.
+            Disclaimers: Challenge rules, location availability, entry
+            requirements, and partner participation may vary by venue. Players
+            must follow posted rules and local eligibility requirements.
           </p>
         </div>
 
@@ -36,16 +39,16 @@ export function SiteFooter() {
           </h2>
           <div className="mt-4 space-y-3 text-sm font-bold text-white/72">
             <Link href="/contact" className="flex items-center gap-3 hover:text-white">
-              <Mail size={18} /> Contact page
+              <Building2 size={18} /> Partner inquiry
             </Link>
             <a
-              href="mailto:hello@pin2win.example"
+              href="mailto:partners@pin2win.com"
               className="flex items-center gap-3 hover:text-white"
             >
-              <Mail size={18} /> hello@pin2win.example
+              <Mail size={18} /> partners@pin2win.com
             </a>
-            <Link href="/rent" className="flex items-center gap-3 hover:text-white">
-              <MapPin size={18} /> Rent a bay
+            <Link href="/play" className="flex items-center gap-3 hover:text-white">
+              <QrCode size={18} /> QR registration
             </Link>
           </div>
         </div>

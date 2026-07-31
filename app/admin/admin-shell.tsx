@@ -17,7 +17,7 @@ const adminNavItems = [
   { href: "/admin/entries", label: "Entries", icon: ListChecks },
   { href: "/admin/results", label: "Results", icon: PencilLine },
   { href: "/admin/verification", label: "Review", icon: ClipboardCheck },
-  { href: "/admin/challenges", label: "E6 Code", icon: KeyRound },
+  { href: "/admin/challenges", label: "Event Code", icon: KeyRound },
   { href: "/admin/locations", label: "Locations", icon: MapPin },
   { href: "/admin/users", label: "Users", icon: UsersRound },
 ];

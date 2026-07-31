@@ -69,19 +69,19 @@ export function EventCodePanel({
             </p>
           ) : null}
           <p className="mt-1 text-sm font-bold text-[#59655f]">
-            E6: {e6DisplayName ?? "E6 account needed"}
+            Simulator: {e6DisplayName ?? "Simulator account needed"}
           </p>
         </div>
       ) : null}
       <div className="flex items-center gap-3">
         <KeyRound className="text-[#2f6b3f]" size={26} />
-        <h2 className="text-xl font-black">E6 Event Join Code</h2>
+        <h2 className="text-xl font-black">Simulator Event Code</h2>
       </div>
       <p className="mt-4 rounded-md bg-white px-4 py-4 text-2xl font-black tracking-[0.08em]">
         {fallbackEventCode}
       </p>
       <p className="mt-3 text-sm leading-6 text-[#59655f]">
-        Enter this in E6 2026 using the Event option after the E6 event has
+        Enter this in the simulator software after the challenge event has
         started.
       </p>
     </div>

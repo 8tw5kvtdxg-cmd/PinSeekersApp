@@ -25,6 +25,10 @@ const statusOptions: ClubhouseEntryRecord["resultStatus"][] = [
   "Rejected",
 ];
 
+function resultStatusLabel(status: ClubhouseEntryRecord["resultStatus"]) {
+  return status === "Pending E6 Result" ? "Pending Simulator Result" : status;
+}
+
 function resultUnitForChallenge(challenge: ClubhouseChallenge) {
   return challenge.type === "HOLE_IN_ONE" ? "inches" : "yards";
 }
@@ -410,7 +414,7 @@ export function ResultLogTable({
                 <th className="px-4 py-3">Entry</th>
                 <th className="px-4 py-3">Player</th>
                 <th className="px-4 py-3">Phone</th>
-                <th className="px-4 py-3">E6 Username</th>
+                <th className="px-4 py-3">Simulator Username</th>
                 <th className="px-4 py-3">Booking</th>
                 <th className="px-4 py-3">Registered</th>
                 {challenge.type === "HOLE_IN_ONE" ? (
@@ -546,7 +550,7 @@ export function ResultLogTable({
                       >
                         {statusOptions.map((status) => (
                           <option key={status} value={status}>
-                            {status}
+                            {resultStatusLabel(status)}
                           </option>
                         ))}
                       </select>

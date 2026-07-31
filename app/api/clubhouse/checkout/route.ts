@@ -4,7 +4,7 @@ export async function POST() {
   return Response.json(
     {
       error:
-        "Checkout is disabled. Book through Alamo Golf Den, then scan the onsite QR code and confirm the matched booking.",
+        "Legacy checkout is disabled. Use the active Pin2Win QR checkout flow.",
     },
     { status: 410 },
   );

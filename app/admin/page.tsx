@@ -33,8 +33,8 @@ const quickActions = [
   },
   {
     href: "/admin/challenges",
-    title: "Set E6 code",
-    text: "Update the shared Event Join Code and event timing.",
+    title: "Set event code",
+    text: "Update the shared simulator event code and event timing.",
     icon: KeyRound,
   },
   {
@@ -46,7 +46,7 @@ const quickActions = [
   {
     href: "/admin/results",
     title: "Log results",
-    text: "Enter verified E6 outcomes for prize review.",
+    text: "Enter and review simulator outcomes for operating records.",
     icon: PencilLine,
   },
 ];
@@ -105,7 +105,7 @@ export default async function AdminDashboardPage() {
   return (
     <AdminShell
       title="Operations dashboard"
-      description="A focused command center for today’s Hole-in-One challenge: bookings, QR entries, E6 code readiness, and result review."
+      description="A focused command center for Pin2Win operations: checkout activity, QR entries, event-code readiness, locations, and result review."
       actions={
         <>
           <Link
@@ -118,7 +118,7 @@ export default async function AdminDashboardPage() {
             href="/admin/locations/new"
             className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
           >
-            <Plus size={18} /> New location
+            <Plus size={18} /> Add partner
           </Link>
         </>
       }
@@ -196,7 +196,7 @@ export default async function AdminDashboardPage() {
             </div>
             <div className="rounded-md bg-[#fbf8f1] p-4">
               <dt className="text-xs font-black uppercase tracking-[0.12em] text-[#59655f]">
-                E6 event code
+                Simulator event code
               </dt>
               <dd className="mt-2 font-black">{activeChallenge?.e6JoinCode}</dd>
             </div>
@@ -211,7 +211,7 @@ export default async function AdminDashboardPage() {
             href="/admin/challenges"
             className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white transition hover:bg-[#2a3935]"
           >
-            Edit E6 settings <ArrowRight size={17} />
+            Edit event settings <ArrowRight size={17} />
           </Link>
         </div>
 
@@ -285,9 +285,9 @@ export default async function AdminDashboardPage() {
           <h2 className="text-2xl font-black">Operating model</h2>
         </div>
         <p className="mt-4 max-w-4xl leading-7 text-[#59655f]">
-          Alamo handles booking and payment. Pin2Win stores matching booking
-          records, unlocks the E6 Event Join Code after a confirmed QR match,
-          and keeps entry/result records for prize review.
+          Pin2Win manages QR entry, checkout activation, event-code access,
+          location reporting, and result records so partner venues can run a
+          repeatable golf entertainment experience.
         </p>
       </section>
     </AdminShell>

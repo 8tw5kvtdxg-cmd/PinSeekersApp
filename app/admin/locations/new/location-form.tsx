@@ -7,6 +7,7 @@ import Link from "next/link";
 type LocationFormProps = {
   mode?: "create" | "edit";
   locationId?: string;
+  simulatorSoftwareOptions?: string[];
   initialValues?: {
     name: string;
     slug: string;
@@ -14,9 +15,47 @@ type LocationFormProps = {
     city: string;
     state: string;
     websiteUrl: string;
+    simulatorProvider: SimulatorProviderValue;
+    simulatorSoftwareName: string;
     bays: string[];
   };
 };
+
+type SimulatorProviderValue =
+  | "TRUGOLF_APOGEE_E6"
+  | "E6_CONNECT"
+  | "FLIGHTSCOPE_E6"
+  | "MANUAL"
+  | "OTHER";
+
+const simulatorProviders: {
+  value: SimulatorProviderValue;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: "E6_CONNECT",
+    label: "E6 Connect",
+    description: "For venues running E6 Connect as the primary challenge software.",
+  },
+  {
+    value: "TRUGOLF_APOGEE_E6",
+    label: "TruGolf Apogee + E6",
+    description: "For Apogee launch monitor setups that currently route into E6.",
+  },
+  {
+    value: "FLIGHTSCOPE_E6",
+    label: "FlightScope + E6",
+    description: "For FlightScope simulator setups connected to E6.",
+  },
+  {
+    value: "OTHER",
+    label: "Other / To be confirmed",
+    description: "For future simulator software or unknown setups.",
+  },
+];
+
+const defaultSimulatorSoftwareOptions = ["GC", "Trackman", "Garmin"];
 
 const emptyValues = {
   name: "",
@@ -25,12 +64,15 @@ const emptyValues = {
   city: "",
   state: "",
   websiteUrl: "",
+  simulatorProvider: "OTHER" as SimulatorProviderValue,
+  simulatorSoftwareName: "",
   bays: ["Bay 1"],
 };
 
 export function LocationForm({
   mode = "create",
   locationId,
+  simulatorSoftwareOptions = [],
   initialValues = emptyValues,
 }: LocationFormProps) {
   const [name, setName] = useState(initialValues.name);
@@ -39,6 +81,12 @@ export function LocationForm({
   const [city, setCity] = useState(initialValues.city);
   const [state, setState] = useState(initialValues.state);
   const [websiteUrl, setWebsiteUrl] = useState(initialValues.websiteUrl);
+  const [simulatorProvider, setSimulatorProvider] = useState<SimulatorProviderValue>(
+    initialValues.simulatorProvider,
+  );
+  const [simulatorSoftwareName, setSimulatorSoftwareName] = useState(
+    initialValues.simulatorSoftwareName,
+  );
   const [bays, setBays] = useState(
     initialValues.bays.length ? initialValues.bays : [""],
   );
@@ -63,6 +111,8 @@ export function LocationForm({
           city,
           state,
           websiteUrl,
+          simulatorProvider,
+          simulatorSoftwareName,
           bays,
         }),
       });
@@ -77,8 +127,8 @@ export function LocationForm({
 
       setMessage(
         mode === "create"
-          ? "Location created. QR codes are ready on the locations page."
-          : "Location updated. QR codes and accounting details are refreshed.",
+          ? "Partner created. QR codes are ready on the partner locations page."
+          : "Partner updated. QR codes and accounting details are refreshed.",
       );
       window.location.href = `/admin/locations?location=${data.location.slug}`;
     } catch (submissionError) {
@@ -94,13 +144,35 @@ export function LocationForm({
     }
   }
 
+  const savedSimulatorSoftwareOptions = Array.from(
+    new Set(
+      [
+        ...defaultSimulatorSoftwareOptions,
+        ...simulatorSoftwareOptions,
+        initialValues.simulatorSoftwareName,
+      ]
+        .map((option) => option.trim())
+        .filter(Boolean),
+    ),
+  );
+  const selectedCustomSoftware =
+    simulatorProvider === "OTHER" && simulatorSoftwareName.trim()
+      ? simulatorSoftwareName.trim()
+      : "";
+  const selectedSavedCustomSoftware =
+    selectedCustomSoftware &&
+    savedSimulatorSoftwareOptions.includes(selectedCustomSoftware);
+  const selectValue = selectedSavedCustomSoftware
+    ? `CUSTOM:${selectedCustomSoftware}`
+    : simulatorProvider;
+
   return (
     <section className="mt-10 rounded-lg border border-[#ded6c8] bg-white p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <Building2 className="text-[#2f6b3f]" size={30} />
           <h2 className="mt-3 text-2xl font-black">
-            {mode === "create" ? "Partner details" : "Edit partner details"}
+            {mode === "create" ? "New partner details" : "Edit partner details"}
           </h2>
         </div>
         <Link
@@ -109,6 +181,61 @@ export function LocationForm({
         >
           <ArrowLeft size={17} /> Back
         </Link>
+      </div>
+
+      <div className="mt-6 rounded-lg border border-[#ece5d8] bg-[#fbf8f1] p-4">
+        <label className="grid gap-2 text-sm font-bold text-[#53605a]">
+          Simulator type
+          <select
+            className="h-12 rounded-md border border-[#ded6c8] bg-white px-4 text-base font-black text-[#18211f] outline-none focus:border-[#2f6b3f]"
+            value={selectValue}
+            onChange={(event) => {
+              const nextValue = event.target.value;
+
+              if (nextValue.startsWith("CUSTOM:")) {
+                setSimulatorProvider("OTHER");
+                setSimulatorSoftwareName(nextValue.replace(/^CUSTOM:/, ""));
+                return;
+              }
+
+              setSimulatorProvider(nextValue as SimulatorProviderValue);
+              setSimulatorSoftwareName("");
+            }}
+          >
+            {simulatorProviders.map((provider) => (
+              <option key={provider.value} value={provider.value}>
+                {provider.label}
+              </option>
+            ))}
+            {savedSimulatorSoftwareOptions.length ? (
+              <optgroup label="Saved software">
+                {savedSimulatorSoftwareOptions.map((softwareName) => (
+                  <option key={softwareName} value={`CUSTOM:${softwareName}`}>
+                    {softwareName}
+                  </option>
+                ))}
+              </optgroup>
+            ) : null}
+          </select>
+        </label>
+        <p className="mt-2 text-sm font-bold leading-6 text-[#59655f]">
+          {selectedCustomSoftware
+            ? "Saved custom simulator software for partners using this setup."
+            : simulatorProviders.find(
+                (provider) => provider.value === simulatorProvider,
+              )?.description}
+        </p>
+        {simulatorProvider === "OTHER" ? (
+          <label className="mt-4 grid gap-2 text-sm font-bold text-[#53605a]">
+            Software name
+            <input
+              className="h-12 rounded-md border border-[#ded6c8] bg-white px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
+              placeholder="TrackMan, Full Swing, AboutGolf, GSPro..."
+              value={simulatorSoftwareName}
+              onChange={(event) => setSimulatorSoftwareName(event.target.value)}
+            />
+          </label>
+        ) : null}
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -203,8 +330,8 @@ export function LocationForm({
             ? "Creating..."
             : "Saving..."
           : mode === "create"
-            ? "Create location"
-            : "Save location"}
+            ? "Create partner"
+            : "Save partner"}
       </button>
     </section>
   );

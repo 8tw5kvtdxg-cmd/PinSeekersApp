@@ -25,6 +25,7 @@
 *.pem
 .pin2win-clubhouse-entries.json
 .pin2win-clubhouse-event-codes.json
+.pin2win-payarc-checkouts.json
 
 # debug
 npm-debug.log*

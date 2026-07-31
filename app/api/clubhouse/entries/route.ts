@@ -46,7 +46,7 @@ export async function POST(request: Request) {
 
   if (!bookingVerificationId) {
     return Response.json(
-      { error: "A matched Alamo booking must be confirmed before the E6 code unlocks." },
+      { error: "A matched Alamo booking must be confirmed before the event code unlocks." },
       { status: 400 },
     );
   }

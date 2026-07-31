@@ -15,10 +15,12 @@ import { slugifyLocation } from "@/lib/location-utils";
 export type ClubhouseEntryRecord = ClubhouseEntry & {
   e6EventCode: string;
   stripeCheckoutSessionId?: string;
+  payarcCheckoutId?: string;
+  payarcOrderId?: string;
   venueBookingReference?: string;
   bookingVerificationId?: string;
   bookingVerificationStatus?: "Pending Match" | "Auto Verified" | "Needs Review";
-  paymentMethod: "Stripe" | "Venue booking";
+  paymentMethod: "Stripe" | "Venue booking" | "Payarc";
   locationSlug: string;
   locationName: string;
   bayName?: string;
@@ -246,6 +248,20 @@ export async function getClubhouseEntryRecordByStripeSessionId(
   );
 }
 
+export async function getClubhouseEntryRecordByPayarcCheckoutId(
+  payarcCheckoutId: string,
+) {
+  const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
+    entriesPath,
+  );
+
+  return (
+    Object.values(entries).find(
+      (entry) => entry.payarcCheckoutId === payarcCheckoutId,
+    ) ?? null
+  );
+}
+
 function formatEntryDate(date: Date) {
   return [
     date.getFullYear(),
@@ -287,6 +303,8 @@ export async function createClubhouseEntryRecord(input: {
   phoneNumber: string;
   e6DisplayName: string;
   stripeCheckoutSessionId?: string;
+  payarcCheckoutId?: string;
+  payarcOrderId?: string;
   venueBookingReference?: string;
   bookingVerificationId?: string;
   locationSlug?: string;
@@ -304,7 +322,7 @@ export async function createClubhouseEntryRecord(input: {
   const e6DisplayName = input.e6DisplayName.trim();
 
   if (!playerName || !phoneNumber || !e6DisplayName) {
-    throw new Error("Player name, phone number, and E6 account name are required.");
+    throw new Error("Player name, phone number, and simulator account name are required.");
   }
 
   const normalizedChallengeSlug = normalizeChallengeSlug(input.challengeSlug);
@@ -319,7 +337,7 @@ export async function createClubhouseEntryRecord(input: {
     : null;
 
   if (!e6EventCode) {
-    throw new Error("E6 Event Join Code is not available.");
+    throw new Error("Simulator event code is not available.");
   }
 
   if (input.bookingVerificationId && !bookingVerification) {
@@ -349,6 +367,16 @@ export async function createClubhouseEntryRecord(input: {
     }
   }
 
+  if (input.payarcCheckoutId) {
+    const existingPayarcEntry = Object.values(existing).find(
+      (entry) => entry.payarcCheckoutId === input.payarcCheckoutId,
+    );
+
+    if (existingPayarcEntry) {
+      return existingPayarcEntry;
+    }
+  }
+
   const now = new Date();
   const validUntil = new Date(
     now.getTime() + challenge.playWindowMinutes * 60 * 1000,
@@ -369,10 +397,16 @@ export async function createClubhouseEntryRecord(input: {
     resultStatus: "Pending E6 Result",
     e6EventCode,
     stripeCheckoutSessionId: input.stripeCheckoutSessionId,
+    payarcCheckoutId: input.payarcCheckoutId,
+    payarcOrderId: input.payarcOrderId,
     venueBookingReference: input.venueBookingReference?.trim() || undefined,
     bookingVerificationId: bookingVerification?.id,
     bookingVerificationStatus: bookingVerification ? "Auto Verified" : "Needs Review",
-    paymentMethod: input.stripeCheckoutSessionId ? "Stripe" : "Venue booking",
+    paymentMethod: input.payarcCheckoutId
+      ? "Payarc"
+      : input.stripeCheckoutSessionId
+      ? "Stripe"
+      : "Venue booking",
     locationSlug,
     locationName,
     bayName,

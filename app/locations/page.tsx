@@ -9,10 +9,10 @@ import {
 } from "lucide-react";
 
 const playerDetails = [
-  "Book the premium Pin2Win reservation through Alamo Golf Den.",
+  "Create your Pin2Win entry from the QR landing page.",
   "Scan the challenge QR code when you arrive at the bay.",
-  "Confirm the matched booking details to reveal the E6 Event Join Code.",
-  "Play the challenge in E6 during your simulator session.",
+  "Complete checkout to reveal the simulator event code.",
+  "Play the challenge during your simulator session.",
 ];
 
 export default function LocationsPage() {
@@ -32,18 +32,16 @@ export default function LocationsPage() {
             Play Pin2Win at Alamo Golf Den
           </h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-white/74">
-            Book the premium Pin2Win reservation through Alamo Golf Den first.
-            When you arrive at the simulator bay, scan the QR code and enter
-            the matched booking details to reveal the E6 Event Join Code.
+            Alamo Golf Den is a Pin2Win partner location where players can scan
+            onsite QR codes, complete a Pin2Win entry, and access the active
+            simulator challenge experience.
           </p>
-          <a
-            href="https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml"
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            href="/play"
             className="mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#a8c878] px-6 text-sm font-black text-[#101816] transition hover:bg-[#c1df8d]"
           >
-            Book at Alamo Golf Den <ExternalLink size={18} />
-          </a>
+            Start QR registration <QrCode size={18} />
+          </Link>
         </section>
 
         <section className="mt-8 rounded-lg border border-[#ded6c8] bg-white p-6">
@@ -82,18 +80,18 @@ export default function LocationsPage() {
           </article>
           <article className="rounded-lg border border-[#ded6c8] bg-white p-5">
             <Trophy className="text-[#2f6b3f]" size={30} />
-            <h2 className="mt-4 text-2xl font-black">E6 Clubhouse events</h2>
+            <h2 className="mt-4 text-2xl font-black">Simulator events</h2>
             <p className="mt-3 leading-7 text-[#59655f]">
-              After you confirm the booking, use the E6 Event Join Code
-              from your confirmation page to play inside E6.
+              After checkout, use the simulator event code from your
+              confirmation page to play the active challenge.
             </p>
           </article>
           <article className="rounded-lg border border-[#ded6c8] bg-white p-5">
             <BadgeCheck className="text-[#2f6b3f]" size={30} />
             <h2 className="mt-4 text-2xl font-black">Player details</h2>
             <p className="mt-3 leading-7 text-[#59655f]">
-              Use your real name and E6 username so your entry can be matched
-              with your challenge result.
+              Use your real name and simulator username so your entry can be
+              matched with your challenge result.
             </p>
           </article>
         </section>

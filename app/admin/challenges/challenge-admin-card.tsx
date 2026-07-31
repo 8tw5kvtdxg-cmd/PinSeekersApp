@@ -133,12 +133,12 @@ export function ChallengeAdminCard({
         <div className="w-full rounded-lg bg-[#fbf8f1] p-5 lg:max-w-xl">
           <div className="flex items-center gap-3">
             <KeyRound className="text-[#2f6b3f]" size={24} />
-            <h3 className="text-xl font-black">Global E6 event code</h3>
+            <h3 className="text-xl font-black">Global simulator event code</h3>
           </div>
           <div className="mt-5 grid gap-4">
             <label className="grid gap-2">
               <span className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
-                E6 Event Join Code
+                Simulator Event Code
               </span>
               <input
                 className="h-12 rounded-md border border-[#ded6c8] bg-white px-4 font-black text-[#18211f] outline-none focus:border-[#2f6b3f]"

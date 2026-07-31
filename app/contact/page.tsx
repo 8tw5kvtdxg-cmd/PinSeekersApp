@@ -2,163 +2,146 @@ import Link from "next/link";
 import {
   ArrowRight,
   Building2,
+  ClipboardCheck,
   Mail,
-  MapPin,
-  Phone,
-  Share2,
+  Megaphone,
+  QrCode,
   Users,
 } from "lucide-react";
 
-const addresses = [
+const inquiryTypes = [
   {
-    label: "San Antonio office",
-    address: "123 Placeholder Drive, San Antonio, TX 78205",
+    title: "Partner venues",
+    description:
+      "Launch Pin2Win as an entertainment add-on for simulator customers.",
+    icon: Building2,
   },
   {
-    label: "Houston partner location",
-    address: "456 Example Avenue, Houston, TX 77002",
+    title: "Marketing activations",
+    description:
+      "Build a promotable challenge around QR signage, social posts, and email campaigns.",
+    icon: Megaphone,
   },
   {
-    label: "Austin partner location",
-    address: "789 Template Street, Austin, TX 78701",
+    title: "Player support",
+    description:
+      "Get help with account access, QR registration, event-code access, or result matching.",
+    icon: Users,
   },
-  {
-    label: "Dallas partner location",
-    address: "321 Sample Road, Dallas, TX 75201",
-  },
-];
-
-const socialLinks = [
-  { label: "Instagram", handle: "@pin2win", icon: Share2 },
-  { label: "X / Twitter", handle: "@pin2win", icon: Share2 },
-  { label: "LinkedIn", handle: "Pin2Win", icon: Users },
 ];
 
 export default function ContactPage() {
   return (
-    <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
-      <div className="mx-auto max-w-6xl">
-        <Link
-          href="/"
-          className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]"
-        >
-          Pin2Win
-        </Link>
-
-        <section className="mt-10 grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
+    <main className="min-h-screen bg-[#f6f8f5] text-[#13201c]">
+      <section id="venues" className="border-b border-[#dfe6df] bg-white">
+        <div className="mx-auto grid max-w-7xl gap-8 px-6 py-16 sm:px-10 lg:grid-cols-[0.8fr_1.2fr] lg:px-12">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-              Contact us
+            <Link href="/" className="text-sm font-black uppercase text-[#2f6b3f]">
+              Pin2Win
+            </Link>
+            <p className="mt-10 inline-flex items-center gap-2 rounded-md bg-[#eaf2ff] px-4 py-2 text-sm font-black text-[#24518a]">
+              <Building2 size={16} /> Venue partnerships
             </p>
-            <h1 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">
-              Questions about challenges, bays, or locations?
+            <h1 className="mt-5 text-4xl font-black leading-tight sm:text-5xl">
+              Bring Pin2Win to your simulator location.
             </h1>
-            <p className="mt-5 text-lg leading-8 text-[#53605a]">
-              Reach out for player support, venue partnerships, private events,
-              or help getting a Pin2Win challenge started at your location.
+            <p className="mt-5 text-lg leading-8 text-[#51615b]">
+              Tell us about your venue, simulator setup, and launch goals. We
+              can help shape the first challenge, QR placement, customer flow,
+              and marketing rollout.
             </p>
           </div>
 
-          <section className="rounded-lg border border-[#ded6c8] bg-white p-6 shadow-xl shadow-[#18211f]/8">
+          <section className="rounded-lg border border-[#dfe6df] bg-white p-6 shadow-xl shadow-[#13201c]/8">
             <div className="grid gap-4 sm:grid-cols-2">
               <a
-                className="rounded-lg bg-[#fbf8f1] p-5 transition hover:bg-[#f5efdf]"
-                href="mailto:hello@pin2win.example"
+                className="rounded-lg bg-[#f6f8f5] p-5 transition hover:bg-[#edf3ea]"
+                href="mailto:partners@pin2win.com"
               >
                 <Mail className="text-[#2f6b3f]" size={28} />
-                <p className="mt-4 text-sm font-black uppercase tracking-[0.12em] text-[#2f6b3f]">
-                  Email
+                <p className="mt-4 text-sm font-black uppercase text-[#2f6b3f]">
+                  Partnerships
                 </p>
-                <p className="mt-2 text-lg font-black">hello@pin2win.example</p>
+                <p className="mt-2 text-lg font-black">partners@pin2win.com</p>
               </a>
-              <a
-                className="rounded-lg bg-[#fbf8f1] p-5 transition hover:bg-[#f5efdf]"
-                href="tel:+12105550123"
+              <Link
+                className="rounded-lg bg-[#13201c] p-5 text-white transition hover:bg-[#243630]"
+                href="/play"
               >
-                <Phone className="text-[#2f6b3f]" size={28} />
-                <p className="mt-4 text-sm font-black uppercase tracking-[0.12em] text-[#2f6b3f]">
-                  Phone
+                <QrCode className="text-[#b7d37c]" size={28} />
+                <p className="mt-4 text-sm font-black uppercase text-[#b7d37c]">
+                  Preview flow
                 </p>
-                <p className="mt-2 text-lg font-black">(210) 555-0123</p>
-              </a>
+                <p className="mt-2 text-lg font-black">Open QR registration</p>
+              </Link>
             </div>
 
             <form className="mt-6 grid gap-4">
-              <label className="grid gap-2 text-sm font-bold text-[#53605a]">
+              <label className="grid gap-2 text-sm font-bold text-[#51615b]">
                 Name
                 <input
-                  className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
+                  className="h-12 rounded-md border border-[#dfe6df] px-4 text-base text-[#13201c] outline-none focus:border-[#2f6b3f]"
                   placeholder="Your name"
                 />
               </label>
-              <label className="grid gap-2 text-sm font-bold text-[#53605a]">
+              <label className="grid gap-2 text-sm font-bold text-[#51615b]">
                 Email
                 <input
-                  className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
+                  className="h-12 rounded-md border border-[#dfe6df] px-4 text-base text-[#13201c] outline-none focus:border-[#2f6b3f]"
                   placeholder="you@example.com"
                   type="email"
                 />
               </label>
-              <label className="grid gap-2 text-sm font-bold text-[#53605a]">
+              <label className="grid gap-2 text-sm font-bold text-[#51615b]">
                 Message
                 <textarea
-                  className="min-h-32 rounded-md border border-[#ded6c8] px-4 py-3 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-                  placeholder="Tell us what you need help with."
+                  className="min-h-32 rounded-md border border-[#dfe6df] px-4 py-3 text-base text-[#13201c] outline-none focus:border-[#2f6b3f]"
+                  placeholder="Tell us about your venue or support request."
                 />
               </label>
               <button
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#18211f] px-6 text-sm font-black text-white transition hover:bg-[#2a3935]"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#13201c] px-6 text-sm font-black text-white transition hover:bg-[#243630]"
                 type="button"
               >
-                Send message <ArrowRight size={18} />
+                Send inquiry <ArrowRight size={18} />
               </button>
             </form>
           </section>
-        </section>
+        </div>
+      </section>
 
-        <section className="mt-10 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="rounded-lg border border-[#ded6c8] bg-white p-6">
-            <div className="flex items-center gap-3">
-              <Building2 className="text-[#2f6b3f]" size={30} />
-              <h2 className="text-2xl font-black">Addresses</h2>
-            </div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {addresses.map((item) => (
-                <article key={item.label} className="rounded-lg bg-[#fbf8f1] p-4">
-                  <MapPin className="text-[#2f6b3f]" size={24} />
-                  <h3 className="mt-3 text-lg font-black">{item.label}</h3>
-                  <p className="mt-2 leading-7 text-[#59655f]">{item.address}</p>
-                </article>
-              ))}
-            </div>
+      <section className="mx-auto max-w-7xl px-6 py-16 sm:px-10 lg:px-12">
+        <div className="grid gap-5 lg:grid-cols-3">
+          {inquiryTypes.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <article
+                key={item.title}
+                className="rounded-lg border border-[#dfe6df] bg-white p-6 shadow-lg shadow-[#13201c]/5"
+              >
+                <Icon className="text-[#2f6b3f]" size={30} />
+                <h2 className="mt-5 text-2xl font-black">{item.title}</h2>
+                <p className="mt-3 leading-7 text-[#51615b]">
+                  {item.description}
+                </p>
+              </article>
+            );
+          })}
+        </div>
+
+        <div className="mt-8 rounded-lg bg-[#eaf2ff] p-6">
+          <div className="flex items-center gap-3">
+            <ClipboardCheck className="text-[#24518a]" size={28} />
+            <h2 className="text-2xl font-black">A clean pilot starts here</h2>
           </div>
-
-          <div className="rounded-lg bg-[#18211f] p-6 text-white">
-            <h2 className="text-2xl font-black">Social media</h2>
-            <div className="mt-5 space-y-3">
-              {socialLinks.map((social) => {
-                const Icon = social.icon;
-
-                return (
-                  <a
-                    key={social.label}
-                    className="flex items-center justify-between rounded-lg bg-white/10 p-4 transition hover:bg-white/16"
-                    href="#"
-                  >
-                    <span className="flex items-center gap-3">
-                      <Icon className="text-[#a8c878]" size={24} />
-                      <span className="font-black">{social.label}</span>
-                    </span>
-                    <span className="text-sm font-bold text-white/68">
-                      {social.handle}
-                    </span>
-                  </a>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      </div>
+          <p className="mt-4 max-w-4xl leading-7 text-[#51615b]">
+            The strongest launch starts with one location, one featured
+            challenge, clear signage, a staff-ready customer explanation, and a
+            weekly review of entries, revenue, and player feedback.
+          </p>
+        </div>
+      </section>
     </main>
   );
 }

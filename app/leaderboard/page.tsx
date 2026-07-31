@@ -34,7 +34,7 @@ export default async function LeaderboardPage() {
             </h1>
           </div>
           <p className="max-w-xl text-lg leading-8 text-[#53605a]">
-            Follow verified Hole-in-One challenge entries by player, E6
+            Follow verified Hole-in-One challenge entries by player, simulator
             username, and result.
           </p>
         </div>
@@ -54,7 +54,7 @@ export default async function LeaderboardPage() {
               <div className="grid grid-cols-[60px_1.1fr_1fr_105px] gap-3 bg-[#f2eadb] px-5 py-4 text-xs font-black uppercase tracking-[0.12em] text-[#53605a] sm:grid-cols-[70px_1.15fr_1fr_120px]">
                 <span>Rank</span>
                 <span>Player</span>
-                <span>E6 Username</span>
+                <span>Simulator Username</span>
                 <span>{leaderboard.resultLabel}</span>
               </div>
               {leaderboardRows[index].length === 0 ? (

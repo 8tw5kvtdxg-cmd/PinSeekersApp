@@ -35,8 +35,8 @@ export default async function AdminVerificationPage() {
               Verification queue
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-[#53605a]">
-              Compare registered Pin2Win entries with E6 Clubhouse result
-              records before approving prize eligibility.
+              Compare registered Pin2Win entries with simulator result records
+              before finalizing the leaderboard and operating records.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">

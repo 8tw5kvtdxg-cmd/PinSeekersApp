@@ -52,6 +52,10 @@ function searchableText(entry: ClubhouseEntryRecord) {
     .toLowerCase();
 }
 
+function resultStatusLabel(status: ClubhouseEntryRecord["resultStatus"]) {
+  return status === "Pending E6 Result" ? "Pending Simulator Result" : status;
+}
+
 function SearchResults({
   entries,
   query,
@@ -79,7 +83,7 @@ function SearchResults({
           <Search className="mx-auto text-[#2f6b3f]" size={34} />
           <h2 className="mt-4 text-2xl font-black">No matching entries</h2>
           <p className="mt-3 text-sm leading-6 text-[#59655f]">
-            Try a full name, phone number, E6 username, Pin2Win entry ID,
+            Try a full name, phone number, simulator username, Pin2Win entry ID,
             challenge name, or event code.
           </p>
         </div>
@@ -101,7 +105,7 @@ function SearchResults({
                   Phone: {entry.phoneNumber ?? "Not provided"}
                 </p>
                 <p className="mt-2 text-sm font-bold text-[#59655f]">
-                  E6: {entry.e6DisplayName} · {challengeName(entry.challengeSlug)}
+                  Simulator: {entry.e6DisplayName} · {challengeName(entry.challengeSlug)}
                 </p>
                 <p className="mt-2 text-sm font-bold text-[#59655f]">
                   Registered: {entry.paidAt} · Window: {entry.validFrom} -{" "}
@@ -110,13 +114,13 @@ function SearchResults({
               </div>
               <div className="grid gap-2 text-sm lg:min-w-56">
                 <span className="inline-flex w-fit rounded-full bg-[#e3edd8] px-3 py-1 text-xs font-black text-[#2f6b3f]">
-                  {entry.resultStatus}
+                  {resultStatusLabel(entry.resultStatus)}
                 </span>
                 <p className="font-bold text-[#59655f]">
                   Code revealed: {entry.e6EventCode}
                 </p>
                 <p className="font-bold text-[#59655f]">
-                  Result: {entry.result ?? "Awaiting E6 result"}
+                  Result: {entry.result ?? "Awaiting simulator result"}
                 </p>
               </div>
             </div>
@@ -167,12 +171,12 @@ function QueueColumn({
                   Phone: {entry.phoneNumber ?? "Not provided"}
                 </p>
                 <p className="mt-1 text-sm font-bold text-[#59655f]">
-                  E6: {entry.e6DisplayName}
+                  Simulator: {entry.e6DisplayName}
                 </p>
               </div>
               <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#e3edd8] px-3 py-1 text-xs font-black text-[#2f6b3f]">
                 <CheckCircle2 size={14} />
-                {entry.resultStatus}
+                {resultStatusLabel(entry.resultStatus)}
               </span>
             </div>
 
@@ -193,7 +197,7 @@ function QueueColumn({
               </div>
               <div>
                 <p className="font-black text-[#2f6b3f]">
-                  {entry.result ?? "Awaiting E6 result"}
+                  {entry.result ?? "Awaiting simulator result"}
                 </p>
                 <p className="mt-1 font-bold text-[#59655f]">
                   {challengeName(entry.challengeSlug)}
@@ -402,7 +406,7 @@ export function LiveVerificationQueue({
               />
               <input
                 className="h-12 w-full rounded-md border border-[#ded6c8] bg-[#fbf8f1] pl-12 pr-4 text-base font-bold text-[#18211f] outline-none transition placeholder:text-[#87908a] focus:border-[#2f6b3f] focus:bg-white"
-                placeholder="Search full name, phone, E6 username, entry ID, event code..."
+                placeholder="Search full name, phone, simulator username, entry ID, event code..."
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
               />
@@ -419,8 +423,8 @@ export function LiveVerificationQueue({
           </div>
         </label>
         <p className="mt-3 text-sm font-bold text-[#59655f]">
-          Searches across Full Name, phone number, E6 username, Pin2Win Entry
-          ID, challenge, status, result, and E6 event code.
+          Searches across Full Name, phone number, simulator username, Pin2Win
+          Entry ID, challenge, status, result, and event code.
         </p>
       </section>
 
