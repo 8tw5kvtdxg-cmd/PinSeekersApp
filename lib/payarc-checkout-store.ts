@@ -21,6 +21,7 @@ export type PayarcCheckoutRecord = {
   paymentFormUrl: string;
   payarcChargeId?: string;
   entryId?: string;
+  confirmationEmailSentAt?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -96,7 +97,11 @@ export async function updatePayarcCheckoutRecord(
   patch: Partial<
     Pick<
       PayarcCheckoutRecord,
-      "status" | "payarcChargeId" | "entryId" | "updatedAt"
+      | "status"
+      | "payarcChargeId"
+      | "entryId"
+      | "confirmationEmailSentAt"
+      | "updatedAt"
     >
   >,
 ) {

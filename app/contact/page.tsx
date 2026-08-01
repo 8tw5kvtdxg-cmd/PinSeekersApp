@@ -56,13 +56,15 @@ export default function ContactPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <a
                 className="rounded-lg bg-[#f6f8f5] p-5 transition hover:bg-[#edf3ea]"
-                href="mailto:partners@pin2win.com"
+                href="mailto:pin2wingolf@outlook.com"
               >
                 <Mail className="text-[#2f6b3f]" size={28} />
                 <p className="mt-4 text-sm font-black uppercase text-[#2f6b3f]">
                   Partnerships
                 </p>
-                <p className="mt-2 text-lg font-black">partners@pin2win.com</p>
+                <p className="mt-2 text-lg font-black">
+                  pin2wingolf@outlook.com
+                </p>
               </a>
               <Link
                 className="rounded-lg bg-[#13201c] p-5 text-white transition hover:bg-[#243630]"
