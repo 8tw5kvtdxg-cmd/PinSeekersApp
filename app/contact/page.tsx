@@ -142,6 +142,9 @@ export default function ContactPage() {
             challenge, clear signage, a staff-ready customer explanation, and a
             weekly review of entries, revenue, and player feedback.
           </p>
+          <p className="mt-4 text-sm font-bold text-[#51615b]">
+            Business entity: PIN2WINGOLF LLC, Texas limited liability company.
+          </p>
         </div>
       </section>
     </main>
