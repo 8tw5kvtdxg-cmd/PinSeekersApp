@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, Mail, QrCode, Share2, Users } from "lucide-react";
+import { Building2, Mail, QrCode, Share2 } from "lucide-react";
 
 export function SiteFooter() {
   const pathname = usePathname();
@@ -42,10 +42,10 @@ export function SiteFooter() {
               <Building2 size={18} /> Partner inquiry
             </Link>
             <a
-              href="mailto:partners@pin2win.com"
+              href="mailto:pin2wingolf@outlook.com"
               className="flex items-center gap-3 hover:text-white"
             >
-              <Mail size={18} /> partners@pin2win.com
+              <Mail size={18} /> pin2wingolf@outlook.com
             </a>
             <Link href="/play" className="flex items-center gap-3 hover:text-white">
               <QrCode size={18} /> QR registration
@@ -59,32 +59,19 @@ export function SiteFooter() {
           </h2>
           <div className="mt-4 grid gap-3 text-sm font-bold text-white/72">
             <a
-              href="#"
+              href="https://www.instagram.com/pin2wingolf/"
+              target="_blank"
+              rel="noreferrer"
               className="flex items-center justify-between rounded-md bg-white/8 px-4 py-3 hover:bg-white/12 hover:text-white"
             >
               <span className="flex items-center gap-3">
                 <Share2 size={18} /> Instagram
               </span>
-              <span>@pin2win</span>
+              <span>@pin2wingolf</span>
             </a>
-            <a
-              href="#"
-              className="flex items-center justify-between rounded-md bg-white/8 px-4 py-3 hover:bg-white/12 hover:text-white"
-            >
-              <span className="flex items-center gap-3">
-                <Share2 size={18} /> X / Twitter
-              </span>
-              <span>@pin2win</span>
-            </a>
-            <a
-              href="#"
-              className="flex items-center justify-between rounded-md bg-white/8 px-4 py-3 hover:bg-white/12 hover:text-white"
-            >
-              <span className="flex items-center gap-3">
-                <Users size={18} /> LinkedIn
-              </span>
-              <span>Pin2Win</span>
-            </a>
+            <p className="rounded-md bg-white/8 px-4 py-3 text-white/58">
+              More social channels coming soon.
+            </p>
           </div>
         </div>
       </div>

@@ -6,6 +6,7 @@ import {
   listPayarcCheckoutRecords,
   updatePayarcCheckoutRecord,
 } from "@/lib/payarc-checkout-store";
+import { sendPaymentConfirmationEmails } from "@/lib/payment-confirmation-email";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +83,17 @@ export async function POST(request: Request) {
   );
 
   if (existingEntry) {
+    if (!updatedCheckout.confirmationEmailSentAt) {
+      await sendPaymentConfirmationEmails({
+        checkout: updatedCheckout,
+        entry: existingEntry,
+        request,
+      });
+      await updatePayarcCheckoutRecord(updatedCheckout.id, {
+        confirmationEmailSentAt: new Date().toISOString(),
+      });
+    }
+
     return Response.json({
       received: true,
       matched: true,
@@ -104,6 +116,15 @@ export async function POST(request: Request) {
 
   await updatePayarcCheckoutRecord(updatedCheckout.id, {
     entryId: entry.id,
+  });
+
+  await sendPaymentConfirmationEmails({
+    checkout: updatedCheckout,
+    entry,
+    request,
+  });
+  await updatePayarcCheckoutRecord(updatedCheckout.id, {
+    confirmationEmailSentAt: new Date().toISOString(),
   });
 
   return Response.json({
