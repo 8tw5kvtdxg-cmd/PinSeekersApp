@@ -31,6 +31,10 @@ export function SiteFooter() {
             requirements, and partner participation may vary by venue. Players
             must follow posted rules and local eligibility requirements.
           </p>
+          <p className="mt-4 text-sm leading-6 text-white/46">
+            Pin2Win is operated by PIN2WINGOLF LLC, a Texas limited liability
+            company.
+          </p>
         </div>
 
         <div>
@@ -77,7 +81,7 @@ export function SiteFooter() {
       </div>
 
       <div className="mx-auto mt-10 flex max-w-7xl flex-col gap-3 border-t border-white/10 pt-6 text-xs font-bold text-white/42 sm:flex-row sm:items-center sm:justify-between">
-        <p>© 2026 Pin2Win. All rights reserved.</p>
+        <p>© 2026 PIN2WINGOLF LLC. All rights reserved.</p>
         <div className="flex flex-wrap gap-4">
           <a href="#" className="hover:text-white">
             Terms
