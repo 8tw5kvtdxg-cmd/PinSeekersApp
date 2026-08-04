@@ -12,8 +12,8 @@ import {
   ReceiptText,
   UsersRound,
 } from "lucide-react";
+import { AdminPortalNav } from "@/app/admin/admin-shell";
 import { AdminHomeLink } from "@/app/admin/admin-home-link";
-import { AdminLogoutForm } from "@/app/admin/logout-form";
 import { requireAdminSession } from "@/lib/admin-auth";
 import { clubhouseChallenges, formatCurrency } from "@/lib/clubhouse";
 import {
@@ -160,8 +160,9 @@ export default async function AdminLocationsPage({
     : [];
 
   return (
-    <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
-      <div className="mx-auto max-w-7xl">
+    <main className="min-h-screen bg-[#f8f4ec] text-[#18211f]">
+      <AdminPortalNav />
+      <div className="mx-auto max-w-7xl px-6 py-8 sm:px-10">
         <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
@@ -207,7 +208,6 @@ export default async function AdminLocationsPage({
             >
               <ClipboardCheck size={18} /> Review queue
             </Link>
-            <AdminLogoutForm />
           </div>
         </div>
 

@@ -1,3 +1,4 @@
+import { AdminPortalNav } from "@/app/admin/admin-shell";
 import { AdminHomeLink } from "@/app/admin/admin-home-link";
 import { LocationForm } from "@/app/admin/locations/new/location-form";
 import { requireAdminSession } from "@/lib/admin-auth";
@@ -20,8 +21,9 @@ export default async function NewAdminLocationPage() {
     : [];
 
   return (
-    <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
-      <div className="mx-auto max-w-5xl">
+    <main className="min-h-screen bg-[#f8f4ec] text-[#18211f]">
+      <AdminPortalNav />
+      <div className="mx-auto max-w-5xl px-6 py-8 sm:px-10">
         <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
           Partner locations
         </p>
