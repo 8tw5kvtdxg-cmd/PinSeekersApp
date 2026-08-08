@@ -1,9 +1,13 @@
 import {
+  confirmClubhouseEntryRecord,
+  decideClubhouseEntryRecord,
   deleteClubhouseEntryRecord,
   getClubhouseEntryRecord,
+  markClubhouseEntryDecisionEmailSent,
   updateClubhouseEntryResult,
 } from "@/lib/clubhouse-entry-store";
 import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
+import { sendEntryDecisionEmails } from "@/lib/entry-decision-email";
 
 export const dynamic = "force-dynamic";
 
@@ -36,9 +40,51 @@ export async function PATCH(
     resultUnit?: unknown;
     resultStatus?: unknown;
     evidence?: unknown;
+    action?: unknown;
   };
 
   try {
+    if (body.action === "confirm-entry" || body.action === "deny-entry") {
+      const decisionStatus =
+        body.action === "confirm-entry" ? "Confirmed" : "Denied";
+      const entry =
+        decisionStatus === "Confirmed"
+          ? await confirmClubhouseEntryRecord({
+              entryId,
+              confirmedBy: "Admin",
+            })
+          : await decideClubhouseEntryRecord({
+              entryId,
+              decisionStatus,
+              decidedBy: "Admin",
+            });
+
+      try {
+        await sendEntryDecisionEmails({
+          entry,
+          decisionStatus,
+          request,
+        });
+      } catch (emailError) {
+        return Response.json(
+          {
+            entry,
+            error:
+              emailError instanceof Error
+                ? `Entry ${decisionStatus.toLowerCase()}, but email failed: ${
+                    emailError.message
+                  }`
+                : `Entry ${decisionStatus.toLowerCase()}, but email failed.`,
+          },
+          { status: 502 },
+        );
+      }
+
+      const emailedEntry = await markClubhouseEntryDecisionEmailSent(entryId);
+
+      return Response.json({ entry: emailedEntry });
+    }
+
     const entry = await updateClubhouseEntryResult({
       entryId,
       result: typeof body.result === "string" ? body.result : "",

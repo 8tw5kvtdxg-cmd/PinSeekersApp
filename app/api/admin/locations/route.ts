@@ -33,6 +33,7 @@ async function parseLocationBody(request: Request) {
     city?: unknown;
     state?: unknown;
     websiteUrl?: unknown;
+    bookingUrl?: unknown;
     simulatorProvider?: unknown;
     simulatorSoftwareName?: unknown;
     bays?: unknown;
@@ -49,6 +50,12 @@ async function parseLocationBody(request: Request) {
     rawWebsiteUrl && !rawWebsiteUrl.startsWith("http")
       ? `https://${rawWebsiteUrl}`
       : rawWebsiteUrl;
+  const rawBookingUrl =
+    typeof body.bookingUrl === "string" ? body.bookingUrl.trim() : "";
+  const bookingUrl =
+    rawBookingUrl && !rawBookingUrl.startsWith("http")
+      ? `https://${rawBookingUrl}`
+      : rawBookingUrl;
   const simulatorProvider: SimulatorProvider = isSimulatorProvider(
     body.simulatorProvider,
   )
@@ -74,6 +81,7 @@ async function parseLocationBody(request: Request) {
     city,
     state,
     websiteUrl,
+    bookingUrl,
     simulatorProvider,
     simulatorSoftwareName,
     bayNames,
@@ -101,6 +109,7 @@ export async function POST(request: Request) {
     city,
     state,
     websiteUrl,
+    bookingUrl,
     simulatorProvider,
     simulatorSoftwareName,
     bayNames,
@@ -125,6 +134,7 @@ export async function POST(request: Request) {
         city: city || null,
         state: state || null,
         websiteUrl: websiteUrl || null,
+        bookingUrl: bookingUrl || null,
         simulatorProvider,
         simulatorSoftwareName: simulatorSoftwareName || null,
         bays: {
@@ -178,6 +188,7 @@ export async function PATCH(request: Request) {
     city,
     state,
     websiteUrl,
+    bookingUrl,
     simulatorProvider,
     simulatorSoftwareName,
     bayNames,
@@ -204,6 +215,7 @@ export async function PATCH(request: Request) {
           city: city || null,
           state: state || null,
           websiteUrl: websiteUrl || null,
+          bookingUrl: bookingUrl || null,
           simulatorProvider,
           simulatorSoftwareName: simulatorSoftwareName || null,
         },

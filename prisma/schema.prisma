@@ -113,6 +113,7 @@ model Location {
   city      String?
   state     String?
   websiteUrl String?
+  bookingUrl String?
   simulatorProvider SimulatorProvider @default(OTHER)
   simulatorSoftwareName String?
   isActive  Boolean  @default(true)

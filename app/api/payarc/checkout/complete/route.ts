@@ -96,6 +96,7 @@ export async function POST(request: Request) {
     const entry = await createClubhouseEntryRecord({
       challengeSlug: updatedCheckout.challengeSlug,
       playerName: updatedCheckout.playerName,
+      playerEmail: updatedCheckout.playerEmail,
       phoneNumber: updatedCheckout.phoneNumber,
       e6DisplayName: updatedCheckout.e6DisplayName,
       payarcCheckoutId: updatedCheckout.id,

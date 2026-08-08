@@ -5,6 +5,7 @@ import {
   BadgeCheck,
   BarChart3,
   Building2,
+  CalendarCheck,
   ClipboardCheck,
   MailCheck,
   MonitorPlay,
@@ -12,7 +13,6 @@ import {
   ShieldCheck,
   Trophy,
 } from "lucide-react";
-import { clubhouseChallengeSlugs } from "@/lib/clubhouse";
 
 const playSteps = [
   {
@@ -41,13 +41,13 @@ const platformModules = [
   {
     title: "QR Entry Funnel",
     description:
-      "Location-specific QR codes route players into the correct challenge, location, and bay context.",
+      "Players can choose a participating venue, book simulator time, and use the onsite QR path to access the correct challenge.",
     icon: QrCode,
   },
   {
-    title: "Partner Marketing",
+    title: "Partner Locations",
     description:
-      "Venues get a promotable golf entertainment offer built for signage, social, email, and repeat visits.",
+      "Pin2Win highlights available challenge locations so customers know where to go, what to book, and how to get started.",
     icon: Building2,
   },
   {
@@ -60,12 +60,18 @@ const platformModules = [
 
 const partnerSignals = [
   "Built for indoor golf simulator venues",
+  "Partner booking links and location-specific customer funnels",
   "Current featured experience: Hole-in-One Challenge",
   "Simulator event-code delivery and result matching",
   "Location-level QR and revenue reporting",
 ];
 
-const compatibleSystems = ["Simulator Software", "Launch Monitors", "Simulator Bays", "QR Signage"];
+const compatibleSystems = [
+  "Partner Booking Pages",
+  "Simulator Software",
+  "Simulator Bays",
+  "QR Signage",
+];
 
 export default async function Home() {
   return (
@@ -90,20 +96,26 @@ export default async function Home() {
               Turn simulator time into an exciting challenge experience.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-white/78">
-              Pin2Win gives golfers an easy way to scan, register, unlock a
-              simulator challenge, and add a little extra excitement to their
-              session.
+              Test your skills at a Pin2Win partner location. Choose a venue,
+              book your simulator time, then scan onsite to unlock the active
+              challenge experience.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link
-                href="/play"
+                href="/rent"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#b7d37c] px-6 text-sm font-black text-[#0f1b18] shadow-lg shadow-black/20 transition hover:bg-[#cbe892]"
               >
-                Start QR registration <ArrowRight size={18} />
+                Book your bay <CalendarCheck size={18} />
+              </Link>
+              <Link
+                href="/play"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-white/22 bg-white/8 px-6 text-sm font-black text-white transition hover:bg-white/14"
+              >
+                View challenge <Trophy size={18} />
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-white/22 bg-white/8 px-6 text-sm font-black text-white transition hover:bg-white/14"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-white/22 bg-transparent px-6 text-sm font-black text-white transition hover:bg-white/10"
               >
                 Become a partner venue <Building2 size={18} />
               </Link>
@@ -125,9 +137,9 @@ export default async function Home() {
 
             <div className="mt-5 grid gap-3">
               {[
-                ["Entry", "QR + verified account"],
-                ["Activation", "Checkout unlocks event code"],
-                ["Window", "15-minute attempt window"],
+                ["Start", "Choose a partner venue"],
+                ["Book", "Reserve simulator time"],
+                ["Activation", "Event code access"],
                 ["Reporting", "Location-level logs"],
               ].map(([label, value]) => (
                 <div
@@ -143,10 +155,10 @@ export default async function Home() {
             </div>
 
             <div className="mt-5 rounded-md bg-[#b7d37c] p-4 text-[#0f1b18]">
-              <p className="text-sm font-black">Built for partners</p>
+              <p className="text-sm font-black">Built around partner locations</p>
               <p className="mt-2 text-sm leading-6 font-bold">
-                Give players a reason to book, scan, compete, and share the
-                experience with friends.
+                Book a bay, bring your group, scan the onsite QR code, and take
+                your shot at the current challenge.
               </p>
             </div>
           </div>
@@ -180,12 +192,12 @@ export default async function Home() {
             Platform
           </p>
           <h2 className="mt-4 text-4xl font-black leading-tight">
-            A clean operating layer for venue-based golf challenges.
+            Find a venue, book a bay, and play the challenge.
           </h2>
           <p className="mt-5 text-lg leading-8 text-[#51615b]">
-            Pin2Win connects the pieces a partner needs: onsite QR discovery,
-            player identity, payment activation, simulator code delivery, and
-            reporting that helps prove demand.
+            Pin2Win connects participating locations, booking links, onsite QR
+            codes, player registration, simulator code delivery, and challenge
+            records into one simple customer flow.
           </p>
         </div>
 
@@ -220,15 +232,15 @@ export default async function Home() {
                 Built for a simple onsite flow.
               </h2>
               <p className="mt-5 text-lg leading-8 text-white/72">
-                The customer journey is quick enough for a simulator session,
-                while giving the venue a structured activation to promote.
+                Choose a partner location, reserve your simulator time, then
+                scan the QR code when you arrive to access the active challenge.
               </p>
             </div>
             <Link
-              href={`/play/${clubhouseChallengeSlugs.holeInOne}`}
+              href="/rent"
               className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#b7d37c] px-5 text-sm font-black text-[#13201c] transition hover:bg-[#cbe892]"
             >
-              Open active challenge <ArrowRight size={17} />
+              Book at a partner location <ArrowRight size={17} />
             </Link>
           </div>
 
@@ -261,21 +273,21 @@ export default async function Home() {
       <section className="mx-auto grid max-w-7xl gap-8 px-6 py-20 sm:px-10 lg:grid-cols-[0.88fr_1.12fr] lg:px-12">
         <div>
           <p className="text-sm font-black uppercase text-[#2f6b3f]">
-            Partner readiness
+            Where to play
           </p>
           <h2 className="mt-4 text-4xl font-black leading-tight">
-            Make the venue look more active, modern, and shareable.
+            Start with a partner location near you.
           </h2>
           <p className="mt-5 text-lg leading-8 text-[#51615b]">
-            Pin2Win is built to help indoor golf locations package a clear
-            entertainment offer that can be explained by signage, promoted
-            online, and tracked from the admin portal.
+            Pin2Win Challenges are hosted at participating simulator venues.
+            Pick a location, book your bay time through that venue, and follow
+            the onsite QR instructions when you arrive.
           </p>
           <Link
-            href="/contact"
+            href="/rent"
             className="mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#13201c] px-6 text-sm font-black text-white transition hover:bg-[#243630]"
           >
-            Talk about a venue launch <ArrowRight size={18} />
+            Book your bay <ArrowRight size={18} />
           </Link>
         </div>
 
@@ -297,9 +309,9 @@ export default async function Home() {
             </p>
             <h3 className="mt-2 text-2xl font-black">Alamo Golf Den</h3>
             <p className="mt-3 leading-7 text-[#51615b]">
-              The platform is set up for partner locations, QR codes, challenge
-              entries, simulator event codes, and location-level revenue
-              reporting.
+              Alamo Golf Den is the current Pin2Win partner location. Book
+              simulator time, visit the venue, and scan onsite to access the
+              active challenge.
             </p>
           </div>
         </div>

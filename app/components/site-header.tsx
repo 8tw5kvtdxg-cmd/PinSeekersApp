@@ -2,24 +2,30 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, LogIn, Menu, Trophy, UserPlus } from "lucide-react";
+import {
+  Building2,
+  CalendarCheck,
+  LogIn,
+  Menu,
+  Trophy,
+  UserPlus,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
-  { href: "/#platform", label: "Platform" },
   { href: "/#how-it-works", label: "How it works" },
   { href: "/locations", label: "Locations" },
-  { href: "/contact#venues", label: "For venues" },
-  { href: "/contact", label: "Contact" },
 ];
 
 const accountActions = [
   { href: "/account#login", label: "Login", icon: LogIn },
-  { href: "/account#create", label: "Create account", icon: UserPlus },
+  { href: "/account#create", label: "Create", icon: UserPlus },
 ];
 
 const playAction = { href: "/play", label: "Play now", icon: Trophy };
+const bookAction = { href: "/rent", label: "Book your bay", icon: CalendarCheck };
 const partnerAction = { href: "/contact", label: "Partner inquiry", icon: Building2 };
 
 export function SiteHeader() {
@@ -39,11 +45,11 @@ export function SiteHeader() {
   };
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-[#dfe6df] bg-white/94 text-[#13201c] shadow-lg shadow-[#13201c]/8 backdrop-blur">
-      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-6 sm:px-10 lg:px-12">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-[#dfe6df] bg-white/96 text-[#13201c] shadow-sm shadow-[#13201c]/8 backdrop-blur">
+      <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
         <Link
           href="/"
-          className="flex items-center gap-3 text-xl font-black"
+          className="flex min-w-fit items-center gap-3 text-lg font-black sm:text-xl"
           onClick={() => setIsOpen(false)}
         >
           <span className="flex size-9 items-center justify-center rounded-md bg-[#13201c] text-sm text-white">
@@ -52,8 +58,8 @@ export function SiteHeader() {
           <span>Pin2Win</span>
         </Link>
 
-        <div className="flex items-center gap-2">
-          <nav className="hidden items-center gap-6 text-sm font-black text-[#51615b] lg:flex">
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-4">
+          <nav className="hidden min-w-0 items-center justify-center gap-5 text-sm font-black text-[#51615b] lg:flex">
             {navigation.map((item) => (
               <Link
                 key={item.href}
@@ -69,12 +75,22 @@ export function SiteHeader() {
             ))}
           </nav>
 
-          <div className="hidden items-center gap-2 sm:flex">
+          <div className="hidden shrink-0 items-center gap-2 md:flex">
+            <Link
+              href={bookAction.href}
+              className={cn(
+                "inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-4 text-sm font-black text-white shadow-sm shadow-[#2f6b3f]/15 transition hover:bg-[#245431]",
+                pathname === bookAction.href && "ring-2 ring-[#7aa35d]/70",
+              )}
+              onClick={() => setIsOpen(false)}
+            >
+              <CalendarCheck size={17} /> {bookAction.label}
+            </Link>
             <Link
               href={playAction.href}
               className={cn(
-                "inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#13201c] px-4 text-sm font-black text-white shadow-lg shadow-[#13201c]/12 transition hover:bg-[#243630]",
-                pathname === playAction.href && "ring-2 ring-[#7aa35d]/70",
+                "inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#dfe6df] bg-white px-4 text-sm font-black text-[#13201c] transition hover:bg-[#f6f8f5]",
+                pathname === playAction.href && "ring-1 ring-[#7aa35d]/70",
               )}
               onClick={() => setIsOpen(false)}
             >
@@ -82,33 +98,21 @@ export function SiteHeader() {
             </Link>
             <Link
               href={partnerAction.href}
-              className="hidden h-10 items-center justify-center gap-2 rounded-md border border-[#dfe6df] bg-[#f6f8f5] px-4 text-sm font-black text-[#13201c] transition hover:border-[#7aa35d] xl:inline-flex"
+              className="hidden h-10 items-center justify-center gap-2 rounded-md border border-[#dfe6df] bg-white px-4 text-sm font-black text-[#13201c] transition hover:bg-[#f6f8f5] xl:inline-flex"
               onClick={() => setIsOpen(false)}
             >
               <Building2 size={17} /> {partnerAction.label}
             </Link>
-
-            {accountActions.map((item) => {
-              const Icon = item.icon;
-              const isCreate = item.label === "Create account";
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-black transition",
-                    isCreate
-                      ? "bg-[#2f6b3f] text-white hover:bg-[#3f7f4c]"
-                      : "border border-[#dfe6df] bg-white text-[#13201c] hover:bg-[#f6f8f5]",
-                    pathname === "/account" && "ring-1 ring-[#7aa35d]/70",
-                  )}
-                  onClick={() => setIsOpen(false)}
-                >
-                  <Icon size={17} /> {item.label}
-                </Link>
-              );
-            })}
+            <Link
+              href="/account#login"
+              className={cn(
+                "inline-flex h-10 items-center justify-center gap-2 rounded-md px-3 text-sm font-black text-[#51615b] transition hover:bg-[#f6f8f5] hover:text-[#13201c]",
+                pathname === "/account" && "text-[#2f6b3f]",
+              )}
+              onClick={() => setIsOpen(false)}
+            >
+              <LogIn size={17} /> Login
+            </Link>
           </div>
 
           <button
@@ -119,7 +123,7 @@ export function SiteHeader() {
             type="button"
             onClick={() => setIsOpen((current) => !current)}
           >
-            <Menu size={22} />
+            {isOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
       </div>
@@ -127,16 +131,16 @@ export function SiteHeader() {
       {isOpen ? (
         <div
           id="site-menu"
-          className="fixed inset-x-0 top-[72px] z-50 border-t border-[#dfe6df] bg-white/98 px-6 py-5 shadow-xl shadow-[#13201c]/12 backdrop-blur sm:px-10"
+          className="fixed inset-x-0 top-[68px] z-50 border-t border-[#dfe6df] bg-white/98 px-5 py-5 shadow-xl shadow-[#13201c]/12 backdrop-blur sm:px-8"
         >
-          <nav className="mx-auto flex max-w-7xl flex-col gap-4 text-sm font-semibold text-[#51615b] sm:flex-row sm:flex-wrap sm:items-center sm:gap-7">
+          <nav className="mx-auto grid max-w-7xl gap-3 text-sm font-semibold text-[#51615b] sm:grid-cols-2">
             {navigation.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "transition hover:text-[#13201c]",
-                  isActive(item.href) && "text-[#a8c878]",
+                  "rounded-md px-3 py-2 transition hover:bg-[#f6f8f5] hover:text-[#13201c]",
+                  isActive(item.href) && "bg-[#eef7e9] text-[#2f6b3f]",
                 )}
                 onClick={() => setIsOpen(false)}
               >
@@ -144,38 +148,56 @@ export function SiteHeader() {
               </Link>
             ))}
             <Link
+              href="/contact"
+              className={cn(
+                "rounded-md px-3 py-2 transition hover:bg-[#f6f8f5] hover:text-[#13201c]",
+                pathname === "/contact" && "bg-[#eef7e9] text-[#2f6b3f]",
+              )}
+              onClick={() => setIsOpen(false)}
+            >
+              Contact
+            </Link>
+          </nav>
+
+          <div className="mx-auto mt-4 grid max-w-7xl gap-3 border-t border-[#dfe6df] pt-4 sm:grid-cols-2">
+            <Link
+              href={bookAction.href}
+              className={cn(
+                "inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-4 text-sm font-black text-white transition hover:bg-[#245431]",
+                pathname === bookAction.href && "ring-2 ring-[#7aa35d]/70",
+              )}
+              onClick={() => setIsOpen(false)}
+            >
+              <CalendarCheck size={17} /> {bookAction.label}
+            </Link>
+            <Link
               href={playAction.href}
               className={cn(
-                "inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#13201c] px-4 text-sm font-black text-white transition hover:bg-[#243630] sm:hidden",
+                "inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#dfe6df] bg-white px-4 text-sm font-black text-[#13201c] transition hover:bg-[#f6f8f5]",
                 pathname === playAction.href && "ring-2 ring-[#7aa35d]/70",
               )}
               onClick={() => setIsOpen(false)}
             >
               <Trophy size={17} /> {playAction.label}
             </Link>
-            <div className="flex flex-col gap-3 border-t border-[#dfe6df] pt-4 sm:hidden">
-              {accountActions.map((item) => {
-                const Icon = item.icon;
-                const isCreate = item.label === "Create account";
+            {accountActions.map((item) => {
+              const Icon = item.icon;
 
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "inline-flex h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-black transition",
-                      isCreate
-                        ? "bg-[#2f6b3f] text-white hover:bg-[#3f7f4c]"
-                        : "border border-[#dfe6df] bg-white text-[#13201c] hover:bg-[#f6f8f5]",
-                    )}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <Icon size={17} /> {item.label}
-                  </Link>
-                );
-              })}
-            </div>
-          </nav>
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#dfe6df] bg-white px-4 text-sm font-black text-[#13201c] transition hover:bg-[#f6f8f5]",
+                    pathname === "/account" && "ring-1 ring-[#7aa35d]/70",
+                  )}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Icon size={17} /> {item.label}
+                </Link>
+              );
+            })}
+          </div>
         </div>
       ) : null}
     </header>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   BadgeCheck,
+  CalendarCheck,
   ExternalLink,
   Globe,
   MapPin,
@@ -29,18 +30,20 @@ export default function LocationsPage() {
         <section className="mt-10 rounded-lg bg-[#18211f] p-8 text-white">
           <MapPin className="text-[#a8c878]" size={34} />
           <h1 className="mt-5 text-4xl font-black sm:text-5xl">
-            Play Pin2Win at Alamo Golf Den
+            Find a Pin2Win location near you
           </h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-white/74">
-            Alamo Golf Den is a Pin2Win partner location where players can scan
-            onsite QR codes, complete a Pin2Win entry, and access the active
-            simulator challenge experience.
+            Choose a partner simulator venue, book your bay time, then scan the
+            onsite QR code to access the active Pin2Win Challenge experience.
           </p>
+          <div className="mt-5 inline-flex items-center gap-2 rounded-md border border-white/14 bg-white/10 px-4 py-2 text-sm font-black text-[#a8c878]">
+            <BadgeCheck size={17} /> Current partner: Alamo Golf Den
+          </div>
           <Link
-            href="/play"
+            href="/rent"
             className="mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#a8c878] px-6 text-sm font-black text-[#101816] transition hover:bg-[#c1df8d]"
           >
-            Start QR registration <QrCode size={18} />
+            Book your bay <CalendarCheck size={18} />
           </Link>
         </section>
 
@@ -64,6 +67,16 @@ export default function LocationsPage() {
             >
               <Globe className="mt-0.5 shrink-0 text-[#2f6b3f]" size={22} />
               <span className="font-bold">alamogolfden.com</span>
+              <ExternalLink className="ml-auto shrink-0 text-[#2f6b3f]" size={18} />
+            </a>
+            <a
+              href="https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml"
+              className="flex gap-3 rounded-lg bg-[#fbf8f1] p-4 leading-7 text-[#59655f] transition hover:bg-[#f5efdf]"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <CalendarCheck className="mt-0.5 shrink-0 text-[#2f6b3f]" size={22} />
+              <span className="font-bold">Book bay time</span>
               <ExternalLink className="ml-auto shrink-0 text-[#2f6b3f]" size={18} />
             </a>
           </div>

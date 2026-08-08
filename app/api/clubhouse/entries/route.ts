@@ -74,6 +74,7 @@ export async function POST(request: Request) {
       challengeSlug:
         typeof body.challengeSlug === "string" ? body.challengeSlug : "",
       playerName: typeof body.playerName === "string" ? body.playerName : "",
+      playerEmail: player?.email,
       phoneNumber: typeof body.phoneNumber === "string" ? body.phoneNumber : "",
       e6DisplayName:
         typeof body.e6DisplayName === "string" ? body.e6DisplayName : "",

@@ -15,6 +15,7 @@ type LocationFormProps = {
     city: string;
     state: string;
     websiteUrl: string;
+    bookingUrl: string;
     simulatorProvider: SimulatorProviderValue;
     simulatorSoftwareName: string;
     bays: string[];
@@ -64,6 +65,7 @@ const emptyValues = {
   city: "",
   state: "",
   websiteUrl: "",
+  bookingUrl: "",
   simulatorProvider: "OTHER" as SimulatorProviderValue,
   simulatorSoftwareName: "",
   bays: ["Bay 1"],
@@ -81,6 +83,7 @@ export function LocationForm({
   const [city, setCity] = useState(initialValues.city);
   const [state, setState] = useState(initialValues.state);
   const [websiteUrl, setWebsiteUrl] = useState(initialValues.websiteUrl);
+  const [bookingUrl, setBookingUrl] = useState(initialValues.bookingUrl);
   const [simulatorProvider, setSimulatorProvider] = useState<SimulatorProviderValue>(
     initialValues.simulatorProvider,
   );
@@ -111,6 +114,7 @@ export function LocationForm({
           city,
           state,
           websiteUrl,
+          bookingUrl,
           simulatorProvider,
           simulatorSoftwareName,
           bays,
@@ -246,6 +250,7 @@ export function LocationForm({
           ["City", city, setCity],
           ["State", state, setState],
           ["Website", websiteUrl, setWebsiteUrl],
+          ["Booking page", bookingUrl, setBookingUrl],
         ].map(([label, value, setter]) => (
           <label
             key={label as string}
