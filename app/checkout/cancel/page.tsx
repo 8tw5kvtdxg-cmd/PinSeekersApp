@@ -8,14 +8,14 @@ export default function CheckoutCancelPage() {
         <ClipboardCheck className="text-[#2f6b3f]" size={32} />
         <h1 className="mt-4 text-3xl font-black">Checkout not completed</h1>
         <p className="mt-4 leading-7 text-[#59655f]">
-          Your Pin2Win entry is not active yet. Return to Play Now to complete
-          checkout and unlock the simulator event code.
+          Your Pin2Win entry is not active yet. The challenge entry flow should
+          be opened from the onsite QR code at a partner location.
         </p>
         <Link
-          href="/play"
+          href="/rent"
           className="mt-6 inline-flex h-11 items-center justify-center rounded-md bg-[#18211f] px-5 text-sm font-black text-white"
         >
-          Back to Play Now
+          Book simulator time
         </Link>
       </div>
     </main>

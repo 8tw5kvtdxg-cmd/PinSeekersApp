@@ -8,6 +8,7 @@ import {
   CalendarCheck,
   ClipboardCheck,
   MailCheck,
+  MapPin,
   MonitorPlay,
   QrCode,
   ShieldCheck,
@@ -108,10 +109,10 @@ export default async function Home() {
                 Book your bay <CalendarCheck size={18} />
               </Link>
               <Link
-                href="/play"
+                href="/locations"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-white/22 bg-white/8 px-6 text-sm font-black text-white transition hover:bg-white/14"
               >
-                View challenge <Trophy size={18} />
+                Find locations <MapPin size={18} />
               </Link>
               <Link
                 href="/contact"
