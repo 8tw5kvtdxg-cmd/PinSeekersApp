@@ -61,10 +61,10 @@ export default async function EntryConfirmationPage({
       <div className="px-6 py-10 sm:px-10">
         <div className="mx-auto max-w-4xl">
           <Link
-            href={`/play/${challenge.slug}`}
+            href="/locations"
             className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]"
           >
-            Back to challenge
+            Back to locations
           </Link>
 
           <section className="mt-10 overflow-hidden rounded-lg border border-[#ded6c8] bg-white shadow-xl shadow-[#18211f]/8">

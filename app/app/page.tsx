@@ -3,9 +3,9 @@ import { ArrowRight, ClipboardList, MapPin, Trophy, UserPlus } from "lucide-reac
 
 const areas = [
   {
-    href: "/play",
-    title: "Player flow",
-    description: "QR landing, profile capture, checkout, and code-gated entry.",
+    href: "/rent",
+    title: "Book a bay",
+    description: "Choose a partner location and reserve simulator time.",
     icon: ArrowRight,
   },
   {

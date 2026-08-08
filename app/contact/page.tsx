@@ -4,8 +4,8 @@ import {
   Building2,
   ClipboardCheck,
   Mail,
+  MapPin,
   Megaphone,
-  QrCode,
   Users,
 } from "lucide-react";
 
@@ -68,13 +68,13 @@ export default function ContactPage() {
               </a>
               <Link
                 className="rounded-lg bg-[#13201c] p-5 text-white transition hover:bg-[#243630]"
-                href="/play"
+                href="/locations"
               >
-                <QrCode className="text-[#b7d37c]" size={28} />
+                <MapPin className="text-[#b7d37c]" size={28} />
                 <p className="mt-4 text-sm font-black uppercase text-[#b7d37c]">
-                  Preview flow
+                  Partner locations
                 </p>
-                <p className="mt-2 text-lg font-black">Open QR registration</p>
+                <p className="mt-2 text-lg font-black">Find where to play</p>
               </Link>
             </div>
 

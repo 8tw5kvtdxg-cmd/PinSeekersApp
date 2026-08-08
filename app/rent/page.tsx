@@ -6,7 +6,6 @@ import {
   ExternalLink,
   Globe,
   MapPin,
-  QrCode,
 } from "lucide-react";
 import { getPrismaClient } from "@/lib/prisma";
 
@@ -143,13 +142,6 @@ export default async function RentBayPage() {
                           <ExternalLink size={14} />
                         </a>
                       ) : null}
-                      <Link
-                        href={`/play?location=${encodeURIComponent(location.slug)}`}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-4 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
-                      >
-                        <QrCode size={16} />
-                        QR entry info
-                      </Link>
                     </div>
                   </div>
 

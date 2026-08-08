@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, Mail, QrCode, Share2 } from "lucide-react";
+import { Building2, Mail, MapPin, Share2 } from "lucide-react";
 
 export function SiteFooter() {
   const pathname = usePathname();
@@ -51,8 +51,8 @@ export function SiteFooter() {
             >
               <Mail size={18} /> pin2wingolf@outlook.com
             </a>
-            <Link href="/play" className="flex items-center gap-3 hover:text-white">
-              <QrCode size={18} /> QR registration
+            <Link href="/locations" className="flex items-center gap-3 hover:text-white">
+              <MapPin size={18} /> Locations
             </Link>
           </div>
         </div>

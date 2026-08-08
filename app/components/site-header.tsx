@@ -7,7 +7,6 @@ import {
   CalendarCheck,
   LogIn,
   Menu,
-  Trophy,
   UserPlus,
   X,
 } from "lucide-react";
@@ -24,7 +23,6 @@ const accountActions = [
   { href: "/account#create", label: "Create", icon: UserPlus },
 ];
 
-const playAction = { href: "/play", label: "Play now", icon: Trophy };
 const bookAction = { href: "/rent", label: "Book your bay", icon: CalendarCheck };
 const partnerAction = { href: "/contact", label: "Partner inquiry", icon: Building2 };
 
@@ -85,16 +83,6 @@ export function SiteHeader() {
               onClick={() => setIsOpen(false)}
             >
               <CalendarCheck size={17} /> {bookAction.label}
-            </Link>
-            <Link
-              href={playAction.href}
-              className={cn(
-                "inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#dfe6df] bg-white px-4 text-sm font-black text-[#13201c] transition hover:bg-[#f6f8f5]",
-                pathname === playAction.href && "ring-1 ring-[#7aa35d]/70",
-              )}
-              onClick={() => setIsOpen(false)}
-            >
-              <Trophy size={17} /> {playAction.label}
             </Link>
             <Link
               href={partnerAction.href}
@@ -169,16 +157,6 @@ export function SiteHeader() {
               onClick={() => setIsOpen(false)}
             >
               <CalendarCheck size={17} /> {bookAction.label}
-            </Link>
-            <Link
-              href={playAction.href}
-              className={cn(
-                "inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#dfe6df] bg-white px-4 text-sm font-black text-[#13201c] transition hover:bg-[#f6f8f5]",
-                pathname === playAction.href && "ring-2 ring-[#7aa35d]/70",
-              )}
-              onClick={() => setIsOpen(false)}
-            >
-              <Trophy size={17} /> {playAction.label}
             </Link>
             {accountActions.map((item) => {
               const Icon = item.icon;

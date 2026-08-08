@@ -7,6 +7,7 @@ import {
   ClipboardCheck,
   Clock,
   CreditCard,
+  DollarSign,
   ExternalLink,
   Eye,
   KeyRound,
@@ -15,6 +16,7 @@ import {
   MailCheck,
   MailWarning,
   ShieldCheck,
+  Trophy,
   UserPlus,
   UserRound,
 } from "lucide-react";
@@ -613,9 +615,24 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
           {challenge.name}
         </h1>
         <p className="mt-5 text-lg leading-8 text-[#53605a]">
-          Create or load your Pin2Win account, pay securely through Payarc, and
-          reveal the simulator event code for your 15-minute hole-in-one attempt.
+          Enter for $20 and take your shot at winning $10,000 with a verified
+          hole-in-one. Create or load your Pin2Win account, complete activation,
+          and reveal the simulator event code for your 15-minute attempt.
         </p>
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-lg bg-[#18211f] p-4 text-white">
+            <div className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-[#a8c878]">
+              <DollarSign size={17} /> Entry
+            </div>
+            <p className="mt-2 text-3xl font-black">$20</p>
+          </div>
+          <div className="rounded-lg bg-[#2f6b3f] p-4 text-white">
+            <div className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-[#d9f2a4]">
+              <Trophy size={17} /> Prize opportunity
+            </div>
+            <p className="mt-2 text-3xl font-black">$10,000</p>
+          </div>
+        </div>
         <a
           href={alamoBookingUrl}
           target="_blank"
@@ -639,7 +656,7 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
           {[
             ["Venue", challenge.venue],
-            ["Checkout", "Payarc"],
+            ["Challenge", "Hole-in-One"],
             ["Window", `${challenge.playWindowMinutes} min`],
           ].map(([label, value]) => (
             <div key={label} className="rounded-lg bg-white p-4">

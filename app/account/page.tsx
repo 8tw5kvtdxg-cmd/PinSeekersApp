@@ -527,21 +527,21 @@ export default function AccountPage() {
               </section>
 
               <Link
-                href="/play"
+                href="/rent"
                 className="rounded-lg border border-[#2f6b3f] bg-white p-6 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#18211f]/10"
               >
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <BadgeDollarSign className="text-[#2f6b3f]" size={30} />
                     <h2 className="text-2xl font-black">
-                      Enter another Challenge
+                      Book another session
                     </h2>
                   </div>
                   <ArrowRight className="text-[#2f6b3f]" size={24} />
                 </div>
                 <p className="mt-4 leading-7 text-[#59655f]">
-                  Jump back into Play Now to choose a challenge, complete your
-                  Pin2Win entry, and start another scored session.
+                  Choose a partner location and reserve simulator time. The
+                  challenge entry flow opens from the onsite QR code.
                 </p>
               </Link>
             </div>
@@ -554,14 +554,14 @@ export default function AccountPage() {
                     <h2 className="text-xl font-black">Pin2Win entry</h2>
                   </div>
                   <p className="mt-4 text-sm leading-6 text-[#59655f]">
-                    Use Play Now onsite to complete checkout and reveal the
-                    simulator event code for the active experience.
+                    Scan the onsite QR code at a partner location to complete
+                    your Pin2Win entry and access the active experience.
                   </p>
                   <Link
-                    href="/play"
+                    href="/rent"
                     className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#18211f] px-4 text-sm font-black text-white transition hover:bg-[#2a3935]"
                   >
-                    Enter a challenge <ArrowRight size={16} />
+                    Book simulator time <ArrowRight size={16} />
                   </Link>
                 </div>
                 <div className="rounded-lg border border-[#ded6c8] bg-white p-5">
