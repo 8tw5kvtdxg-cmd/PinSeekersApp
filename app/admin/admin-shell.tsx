@@ -6,6 +6,7 @@ import {
   ListChecks,
   MailCheck,
   MapPin,
+  MousePointerClick,
   PencilLine,
   UsersRound,
 } from "lucide-react";
@@ -14,6 +15,7 @@ import { AdminLogoutForm } from "@/app/admin/logout-form";
 const adminNavItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/bookings", label: "Bookings", icon: MailCheck },
+  { href: "/admin/booking-clicks", label: "Booking Clicks", icon: MousePointerClick },
   { href: "/admin/entries", label: "Entries", icon: ListChecks },
   { href: "/admin/results", label: "Results", icon: PencilLine },
   { href: "/admin/verification", label: "Review", icon: ClipboardCheck },

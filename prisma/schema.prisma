@@ -126,6 +126,20 @@ model Location {
   simulatorSessions SimulatorSession[]
 }
 
+model BookingLinkClick {
+  id           String   @id @default(cuid())
+  locationId   String?
+  locationSlug String
+  locationName String
+  bookingUrl   String
+  referrer     String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  @@index([locationSlug, createdAt])
+  @@index([createdAt])
+}
+
 model Bay {
   id         String   @id @default(cuid())
   name       String

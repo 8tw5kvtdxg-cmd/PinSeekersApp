@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  ArrowRight,
   BadgeCheck,
   CalendarCheck,
   ExternalLink,
@@ -8,6 +7,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { getPrismaClient } from "@/lib/prisma";
+import { BookingLinkButton } from "@/app/rent/booking-link-button";
 
 export const dynamic = "force-dynamic";
 
@@ -145,15 +145,12 @@ export default async function RentBayPage() {
                     </div>
                   </div>
 
-                  <a
-                    href={location.bookingUrl ?? "#"}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-5 text-sm font-black text-white transition hover:bg-[#245431]"
-                  >
-                    Book at {location.name}
-                    <ArrowRight size={17} />
-                  </a>
+                  <BookingLinkButton
+                    bookingUrl={location.bookingUrl ?? "#"}
+                    locationId={location.id}
+                    locationName={location.name}
+                    locationSlug={location.slug}
+                  />
                 </div>
               </article>
             ))
