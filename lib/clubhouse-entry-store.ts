@@ -14,6 +14,7 @@ import { slugifyLocation } from "@/lib/location-utils";
 
 export type ClubhouseEntryRecord = ClubhouseEntry & {
   e6EventCode: string;
+  playerEmail?: string;
   stripeCheckoutSessionId?: string;
   payarcCheckoutId?: string;
   payarcOrderId?: string;
@@ -25,6 +26,12 @@ export type ClubhouseEntryRecord = ClubhouseEntry & {
   locationName: string;
   bayName?: string;
   amountCents: number;
+  adminConfirmedAt?: string;
+  adminConfirmedBy?: string;
+  entryDecisionStatus?: "Confirmed" | "Denied";
+  entryDecisionAt?: string;
+  entryDecisionBy?: string;
+  entryDecisionEmailSentAt?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -185,6 +192,74 @@ export async function updateClubhouseEntryResult(input: {
   return updatedEntry;
 }
 
+export async function confirmClubhouseEntryRecord(input: {
+  entryId: string;
+  confirmedBy?: string;
+}) {
+  return decideClubhouseEntryRecord({
+    entryId: input.entryId,
+    decisionStatus: "Confirmed",
+    decidedBy: input.confirmedBy,
+  });
+}
+
+export async function decideClubhouseEntryRecord(input: {
+  entryId: string;
+  decisionStatus: "Confirmed" | "Denied";
+  decidedBy?: string;
+}) {
+  const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
+    entriesPath,
+  );
+  const entry = entries[input.entryId];
+
+  if (!entry) {
+    throw new Error("Entry not found.");
+  }
+
+  const now = new Date();
+  const decidedBy = input.decidedBy?.trim() || "Admin";
+  const updatedEntry: ClubhouseEntryRecord = {
+    ...entry,
+    adminConfirmedAt:
+      input.decisionStatus === "Confirmed" ? formatDisplayDate(now) : undefined,
+    adminConfirmedBy: input.decisionStatus === "Confirmed" ? decidedBy : undefined,
+    entryDecisionStatus: input.decisionStatus,
+    entryDecisionAt: formatDisplayDate(now),
+    entryDecisionBy: decidedBy,
+    entryDecisionEmailSentAt: undefined,
+    updatedAt: now.toISOString(),
+  };
+
+  entries[input.entryId] = updatedEntry;
+  await writeJson(entriesPath, entries);
+
+  return updatedEntry;
+}
+
+export async function markClubhouseEntryDecisionEmailSent(entryId: string) {
+  const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
+    entriesPath,
+  );
+  const entry = entries[entryId];
+
+  if (!entry) {
+    throw new Error("Entry not found.");
+  }
+
+  const now = new Date();
+  const updatedEntry: ClubhouseEntryRecord = {
+    ...entry,
+    entryDecisionEmailSentAt: formatDisplayDate(now),
+    updatedAt: now.toISOString(),
+  };
+
+  entries[entryId] = updatedEntry;
+  await writeJson(entriesPath, entries);
+
+  return updatedEntry;
+}
+
 export async function deleteClubhouseEntryRecord(entryId: string) {
   const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
     entriesPath,
@@ -300,6 +375,7 @@ function nextEntryId(entries: ClubhouseEntryRecord[], now: Date) {
 export async function createClubhouseEntryRecord(input: {
   challengeSlug: string;
   playerName: string;
+  playerEmail?: string;
   phoneNumber: string;
   e6DisplayName: string;
   stripeCheckoutSessionId?: string;
@@ -387,6 +463,7 @@ export async function createClubhouseEntryRecord(input: {
     id: entryId,
     challengeSlug: normalizedChallengeSlug,
     playerName,
+    playerEmail: input.playerEmail?.trim().toLowerCase() || undefined,
     phoneNumber,
     e6DisplayName,
     paymentStatus: "Succeeded",

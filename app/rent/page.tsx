@@ -2,41 +2,83 @@ import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
-  CreditCard,
+  CalendarCheck,
+  ExternalLink,
+  Globe,
   MapPin,
-  MonitorPlay,
   QrCode,
-  Trophy,
 } from "lucide-react";
+import { getPrismaClient } from "@/lib/prisma";
 
-const sessionSteps = [
+export const dynamic = "force-dynamic";
+
+type BookingLocation = {
+  id: string;
+  name: string;
+  slug: string;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  websiteUrl: string | null;
+  bookingUrl: string | null;
+  isActive: boolean;
+};
+
+const builtInBookingLocations: BookingLocation[] = [
   {
-    title: "Book your simulator time",
-    description:
-      "Reserve your bay through the location the same way you normally would.",
-    icon: MapPin,
-  },
-  {
-    title: "Scan the Pin2Win QR code",
-    description:
-      "Open the active challenge page from your phone once you are at the bay.",
-    icon: QrCode,
-  },
-  {
-    title: "Pay to enter",
-    description:
-      "Complete your entry and get the simulator event code on your confirmation page.",
-    icon: CreditCard,
-  },
-  {
-    title: "Play the challenge",
-    description:
-      "Enter the code in the simulator software, take your shots, and check where you stand.",
-    icon: MonitorPlay,
+    id: "existing-alamo-golf-den",
+    name: "Alamo Golf Den",
+    slug: "alamo-golf-den",
+    address: "7001 I-10 #225",
+    city: "San Antonio",
+    state: "TX 78213",
+    websiteUrl: "https://alamogolfden.com",
+    bookingUrl: "https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml",
+    isActive: true,
   },
 ];
 
-export default function RentBayPage() {
+function locationAddress(location: BookingLocation) {
+  return [location.address, location.city, location.state]
+    .filter(Boolean)
+    .join(", ");
+}
+
+async function getBookingLocations() {
+  const prisma = getPrismaClient();
+  const dbLocations = prisma
+    ? await prisma.location.findMany({
+        orderBy: { name: "asc" },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          address: true,
+          city: true,
+          state: true,
+          websiteUrl: true,
+          bookingUrl: true,
+          isActive: true,
+        },
+        where: { isActive: true },
+      })
+    : [];
+  const mergedLocations = [
+    ...builtInBookingLocations,
+    ...dbLocations.filter(
+      (location) =>
+        !builtInBookingLocations.some(
+          (builtInLocation) => builtInLocation.slug === location.slug,
+        ),
+    ),
+  ];
+
+  return mergedLocations.filter((location) => location.bookingUrl);
+}
+
+export default async function RentBayPage() {
+  const locations = await getBookingLocations();
+
   return (
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
       <div className="mx-auto max-w-6xl">
@@ -47,82 +89,101 @@ export default function RentBayPage() {
           Pin2Win
         </Link>
 
-        <section className="mt-10 grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-          <div>
-            <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-              Before you play
-            </p>
-            <h1 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">
-              Book your bay first. Enter the challenge when you arrive.
-            </h1>
-            <p className="mt-5 text-lg leading-8 text-[#53605a]">
-              Pin2Win is for the challenge entry, not the bay reservation. Once
-              your simulator time is set, scan the QR code at the bay to enter
-              the Hole-in-One challenge.
-            </p>
-            <div className="mt-8 rounded-lg bg-[#18211f] p-6 text-white">
-              <Trophy className="text-[#a8c878]" size={30} />
-              <h2 className="mt-4 text-2xl font-black">
-                Challenge entry happens at the bay
-              </h2>
-              <p className="mt-3 leading-7 text-white/74">
-                Keep your simulator username handy. You will use it when you enter so
-                your challenge result can be matched after play.
-              </p>
-            </div>
-          </div>
-
-          <section className="rounded-lg border border-[#ded6c8] bg-white p-6 shadow-xl shadow-[#18211f]/8">
-            <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-              Player workflow
-            </p>
-            <h2 className="mt-2 text-2xl font-black">
-              From bay time to challenge time
-            </h2>
-            <div className="mt-6 grid gap-4">
-              {sessionSteps.map((step, index) => {
-                const Icon = step.icon;
-
-                return (
-                  <article
-                    key={step.title}
-                    className="rounded-lg border border-[#ded6c8] bg-[#fbf8f1] p-5"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#2f6b3f] text-xs font-black text-white">
-                        {index + 1}
-                      </span>
-                      <Icon className="text-[#2f6b3f]" size={24} />
-                    </div>
-                    <h3 className="mt-4 text-xl font-black">{step.title}</h3>
-                    <p className="mt-3 leading-7 text-[#59655f]">
-                      {step.description}
-                    </p>
-                  </article>
-                );
-              })}
-            </div>
-          </section>
+        <section className="mt-10 rounded-lg bg-[#18211f] p-8 text-white">
+          <CalendarCheck className="text-[#a8c878]" size={36} />
+          <p className="mt-5 text-sm font-black uppercase tracking-[0.16em] text-[#a8c878]">
+            Book your bay
+          </p>
+          <h1 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">
+            Choose a partner location and reserve simulator time.
+          </h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-white/74">
+            Bay reservations are handled by each partner venue. After booking,
+            arrive at the location, scan the Pin2Win QR code, and complete your
+            challenge entry from the bay.
+          </p>
         </section>
 
-        <section className="mt-10 rounded-lg border border-[#ded6c8] bg-white p-6">
+        <section className="mt-8 grid gap-5">
+          {locations.length === 0 ? (
+            <div className="rounded-lg border border-[#ded6c8] bg-white p-8 text-center">
+              <MapPin className="mx-auto text-[#2f6b3f]" size={34} />
+              <h2 className="mt-4 text-2xl font-black">
+                No booking pages available yet
+              </h2>
+              <p className="mt-3 text-sm font-bold leading-6 text-[#59655f]">
+                Partner booking links will appear here as locations are added.
+              </p>
+            </div>
+          ) : (
+            locations.map((location) => (
+              <article
+                key={location.id}
+                className="rounded-lg border border-[#ded6c8] bg-white p-6 shadow-lg shadow-[#18211f]/6"
+              >
+                <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <MapPin className="text-[#2f6b3f]" size={26} />
+                      <h2 className="text-2xl font-black">{location.name}</h2>
+                    </div>
+                    <p className="mt-3 max-w-2xl text-base leading-7 text-[#59655f]">
+                      {locationAddress(location) || "Address coming soon"}
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      {location.websiteUrl ? (
+                        <a
+                          href={location.websiteUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-4 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
+                        >
+                          <Globe size={16} />
+                          Website
+                          <ExternalLink size={14} />
+                        </a>
+                      ) : null}
+                      <Link
+                        href={`/play?location=${encodeURIComponent(location.slug)}`}
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-4 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
+                      >
+                        <QrCode size={16} />
+                        QR entry info
+                      </Link>
+                    </div>
+                  </div>
+
+                  <a
+                    href={location.bookingUrl ?? "#"}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-5 text-sm font-black text-white transition hover:bg-[#245431]"
+                  >
+                    Book at {location.name}
+                    <ArrowRight size={17} />
+                  </a>
+                </div>
+              </article>
+            ))
+          )}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-[#ded6c8] bg-white p-6">
           <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-            Player path
+            After booking
           </p>
-          <h2 className="mt-3 text-3xl font-black">
-            Ready once you are at the simulator.
-          </h2>
-          <p className="mt-4 max-w-3xl leading-8 text-[#59655f]">
-            When your bay is active, open the Pin2Win challenge page, complete
-            your entry, and use the event code to join the event. The challenge is
-            designed to fit into the simulator session you already booked.
-          </p>
-          <Link
-            href="/play"
-            className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white transition hover:bg-[#2a3935]"
-          >
-            See challenge pages <ArrowRight size={17} />
-          </Link>
+          <ul className="mt-5 grid gap-3 md:grid-cols-3">
+            {[
+              "Arrive for your reserved simulator time.",
+              "Scan the Pin2Win QR code at the bay.",
+              "Enter the challenge and use the revealed simulator event code.",
+            ].map((detail) => (
+              <li key={detail} className="flex gap-3 leading-7 text-[#59655f]">
+                <BadgeCheck className="mt-1 shrink-0 text-[#2f6b3f]" size={20} />
+                <span>{detail}</span>
+              </li>
+            ))}
+          </ul>
         </section>
       </div>
     </main>

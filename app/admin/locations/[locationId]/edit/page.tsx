@@ -79,6 +79,7 @@ export default async function EditAdminLocationPage({
             city: location.city ?? "",
             state: location.state ?? "",
             websiteUrl: location.websiteUrl ?? "",
+            bookingUrl: location.bookingUrl ?? "",
             simulatorProvider: location.simulatorProvider,
             simulatorSoftwareName: location.simulatorSoftwareName ?? "",
             bays: location.bays.map((bay) => bay.name),

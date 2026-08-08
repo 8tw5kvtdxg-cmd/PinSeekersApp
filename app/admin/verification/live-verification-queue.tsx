@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -41,6 +41,8 @@ function searchableText(entry: ClubhouseEntryRecord) {
     entry.e6EventCode,
     entry.paymentStatus,
     entry.resultStatus,
+    entry.entryDecisionStatus,
+    entry.playerEmail,
     entry.paidAt,
     entry.validFrom,
     entry.validUntil,
@@ -56,171 +58,279 @@ function resultStatusLabel(status: ClubhouseEntryRecord["resultStatus"]) {
   return status === "Pending E6 Result" ? "Pending Simulator Result" : status;
 }
 
-function SearchResults({
-  entries,
-  query,
-}: {
-  entries: ClubhouseEntryRecord[];
-  query: string;
-}) {
-  if (!query.trim()) {
-    return null;
-  }
+function StatusBadge({ entry }: { entry: ClubhouseEntryRecord }) {
+  const statusClass =
+    entry.resultStatus === "Rejected"
+      ? "bg-[#fff0ec] text-[#9a3324]"
+      : entry.resultStatus === "Verified"
+      ? "bg-[#e3edd8] text-[#2f6b3f]"
+      : entry.resultStatus === "Needs Review"
+      ? "bg-[#fff7df] text-[#8a5a00]"
+      : "bg-[#eef3ef] text-[#53605a]";
 
   return (
-    <section className="mt-6 overflow-hidden rounded-lg border border-[#ded6c8] bg-white">
-      <div className="border-b border-[#ece5d8] bg-[#fbf8f1] px-5 py-4">
-        <p className="text-sm font-black text-[#18211f]">
-          Search results for &quot;{query.trim()}&quot;
-        </p>
-        <p className="mt-1 text-sm font-bold text-[#59655f]">
-          {entries.length} matching {entries.length === 1 ? "entry" : "entries"}
-        </p>
-      </div>
-
-      {entries.length === 0 ? (
-        <div className="p-8 text-center">
-          <Search className="mx-auto text-[#2f6b3f]" size={34} />
-          <h2 className="mt-4 text-2xl font-black">No matching entries</h2>
-          <p className="mt-3 text-sm leading-6 text-[#59655f]">
-            Try a full name, phone number, simulator username, Pin2Win entry ID,
-            challenge name, or event code.
-          </p>
-        </div>
-      ) : (
-        entries.map((entry) => (
-          <article
-            key={`search-${entry.id}`}
-            className="border-t border-[#ece5d8] px-5 py-5"
-          >
-            <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
-              <div>
-                <Link
-                  href={`/entry/${entry.id}?challenge=${entry.challengeSlug}`}
-                  className="text-lg font-black text-[#18211f] transition hover:text-[#2f6b3f]"
-                >
-                  {entry.playerName} - {entry.id}
-                </Link>
-                <p className="mt-2 text-sm font-bold text-[#59655f]">
-                  Phone: {entry.phoneNumber ?? "Not provided"}
-                </p>
-                <p className="mt-2 text-sm font-bold text-[#59655f]">
-                  Simulator: {entry.e6DisplayName} · {challengeName(entry.challengeSlug)}
-                </p>
-                <p className="mt-2 text-sm font-bold text-[#59655f]">
-                  Registered: {entry.paidAt} · Window: {entry.validFrom} -{" "}
-                  {entry.validUntil}
-                </p>
-              </div>
-              <div className="grid gap-2 text-sm lg:min-w-56">
-                <span className="inline-flex w-fit rounded-full bg-[#e3edd8] px-3 py-1 text-xs font-black text-[#2f6b3f]">
-                  {resultStatusLabel(entry.resultStatus)}
-                </span>
-                <p className="font-bold text-[#59655f]">
-                  Code revealed: {entry.e6EventCode}
-                </p>
-                <p className="font-bold text-[#59655f]">
-                  Result: {entry.result ?? "Awaiting simulator result"}
-                </p>
-              </div>
-            </div>
-          </article>
-        ))
-      )}
-    </section>
+    <span
+      className={`inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs font-black ${statusClass}`}
+    >
+      <CheckCircle2 size={14} />
+      {resultStatusLabel(entry.resultStatus)}
+    </span>
   );
 }
 
-function QueueColumn({
-  title,
+function DecisionBadge({ entry }: { entry: ClubhouseEntryRecord }) {
+  const decisionStatus =
+    entry.entryDecisionStatus ?? (entry.adminConfirmedAt ? "Confirmed" : undefined);
+
+  if (!decisionStatus) {
+    return (
+      <span className="inline-flex w-fit rounded-full bg-[#eef3ef] px-3 py-1 text-xs font-black text-[#53605a]">
+        Not decided
+      </span>
+    );
+  }
+
+  const isConfirmed = decisionStatus === "Confirmed";
+
+  return (
+    <span
+      className={`inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs font-black ${
+        isConfirmed
+          ? "bg-[#e3edd8] text-[#2f6b3f]"
+          : "bg-[#fff0ec] text-[#9a3324]"
+      }`}
+    >
+      {isConfirmed ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+      {decisionStatus}
+    </span>
+  );
+}
+
+function formatCurrency(cents: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(cents / 100);
+}
+
+function VerificationEntriesTable({
   entries,
+  expandedEntryId,
+  onToggleDetails,
+  onDecideEntry,
+  savingDecision,
 }: {
-  title: string;
   entries: ClubhouseEntryRecord[];
+  expandedEntryId: string;
+  onToggleDetails: (entryId: string) => void;
+  onDecideEntry: (
+    entryId: string,
+    decisionStatus: "Confirmed" | "Denied",
+  ) => void;
+  savingDecision: { entryId: string; decisionStatus: "Confirmed" | "Denied" } | null;
 }) {
   return (
-    <section className="overflow-hidden rounded-lg border border-[#ded6c8] bg-white">
-      <div className="bg-[#18211f] px-5 py-4 text-white">
-        <h2 className="text-xl font-black">{title}</h2>
-        <p className="mt-1 text-sm font-bold text-white/62">
-          {entries.length} pending registered entries
+    <section className="mt-8 overflow-hidden rounded-lg border border-[#ded6c8] bg-white">
+      <div className="flex flex-col gap-3 border-b border-[#ece5d8] bg-[#18211f] px-5 py-4 text-white sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-black">Review entries</h2>
+          <p className="mt-1 text-sm font-bold text-white/62">
+            {entries.length} matching {entries.length === 1 ? "entry" : "entries"}
+          </p>
+        </div>
+        <p className="text-sm font-bold text-white/66">
+          Details open inline for faster review.
         </p>
       </div>
 
       {entries.length === 0 ? (
         <div className="p-8 text-center">
           <ClipboardCheck className="mx-auto text-[#2f6b3f]" size={34} />
-          <h3 className="mt-4 text-xl font-black">No entries yet</h3>
+          <h3 className="mt-4 text-xl font-black">No matching entries</h3>
           <p className="mt-3 text-sm leading-6 text-[#59655f]">
-            New venue-booked entries for this challenge will appear here automatically.
+            Try a full name, phone number, simulator username, Pin2Win entry ID,
+            challenge name, or event code.
           </p>
         </div>
       ) : (
-        entries.map((entry, index) => (
-          <article
-            key={entry.id}
-            className="border-t border-[#ece5d8] px-5 py-5"
-          >
-            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
-                  Queue #{index + 1}
-                </p>
-                <h3 className="mt-2 text-lg font-black">{entry.playerName}</h3>
-                <p className="mt-1 text-sm font-bold text-[#59655f]">
-                  Phone: {entry.phoneNumber ?? "Not provided"}
-                </p>
-                <p className="mt-1 text-sm font-bold text-[#59655f]">
-                  Simulator: {entry.e6DisplayName}
-                </p>
-              </div>
-              <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#e3edd8] px-3 py-1 text-xs font-black text-[#2f6b3f]">
-                <CheckCircle2 size={14} />
-                {resultStatusLabel(entry.resultStatus)}
-              </span>
-            </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[1080px] border-collapse text-left text-sm">
+            <thead className="bg-[#fbf8f1] text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
+              <tr>
+                <th className="px-4 py-3">Entry</th>
+                <th className="px-4 py-3">Player</th>
+                <th className="px-4 py-3">Simulator</th>
+                <th className="px-4 py-3">Location</th>
+                <th className="px-4 py-3">Registered</th>
+                <th className="px-4 py-3">Result</th>
+                <th className="px-4 py-3">Decision</th>
+                <th className="px-4 py-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entries.map((entry) => {
+                const isExpanded = expandedEntryId === entry.id;
 
-            <div className="mt-4 grid gap-3 text-sm">
-              <div>
-                <p className="font-black">{entry.id}</p>
-                <p className="mt-1 font-bold text-[#59655f]">
-                  Registered: {entry.paidAt}
-                </p>
-              </div>
-              <div>
-                <p className="font-bold text-[#59655f]">
-                  Window: {entry.validFrom} - {entry.validUntil}
-                </p>
-                <p className="mt-1 font-bold text-[#59655f]">
-                  Code revealed: {entry.e6EventCode}
-                </p>
-              </div>
-              <div>
-                <p className="font-black text-[#2f6b3f]">
-                  {entry.result ?? "Awaiting simulator result"}
-                </p>
-                <p className="mt-1 font-bold text-[#59655f]">
-                  {challengeName(entry.challengeSlug)}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-4 grid gap-2 sm:grid-cols-3">
-              <button className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-3 text-xs font-black text-white transition hover:bg-[#3f7f4c]">
-                <CheckCircle2 size={15} /> Verify
-              </button>
-              <Link
-                href={`/entry/${entry.id}?challenge=${entry.challengeSlug}`}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-3 text-xs font-black text-[#18211f] transition hover:bg-[#f5efdf]"
-              >
-                <Eye size={15} /> Evidence
-              </Link>
-              <button className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#f0c1b8] bg-[#fff7f4] px-3 text-xs font-black text-[#9a3324] transition hover:bg-[#ffeae3]">
-                <XCircle size={15} /> Reject
-              </button>
-            </div>
-          </article>
-        ))
+                return (
+                  <Fragment key={entry.id}>
+                    <tr
+                      className="border-t border-[#ece5d8] align-top"
+                    >
+                      <td className="px-4 py-4">
+                        <p className="font-black text-[#18211f]">{entry.id}</p>
+                        <p className="mt-1 font-bold text-[#59655f]">
+                          {challengeName(entry.challengeSlug)}
+                        </p>
+                      </td>
+                      <td className="px-4 py-4">
+                        <p className="font-black text-[#18211f]">
+                          {entry.playerName}
+                        </p>
+                        <p className="mt-1 font-bold text-[#59655f]">
+                          {entry.phoneNumber ?? "Not provided"}
+                        </p>
+                      </td>
+                      <td className="px-4 py-4">
+                        <p className="font-black text-[#18211f]">
+                          {entry.e6DisplayName}
+                        </p>
+                        <p className="mt-1 font-bold text-[#59655f]">
+                          Code: {entry.e6EventCode}
+                        </p>
+                      </td>
+                      <td className="px-4 py-4">
+                        <p className="font-black text-[#18211f]">
+                          {entry.locationName}
+                        </p>
+                        <p className="mt-1 font-bold text-[#59655f]">
+                          {entry.bayName ?? "Any bay"}
+                        </p>
+                      </td>
+                      <td className="px-4 py-4">
+                        <p className="font-black text-[#18211f]">
+                          {entry.paidAt}
+                        </p>
+                        <p className="mt-1 font-bold text-[#59655f]">
+                          {entry.validFrom} - {entry.validUntil}
+                        </p>
+                      </td>
+                      <td className="px-4 py-4">
+                        <StatusBadge entry={entry} />
+                      </td>
+                      <td className="px-4 py-4">
+                        <DecisionBadge entry={entry} />
+                      </td>
+                      <td className="px-4 py-4 text-right">
+                        <button
+                          type="button"
+                          onClick={() => onToggleDetails(entry.id)}
+                          className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-3 text-xs font-black text-[#18211f] transition hover:bg-[#f5efdf]"
+                        >
+                          <Eye size={15} />
+                          {isExpanded ? "Hide details" : "View details"}
+                        </button>
+                      </td>
+                    </tr>
+                    {isExpanded ? (
+                      <tr className="border-t border-[#ece5d8] bg-[#fbf8f1]">
+                        <td colSpan={8} className="px-4 py-5">
+                          <div className="grid gap-5 lg:grid-cols-4">
+                            <div>
+                              <p className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
+                                Entry details
+                              </p>
+                              <p className="mt-2 font-bold text-[#59655f]">
+                                Payment: {entry.paymentMethod}
+                              </p>
+                              <p className="mt-1 font-bold text-[#59655f]">
+                                Amount: {formatCurrency(entry.amountCents)}
+                              </p>
+                              <p className="mt-1 font-bold text-[#59655f]">
+                                Booking:{" "}
+                                {entry.venueBookingReference ??
+                                  entry.bookingVerificationId ??
+                                  "Not linked"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
+                                Review status
+                              </p>
+                              <p className="mt-2 font-bold text-[#59655f]">
+                                Booking check:{" "}
+                                {entry.bookingVerificationStatus ?? "Not checked"}
+                              </p>
+                              <p className="mt-1 font-bold text-[#59655f]">
+                                Admin confirmation:{" "}
+                                {entry.adminConfirmedAt
+                                  ? `${entry.adminConfirmedAt}`
+                                  : "Not confirmed"}
+                              </p>
+                              <p className="mt-1 font-bold text-[#59655f]">
+                                Decision email:{" "}
+                                {entry.entryDecisionEmailSentAt ??
+                                  "Not sent"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
+                                Result
+                              </p>
+                              <p className="mt-2 font-black text-[#2f6b3f]">
+                                {entry.result ?? "Awaiting simulator result"}
+                              </p>
+                              <p className="mt-1 font-bold text-[#59655f]">
+                                {entry.evidence ?? "No evidence attached yet"}
+                              </p>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              <button
+                                type="button"
+                                disabled={Boolean(savingDecision)}
+                                onClick={() => onDecideEntry(entry.id, "Confirmed")}
+                                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-3 text-xs font-black text-white transition hover:bg-[#245431] disabled:cursor-not-allowed disabled:bg-[#9aa79f]"
+                              >
+                                <CheckCircle2 size={15} />
+                                {savingDecision?.entryId === entry.id &&
+                                savingDecision.decisionStatus === "Confirmed"
+                                  ? "Confirming..."
+                                  : "Confirm entry"}
+                              </button>
+                              <button
+                                type="button"
+                                disabled={Boolean(savingDecision)}
+                                onClick={() => onDecideEntry(entry.id, "Denied")}
+                                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#f0c1b8] bg-[#fff7f4] px-3 text-xs font-black text-[#9a3324] transition hover:bg-[#ffeae3] disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                <XCircle size={15} />
+                                {savingDecision?.entryId === entry.id &&
+                                savingDecision.decisionStatus === "Denied"
+                                  ? "Denying..."
+                                  : "Deny entry"}
+                              </button>
+                              <Link
+                                href={`/entry/${entry.id}?challenge=${entry.challengeSlug}`}
+                                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-3 text-xs font-black text-[#18211f] transition hover:bg-[#f5efdf]"
+                              >
+                                <Eye size={15} /> Confirmation
+                              </Link>
+                              <Link
+                                href="/admin/results"
+                                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-3 text-xs font-black text-[#18211f] transition hover:bg-[#f5efdf]"
+                              >
+                                <ClipboardCheck size={15} /> Log result
+                              </Link>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : null}
+                  </Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
     </section>
   );
@@ -234,6 +344,12 @@ export function LiveVerificationQueue({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
+  const [expandedEntryId, setExpandedEntryId] = useState("");
+  const [decisionMessage, setDecisionMessage] = useState("");
+  const [savingDecision, setSavingDecision] = useState<{
+    entryId: string;
+    decisionStatus: "Confirmed" | "Denied";
+  } | null>(null);
 
   const stats = useMemo(
     () => [
@@ -300,6 +416,52 @@ export function LiveVerificationQueue({
     }
   }
 
+  async function decideEntry(
+    entryId: string,
+    decisionStatus: "Confirmed" | "Denied",
+  ) {
+    setSavingDecision({ entryId, decisionStatus });
+    setDecisionMessage("");
+
+    try {
+      const response = await fetch(`/api/clubhouse/entries/${entryId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: decisionStatus === "Confirmed" ? "confirm-entry" : "deny-entry",
+        }),
+      });
+      const data = (await response.json()) as {
+        entry?: ClubhouseEntryRecord;
+        error?: string;
+      };
+
+      if (data.entry) {
+        setEntries((current) =>
+          current.map((entry) =>
+            entry.id === data.entry?.id ? data.entry : entry,
+          ),
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Could not save entry decision.");
+      }
+
+      setDecisionMessage(
+        `Entry ${entryId} ${decisionStatus.toLowerCase()} and email sent.`,
+      );
+    } catch (caughtError) {
+      setDecisionMessage(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Could not save entry decision.",
+      );
+    } finally {
+      setSavingDecision(null);
+    }
+  }
+
   useEffect(() => {
     void Promise.resolve().then(refreshEntries);
 
@@ -330,15 +492,6 @@ export function LiveVerificationQueue({
     [entries],
   );
   const normalizedQuery = query.trim().toLowerCase();
-  const searchResults = useMemo(
-    () =>
-      normalizedQuery
-        ? entries.filter((entry) =>
-            searchableText(entry).includes(normalizedQuery),
-          )
-        : [],
-    [entries, normalizedQuery],
-  );
   const visibleChallengeEntries = useMemo(
     () =>
       normalizedQuery
@@ -361,6 +514,11 @@ export function LiveVerificationQueue({
           </p>
           {error ? (
             <p className="mt-2 text-sm font-bold text-[#9a3324]">{error}</p>
+          ) : null}
+          {decisionMessage ? (
+            <p className="mt-2 text-sm font-bold text-[#2f6b3f]">
+              {decisionMessage}
+            </p>
           ) : null}
         </div>
         <button
@@ -428,14 +586,15 @@ export function LiveVerificationQueue({
         </p>
       </section>
 
-      <SearchResults entries={searchResults} query={query} />
-
-      <div className="mt-10 grid gap-6">
-        <QueueColumn
-          title="Hole-in-One Challenge"
-          entries={visibleChallengeEntries}
-        />
-      </div>
+      <VerificationEntriesTable
+        entries={visibleChallengeEntries}
+        expandedEntryId={expandedEntryId}
+        onToggleDetails={(entryId) =>
+          setExpandedEntryId((current) => (current === entryId ? "" : entryId))
+        }
+        onDecideEntry={decideEntry}
+        savingDecision={savingDecision}
+      />
     </>
   );
 }

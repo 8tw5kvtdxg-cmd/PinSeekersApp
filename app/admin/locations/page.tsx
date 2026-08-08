@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  CalendarCheck,
   ClipboardCheck,
   ExternalLink,
   Globe,
@@ -43,6 +44,7 @@ const existingLocations = [
     city: "San Antonio",
     state: "TX 78213",
     websiteUrl: "https://alamogolfden.com",
+    bookingUrl: "https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml",
     simulatorProvider: "E6_CONNECT",
     simulatorSoftwareName: null,
     isActive: true,
@@ -81,6 +83,7 @@ type AdminLocationCard = {
   city: string | null;
   state: string | null;
   websiteUrl: string | null;
+  bookingUrl: string | null;
   simulatorProvider: string;
   simulatorSoftwareName: string | null;
   isActive: boolean;
@@ -126,6 +129,7 @@ export default async function AdminLocationsPage({
         city: location.city,
         state: location.state,
         websiteUrl: location.websiteUrl,
+        bookingUrl: location.bookingUrl,
         simulatorProvider: location.simulatorProvider,
         simulatorSoftwareName: location.simulatorSoftwareName,
         isActive: location.isActive,
@@ -263,6 +267,11 @@ export default async function AdminLocationsPage({
                             <Globe size={16} /> {location.websiteUrl.replace(/^https?:\/\//, "")}
                           </span>
                         ) : null}
+                        {location.bookingUrl ? (
+                          <span className="mt-2 inline-flex items-center gap-2 text-sm font-bold text-[#2f6b3f]">
+                            <CalendarCheck size={16} /> Booking page ready
+                          </span>
+                        ) : null}
                         <p className="mt-2 text-sm font-black text-[#59655f]">
                           Simulator: {formatSimulatorSoftware(location)}
                         </p>
@@ -377,6 +386,18 @@ export default async function AdminLocationsPage({
                         >
                           <Globe size={16} />
                           {selectedLocation.websiteUrl.replace(/^https?:\/\//, "")}
+                          <ExternalLink size={14} />
+                        </a>
+                      ) : null}
+                      {selectedLocation.bookingUrl ? (
+                        <a
+                          href={selectedLocation.bookingUrl}
+                          className="mt-3 inline-flex items-center gap-2 text-sm font-black text-[#2f6b3f] transition hover:text-[#1f4e2e]"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <CalendarCheck size={16} />
+                          Booking page
                           <ExternalLink size={14} />
                         </a>
                       ) : null}
