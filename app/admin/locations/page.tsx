@@ -1,6 +1,8 @@
 import Link from "next/link";
 import {
+  AlertCircle,
   CalendarCheck,
+  CheckCircle2,
   ClipboardCheck,
   ExternalLink,
   Globe,
@@ -11,12 +13,14 @@ import {
   Plus,
   QrCode,
   ReceiptText,
+  FlaskConical,
   UsersRound,
 } from "lucide-react";
 import { AdminPortalNav } from "@/app/admin/admin-shell";
 import { AdminHomeLink } from "@/app/admin/admin-home-link";
 import { requireAdminSession } from "@/lib/admin-auth";
 import { clubhouseChallenges, formatCurrency } from "@/lib/clubhouse";
+import { getClubhouseEventCode } from "@/lib/clubhouse-challenge-settings";
 import {
   getClubhouseLocationRevenueSummaries,
   listClubhouseEntryRecordsForLocation,
@@ -91,6 +95,57 @@ type AdminLocationCard = {
   bays: { id: string; name: string }[];
 };
 
+function getReadinessItems(input: {
+  eventCodeReady: boolean;
+  firstEntryRecorded: boolean;
+  location: AdminLocationCard;
+  trackingReady: boolean;
+}) {
+  const { eventCodeReady, firstEntryRecorded, location, trackingReady } = input;
+
+  return [
+    {
+      label: "Partner active",
+      ready: location.isActive,
+    },
+    {
+      label: "Address saved",
+      ready: Boolean(location.address || location.city || location.state),
+    },
+    {
+      label: "Website saved",
+      ready: Boolean(location.websiteUrl),
+    },
+    {
+      label: "Booking link saved",
+      ready: Boolean(location.bookingUrl),
+    },
+    {
+      label: "Simulator selected",
+      ready: Boolean(
+        location.simulatorSoftwareName ||
+          (location.simulatorProvider && location.simulatorProvider !== "OTHER"),
+      ),
+    },
+    {
+      label: "QR codes ready",
+      ready: location.bays.length > 0,
+    },
+    {
+      label: "Event code active",
+      ready: eventCodeReady,
+    },
+    {
+      label: "Analytics tracking ready",
+      ready: trackingReady,
+    },
+    {
+      label: "First entry recorded",
+      ready: firstEntryRecorded,
+    },
+  ];
+}
+
 export default async function AdminLocationsPage({
   searchParams,
 }: {
@@ -101,17 +156,22 @@ export default async function AdminLocationsPage({
 
   const prisma = getPrismaClient();
   const origin = getAppOrigin();
-  const dbLocations = prisma
-    ? await prisma.location.findMany({
-        orderBy: { createdAt: "desc" },
-        include: {
-          bays: {
-            where: { isActive: true },
-            orderBy: { name: "asc" },
+  const [dbLocations, activeEventCode] = await Promise.all([
+    prisma
+      ? prisma.location.findMany({
+          orderBy: { createdAt: "desc" },
+          include: {
+            bays: {
+              where: { isActive: true },
+              orderBy: { name: "asc" },
+            },
           },
-        },
-      })
-    : [];
+        })
+      : Promise.resolve([]),
+    clubhouseChallenges[0]
+      ? getClubhouseEventCode(clubhouseChallenges[0].slug)
+      : Promise.resolve(null),
+  ]);
   const locations = [
     ...existingLocations,
     ...dbLocations
@@ -141,6 +201,8 @@ export default async function AdminLocationsPage({
       })),
   ];
   const revenueSummaryMap = await getClubhouseLocationRevenueSummaries();
+  const trackingReady = Boolean(prisma?.bookingLinkClick && prisma?.qrScan);
+  const eventCodeReady = Boolean(activeEventCode);
   const selectedLocationSlug =
     requestedLocation && locations.some((location) => location.slug === requestedLocation)
       ? requestedLocation
@@ -232,16 +294,26 @@ export default async function AdminLocationsPage({
               </p>
             ) : (
               <div className="grid gap-5 p-5">
-                {locations.map((location) => (
-                  <Link
-                    key={location.id}
-                    href={`/admin/locations?location=${encodeURIComponent(location.slug)}`}
-                    className={`block rounded-lg border p-5 transition hover:border-[#2f6b3f] hover:bg-[#f4f8ef] ${
-                      location.slug === selectedLocationSlug
-                        ? "border-[#2f6b3f] bg-[#eef7e9]"
-                        : "border-[#ece4d6] bg-[#fbf8f1]"
-                    }`}
-                  >
+                {locations.map((location) => {
+                  const readinessItems = getReadinessItems({
+                    eventCodeReady,
+                    firstEntryRecorded:
+                      (revenueSummaryMap[location.slug]?.entryCount ?? 0) > 0,
+                    location,
+                    trackingReady,
+                  });
+                  const readyCount = readinessItems.filter((item) => item.ready).length;
+
+                  return (
+                    <Link
+                      key={location.id}
+                      href={`/admin/locations?location=${encodeURIComponent(location.slug)}`}
+                      className={`block rounded-lg border p-5 transition hover:border-[#2f6b3f] hover:bg-[#f4f8ef] ${
+                        location.slug === selectedLocationSlug
+                          ? "border-[#2f6b3f] bg-[#eef7e9]"
+                          : "border-[#ece4d6] bg-[#fbf8f1]"
+                      }`}
+                    >
                     <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
                       <div>
                         <div className="flex items-center gap-2">
@@ -279,6 +351,37 @@ export default async function AdminLocationsPage({
                       <span className="rounded-md bg-[#eef7e9] px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#2f6b3f]">
                         {location.isActive ? "Active" : "Inactive"}
                       </span>
+                    </div>
+
+                    <div className="mt-5 rounded-lg border border-[#ded6c8] bg-white p-4">
+                      <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+                        <div className="flex items-center gap-2">
+                          <ClipboardCheck className="text-[#2f6b3f]" size={20} />
+                          <p className="font-black">Partner readiness</p>
+                        </div>
+                        <span className="rounded-md bg-[#eef7e9] px-3 py-1.5 text-xs font-black uppercase tracking-[0.12em] text-[#2f6b3f]">
+                          {readyCount}/{readinessItems.length} ready
+                        </span>
+                      </div>
+                      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                        {readinessItems.map((item) => (
+                          <div
+                            key={item.label}
+                            className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-bold ${
+                              item.ready
+                                ? "bg-[#eef7e9] text-[#2f6b3f]"
+                                : "bg-[#fff8e8] text-[#8a6419]"
+                            }`}
+                          >
+                            {item.ready ? (
+                              <CheckCircle2 className="shrink-0" size={17} />
+                            ) : (
+                              <AlertCircle className="shrink-0" size={17} />
+                            )}
+                            <span>{item.label}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
 
                     <div className="mt-4">
@@ -340,8 +443,9 @@ export default async function AdminLocationsPage({
                         ),
                       )}
                     </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -410,17 +514,33 @@ export default async function AdminLocationsPage({
                     </p>
                   </div>
                   {selectedLocation.isEditable ? (
-                    <Link
-                      href={`/admin/locations/${selectedLocation.id}/edit`}
-                      className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-4 text-sm font-black text-white transition hover:bg-[#2a3935]"
-                    >
-                      <PencilLine size={17} /> Edit partner
-                    </Link>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      <Link
+                        href={`/admin/locations/${selectedLocation.id}/edit`}
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-4 text-sm font-black text-white transition hover:bg-[#2a3935]"
+                      >
+                        <PencilLine size={17} /> Edit partner
+                      </Link>
+                      <Link
+                        href={`/admin/launch-test?location=${encodeURIComponent(selectedLocation.slug)}`}
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-4 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
+                      >
+                        <FlaskConical size={17} /> Run test launch
+                      </Link>
+                    </div>
                   ) : (
-                    <p className="mt-5 rounded-md bg-white px-4 py-3 text-sm font-bold text-[#59655f]">
-                      This is a built-in starter location. Create a partner
-                      location record to manage editable venue details.
-                    </p>
+                    <div className="mt-5 grid gap-3">
+                      <p className="rounded-md bg-white px-4 py-3 text-sm font-bold text-[#59655f]">
+                        This is a built-in starter location. Create a partner
+                        location record to manage editable venue details.
+                      </p>
+                      <Link
+                        href={`/admin/launch-test?location=${encodeURIComponent(selectedLocation.slug)}`}
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-4 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
+                      >
+                        <FlaskConical size={17} /> Run test launch
+                      </Link>
+                    </div>
                   )}
                   <div className="mt-5 grid gap-3 sm:grid-cols-2">
                     <div className="rounded-md bg-white p-4">
