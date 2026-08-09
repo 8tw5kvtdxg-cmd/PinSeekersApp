@@ -140,6 +140,20 @@ model BookingLinkClick {
   @@index([createdAt])
 }
 
+model QrScan {
+  id            String   @id @default(cuid())
+  challengeSlug String
+  locationSlug  String
+  bayName       String?
+  referrer      String?
+  userAgent     String?
+  createdAt     DateTime @default(now())
+
+  @@index([locationSlug, createdAt])
+  @@index([challengeSlug, createdAt])
+  @@index([createdAt])
+}
+
 model Bay {
   id         String   @id @default(cuid())
   name       String
