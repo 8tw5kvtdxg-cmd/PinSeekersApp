@@ -8,6 +8,8 @@ function cleanText(value: unknown, maxLength = 500) {
 
 export async function recordQrScan(input: {
   bayName?: string;
+  bookingMatchStatus?: "Matched" | "No Match";
+  bookingVerificationId?: string;
   challengeSlug: string;
   locationSlug?: string;
 }) {
@@ -30,6 +32,8 @@ export async function recordQrScan(input: {
       challengeSlug: input.challengeSlug,
       locationSlug,
       bayName: cleanText(input.bayName, 180) || null,
+      bookingMatchStatus: input.bookingMatchStatus ?? null,
+      bookingVerificationId: cleanText(input.bookingVerificationId, 180) || null,
       referrer: cleanText(requestHeaders.get("referer"), 1000) || null,
       userAgent: cleanText(requestHeaders.get("user-agent"), 500) || null,
     },

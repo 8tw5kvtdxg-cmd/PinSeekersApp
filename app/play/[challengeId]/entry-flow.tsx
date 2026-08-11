@@ -26,6 +26,8 @@ const alamoBookingUrl = "https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5x
 
 type EntryFlowProps = {
   challenge: ClubhouseChallenge;
+  initialBookingMatch?: BookingMatch | null;
+  initialBookingStatus?: "matched" | "none" | "unknown";
 };
 
 type PlayerAccount = {
@@ -125,7 +127,11 @@ function getInitialQrParam(name: string) {
   return new URLSearchParams(window.location.search).get(name) ?? "";
 }
 
-export function EntryFlow({ challenge }: EntryFlowProps) {
+export function EntryFlow({
+  challenge,
+  initialBookingMatch = null,
+  initialBookingStatus = "unknown",
+}: EntryFlowProps) {
   const storageKey = `pin2win-entry-draft-${challenge.slug}`;
   const draft = readEntryDraft(storageKey);
   const accessSectionRef = useRef<HTMLDivElement>(null);
@@ -138,7 +144,11 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
   const [phoneNumber, setPhoneNumber] = useState(draft.phoneNumber);
   const [e6DisplayName, setE6DisplayName] = useState(draft.e6DisplayName);
   const [venueBookingReference, setVenueBookingReference] = useState("");
-  const [bookingMatch, setBookingMatch] = useState<BookingMatch | null>(null);
+  const [bookingMatch, setBookingMatch] =
+    useState<BookingMatch | null>(initialBookingMatch);
+  const [bookingMatchStatus, setBookingMatchStatus] = useState<
+    "loading" | "matched" | "none" | "unknown"
+  >(initialBookingStatus);
   const [confirmedBookingId, setConfirmedBookingId] = useState("");
   const [isLoadingBookingMatch, setIsLoadingBookingMatch] = useState(false);
   const [entryId, setEntryId] = useState("");
@@ -184,6 +194,7 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
   useEffect(() => {
     async function loadBookingMatch() {
       setIsLoadingBookingMatch(true);
+      setBookingMatchStatus("loading");
 
       try {
         const params = new URLSearchParams();
@@ -208,9 +219,13 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
           booking?: BookingMatch | null;
         };
 
-        setBookingMatch(response.ok ? data.booking ?? null : null);
+        const nextBookingMatch = response.ok ? data.booking ?? null : null;
+
+        setBookingMatch(nextBookingMatch);
+        setBookingMatchStatus(nextBookingMatch ? "matched" : "none");
       } catch {
         setBookingMatch(null);
+        setBookingMatchStatus("unknown");
       } finally {
         setIsLoadingBookingMatch(false);
       }
@@ -616,8 +631,8 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
         </h1>
         <p className="mt-5 text-lg leading-8 text-[#53605a]">
           Enter for $20 and take your shot at winning $10,000 with a verified
-          hole-in-one. Create or load your Pin2Win account, complete activation,
-          and reveal the simulator event code for your 15-minute attempt.
+          hole-in-one. Use this page while onsite during your reserved simulator
+          bay time, then create or load your Pin2Win account to continue.
         </p>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <div className="rounded-lg bg-[#18211f] p-4 text-white">
@@ -642,14 +657,40 @@ export function EntryFlow({ challenge }: EntryFlowProps) {
           Backup venue booking option <ExternalLink size={17} />
         </a>
         {locationSlug ? (
-          <div className="mt-4 rounded-lg border border-[#ded6c8] bg-white p-4">
-            <p className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
-              Scanned location
-            </p>
-            <p className="mt-1 font-black">
-              {locationSlug.replaceAll("-", " ")}
-              {bayName ? ` - ${bayName}` : ""}
-            </p>
+          <div
+            className={`mt-4 rounded-lg border p-4 ${
+              bookingMatchStatus === "matched"
+                ? "border-[#cfe3c6] bg-[#f3faef]"
+                : bookingMatchStatus === "none"
+                ? "border-[#f0d8a8] bg-[#fff8e8]"
+                : "border-[#ded6c8] bg-white"
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              {bookingMatchStatus === "matched" ? (
+                <CheckCircle2 className="mt-0.5 shrink-0 text-[#2f6b3f]" size={22} />
+              ) : bookingMatchStatus === "none" ? (
+                <MailWarning className="mt-0.5 shrink-0 text-[#8a6419]" size={22} />
+              ) : (
+                <Clock className="mt-0.5 shrink-0 text-[#87908a]" size={22} />
+              )}
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
+                  Scanned location
+                </p>
+                <p className="mt-1 font-black">
+                  {locationSlug.replaceAll("-", " ")}
+                  {bayName ? ` - ${bayName}` : ""}
+                </p>
+                <p className="mt-2 text-sm font-bold leading-6 text-[#59655f]">
+                  {bookingMatchStatus === "matched"
+                    ? "Active bay reservation detected for this location window. Pin2Win has been notified."
+                    : bookingMatchStatus === "none"
+                    ? "No active bay reservation was found yet. You can continue, but your entry may require review."
+                    : "Checking for an active bay reservation tied to this QR scan."}
+                </p>
+              </div>
+            </div>
           </div>
         ) : null}
 

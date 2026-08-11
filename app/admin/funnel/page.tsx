@@ -45,7 +45,7 @@ export default async function AdminFunnelPage() {
 
   const prisma = getPrismaClient();
   const entries = await listClubhouseEntryRecords();
-  const [bookingClickGroups, qrScanGroups, dbLocations] = prisma
+  const [bookingClickGroups, qrScanGroups, qrScanStatusGroups, dbLocations] = prisma
     ? await Promise.all([
         prisma.bookingLinkClick
           ? prisma.bookingLinkClick.groupBy({
@@ -61,6 +61,12 @@ export default async function AdminFunnelPage() {
               _max: { createdAt: true },
             })
           : Promise.resolve([]),
+        prisma.qrScan
+          ? prisma.qrScan.groupBy({
+              by: ["locationSlug", "bookingMatchStatus"],
+              _count: { _all: true },
+            })
+          : Promise.resolve([]),
         prisma.location.findMany({
           orderBy: { name: "asc" },
           select: {
@@ -74,7 +80,7 @@ export default async function AdminFunnelPage() {
           },
         }),
       ])
-    : [[], [], []];
+    : [[], [], [], []];
   const locations = [
     ...builtInBookingLocations,
     ...dbLocations.filter(
@@ -88,6 +94,25 @@ export default async function AdminFunnelPage() {
     bookingClickGroups.map((group) => [group.locationSlug, group]),
   );
   const qrScanMap = new Map(qrScanGroups.map((group) => [group.locationSlug, group]));
+  const qrScanStatusMap = qrScanStatusGroups.reduce<
+    Record<string, { matched: number; unmatched: number }>
+  >((summaries, group) => {
+    const current = summaries[group.locationSlug] ?? {
+      matched: 0,
+      unmatched: 0,
+    };
+
+    summaries[group.locationSlug] = {
+      matched:
+        current.matched +
+        (group.bookingMatchStatus === "Matched" ? group._count._all : 0),
+      unmatched:
+        current.unmatched +
+        (group.bookingMatchStatus === "No Match" ? group._count._all : 0),
+    };
+
+    return summaries;
+  }, {});
   const entryMap = entries.reduce<
     Record<
       string,
@@ -129,6 +154,10 @@ export default async function AdminFunnelPage() {
       entries: 0,
       latestEntryAt: null,
     };
+    const scanStatusSummary = qrScanStatusMap[location.slug] ?? {
+      matched: 0,
+      unmatched: 0,
+    };
 
     return {
       bookingClicks,
@@ -140,7 +169,9 @@ export default async function AdminFunnelPage() {
         bookingClickMap.get(location.slug)?._max.createdAt ??
         null,
       location,
+      matchedQrScans: scanStatusSummary.matched,
       qrScans,
+      unmatchedQrScans: scanStatusSummary.unmatched,
     };
   });
   const totals = rows.reduce(
@@ -148,9 +179,18 @@ export default async function AdminFunnelPage() {
       bookingClicks: summary.bookingClicks + row.bookingClicks,
       confirmedEntries: summary.confirmedEntries + row.confirmedEntries,
       entries: summary.entries + row.entries,
+      matchedQrScans: summary.matchedQrScans + row.matchedQrScans,
       qrScans: summary.qrScans + row.qrScans,
+      unmatchedQrScans: summary.unmatchedQrScans + row.unmatchedQrScans,
     }),
-    { bookingClicks: 0, confirmedEntries: 0, entries: 0, qrScans: 0 },
+    {
+      bookingClicks: 0,
+      confirmedEntries: 0,
+      entries: 0,
+      matchedQrScans: 0,
+      qrScans: 0,
+      unmatchedQrScans: 0,
+    },
   );
 
   return (
@@ -159,7 +199,7 @@ export default async function AdminFunnelPage() {
       title="Customer funnel"
       description="Compare booking interest, onsite QR scans, created entries, and confirmed entries by partner location."
     >
-      <section className="mt-8 grid gap-4 md:grid-cols-4">
+      <section className="mt-8 grid gap-4 md:grid-cols-6">
         {[
           {
             label: "Booking clicks",
@@ -167,6 +207,16 @@ export default async function AdminFunnelPage() {
             icon: MousePointerClick,
           },
           { label: "QR scans", value: totals.qrScans, icon: QrCode },
+          {
+            label: "Matched scans",
+            value: totals.matchedQrScans,
+            icon: UserCheck,
+          },
+          {
+            label: "Needs review",
+            value: totals.unmatchedQrScans,
+            icon: BarChart3,
+          },
           { label: "Entries", value: totals.entries, icon: BarChart3 },
           {
             label: "Confirmed",
@@ -198,12 +248,14 @@ export default async function AdminFunnelPage() {
         </div>
 
         <div className="mt-5 overflow-hidden rounded-lg border border-[#ded6c8]">
-          <table className="w-full min-w-[980px] border-collapse text-left text-sm">
+          <table className="w-full min-w-[1120px] border-collapse text-left text-sm">
             <thead className="bg-[#f5efdf] text-xs font-black uppercase tracking-[0.12em] text-[#6b756f]">
               <tr>
                 <th className="px-4 py-3">Partner</th>
                 <th className="px-4 py-3">Booking clicks</th>
                 <th className="px-4 py-3">QR scans</th>
+                <th className="px-4 py-3">Matched scans</th>
+                <th className="px-4 py-3">Needs review</th>
                 <th className="px-4 py-3">Entries</th>
                 <th className="px-4 py-3">Confirmed</th>
                 <th className="px-4 py-3">Scan rate</th>
@@ -214,7 +266,7 @@ export default async function AdminFunnelPage() {
             <tbody className="divide-y divide-[#ded6c8]">
               {rows.length === 0 ? (
                 <tr>
-                  <td className="px-4 py-6 text-[#59655f]" colSpan={8}>
+                  <td className="px-4 py-6 text-[#59655f]" colSpan={10}>
                     Add a partner booking link to start measuring funnel
                     performance.
                   </td>
@@ -230,6 +282,12 @@ export default async function AdminFunnelPage() {
                     </td>
                     <td className="px-4 py-3 font-black">{row.bookingClicks}</td>
                     <td className="px-4 py-3 font-black">{row.qrScans}</td>
+                    <td className="px-4 py-3 font-black">
+                      {row.matchedQrScans}
+                    </td>
+                    <td className="px-4 py-3 font-black">
+                      {row.unmatchedQrScans}
+                    </td>
                     <td className="px-4 py-3 font-black">{row.entries}</td>
                     <td className="px-4 py-3 font-black">
                       {row.confirmedEntries}
