@@ -2,6 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EntryFlow } from "@/app/play/[challengeId]/entry-flow";
 import { getClubhouseChallenge } from "@/lib/clubhouse";
+import {
+  findLikelyBookingMatch,
+  toPublicBookingMatch,
+} from "@/lib/booking-verification-store";
+import { sendQrScanNotification } from "@/lib/qr-scan-notification-email";
 import { recordQrScan } from "@/lib/qr-scan-store";
 
 export default async function ClubhouseChallengePage({
@@ -19,11 +24,35 @@ export default async function ClubhouseChallengePage({
     notFound();
   }
 
+  const booking = location
+    ? await findLikelyBookingMatch({
+        bayName: bay,
+        locationSlug: location,
+      })
+    : null;
+
   await recordQrScan({
     bayName: bay,
+    bookingMatchStatus: location ? (booking ? "Matched" : "No Match") : undefined,
+    bookingVerificationId: booking?.id,
     challengeSlug: challenge.slug,
     locationSlug: location,
   });
+
+  if (location) {
+    await sendQrScanNotification({
+      bayName: bay,
+      booking,
+      challengeName: challenge.name,
+      locationSlug: location,
+      scanUrl: `/play/${challenge.slug}?${new URLSearchParams({
+        ...(location ? { location } : {}),
+        ...(bay ? { bay } : {}),
+      }).toString()}`,
+    }).catch((error) => {
+      console.error("QR scan notification failed", error);
+    });
+  }
 
   return (
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
@@ -35,7 +64,11 @@ export default async function ClubhouseChallengePage({
           Back to Play Now
         </Link>
         <div className="mt-10">
-          <EntryFlow challenge={challenge} />
+          <EntryFlow
+            challenge={challenge}
+            initialBookingMatch={booking ? toPublicBookingMatch(booking) : null}
+            initialBookingStatus={location ? (booking ? "matched" : "none") : "unknown"}
+          />
         </div>
       </div>
     </main>

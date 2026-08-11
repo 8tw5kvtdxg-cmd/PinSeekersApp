@@ -145,11 +145,14 @@ model QrScan {
   challengeSlug String
   locationSlug  String
   bayName       String?
+  bookingMatchStatus String?
+  bookingVerificationId String?
   referrer      String?
   userAgent     String?
   createdAt     DateTime @default(now())
 
   @@index([locationSlug, createdAt])
+  @@index([bookingMatchStatus, createdAt])
   @@index([challengeSlug, createdAt])
   @@index([createdAt])
 }
