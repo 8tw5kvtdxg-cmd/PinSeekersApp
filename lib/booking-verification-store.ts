@@ -2,6 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { slugifyLocation } from "@/lib/location-utils";
 import { normalizeEmail } from "@/lib/player-auth";
+import { getPrismaClient } from "@/lib/prisma";
 
 export type BookingVerificationStatus =
   | "Pending Match"
@@ -76,7 +77,7 @@ function bookingId(sequence: number, now: Date) {
   return `P2W-BOOKING-${dateKey}-${String(sequence).padStart(4, "0")}`;
 }
 
-function nextBookingId(bookings: BookingVerificationRecord[], now: Date) {
+function nextBookingId(bookings: Array<{ id: string }>, now: Date) {
   const prefix = `P2W-BOOKING-${now.toISOString().slice(0, 10).replaceAll("-", "")}-`;
   const currentMax = bookings.reduce((max, booking) => {
     if (!booking.id.startsWith(prefix)) {
@@ -95,6 +96,70 @@ function parseDate(value: string) {
   const date = new Date(value);
 
   return Number.isFinite(date.getTime()) ? date : null;
+}
+
+function requiredDate(value: string, label: string) {
+  const date = parseDate(value);
+
+  if (!date) {
+    throw new Error(`${label} must be a valid date/time.`);
+  }
+
+  return date;
+}
+
+function optionalDate(value?: string) {
+  if (!value) {
+    return undefined;
+  }
+
+  return parseDate(value) ?? undefined;
+}
+
+function toBookingRecord(booking: {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string | null;
+  locationSlug: string;
+  locationName: string;
+  bayName: string | null;
+  productName: string;
+  reservationStartsAt: Date;
+  reservationEndsAt: Date | null;
+  amountCents: number | null;
+  source: string;
+  externalReference: string | null;
+  rawEmailSubject: string | null;
+  rawEmailText: string | null;
+  status: string;
+  matchedEntryId: string | null;
+  usedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}): BookingVerificationRecord {
+  return {
+    id: booking.id,
+    customerName: booking.customerName,
+    customerEmail: booking.customerEmail,
+    customerPhone: booking.customerPhone ?? undefined,
+    locationSlug: booking.locationSlug,
+    locationName: booking.locationName,
+    bayName: booking.bayName ?? undefined,
+    productName: booking.productName,
+    reservationStartsAt: booking.reservationStartsAt.toISOString(),
+    reservationEndsAt: booking.reservationEndsAt?.toISOString(),
+    amountCents: booking.amountCents ?? undefined,
+    source: booking.source as BookingVerificationRecord["source"],
+    externalReference: booking.externalReference ?? undefined,
+    rawEmailSubject: booking.rawEmailSubject ?? undefined,
+    rawEmailText: booking.rawEmailText ?? undefined,
+    status: booking.status as BookingVerificationStatus,
+    matchedEntryId: booking.matchedEntryId ?? undefined,
+    usedAt: booking.usedAt?.toISOString(),
+    createdAt: booking.createdAt.toISOString(),
+    updatedAt: booking.updatedAt.toISOString(),
+  };
 }
 
 function reservationLabel(startsAt: string) {
@@ -154,6 +219,16 @@ export function toPublicBookingMatch(
 }
 
 export async function listBookingVerificationRecords() {
+  const prisma = getPrismaClient();
+
+  if (prisma) {
+    const bookings = await prisma.bookingVerification.findMany({
+      orderBy: { reservationStartsAt: "desc" },
+    });
+
+    return bookings.map(toBookingRecord);
+  }
+
   const bookings = await readBookingsMap();
 
   return Object.values(bookings).sort(
@@ -164,6 +239,16 @@ export async function listBookingVerificationRecords() {
 }
 
 export async function getBookingVerificationRecord(bookingId: string) {
+  const prisma = getPrismaClient();
+
+  if (prisma) {
+    const booking = await prisma.bookingVerification.findUnique({
+      where: { id: bookingId },
+    });
+
+    return booking ? toBookingRecord(booking) : null;
+  }
+
   const bookings = await readBookingsMap();
 
   return bookings[bookingId] ?? null;
@@ -197,15 +282,28 @@ export async function createBookingVerificationRecord(input: {
     throw new Error("Customer name, email, product, and reservation time are required.");
   }
 
-  if (!parseDate(reservationStartsAt)) {
-    throw new Error("Reservation start time must be a valid date/time.");
-  }
+  const reservationStartDate = requiredDate(
+    reservationStartsAt,
+    "Reservation start time",
+  );
+  const reservationEndDate = optionalDate(input.reservationEndsAt);
 
-  const bookings = await readBookingsMap();
+  const prisma = getPrismaClient();
   const now = new Date();
   const timestamp = now.toISOString();
+  const datePrefix = now.toISOString().slice(0, 10).replaceAll("-", "");
+  const existingBookings = prisma
+    ? await prisma.bookingVerification.findMany({
+        select: { id: true },
+        where: {
+          id: {
+            startsWith: `P2W-BOOKING-${datePrefix}-`,
+          },
+        },
+      })
+    : Object.values(await readBookingsMap());
   const record: BookingVerificationRecord = {
-    id: nextBookingId(Object.values(bookings), now),
+    id: nextBookingId(existingBookings, now),
     customerName,
     customerEmail,
     customerPhone: input.customerPhone?.trim() || undefined,
@@ -225,6 +323,35 @@ export async function createBookingVerificationRecord(input: {
     updatedAt: timestamp,
   };
 
+  if (prisma) {
+    const booking = await prisma.bookingVerification.create({
+      data: {
+        id: record.id,
+        customerName: record.customerName,
+        customerEmail: record.customerEmail,
+        customerPhone: record.customerPhone,
+        locationSlug: record.locationSlug,
+        locationName: record.locationName,
+        bayName: record.bayName,
+        productName: record.productName,
+        reservationStartsAt: reservationStartDate,
+        reservationEndsAt: reservationEndDate,
+        amountCents: record.amountCents,
+        source: record.source,
+        externalReference: record.externalReference,
+        rawEmailSubject: record.rawEmailSubject,
+        rawEmailText: record.rawEmailText,
+        status: record.status,
+        createdAt: now,
+        updatedAt: now,
+      },
+    });
+
+    return toBookingRecord(booking);
+  }
+
+  const bookings = await readBookingsMap();
+
   bookings[record.id] = record;
   await writeBookingsMap(bookings);
 
@@ -236,6 +363,31 @@ export async function updateBookingVerificationStatus(input: {
   status: BookingVerificationStatus;
   matchedEntryId?: string;
 }) {
+  const prisma = getPrismaClient();
+
+  if (prisma) {
+    const existing = await prisma.bookingVerification.findUnique({
+      where: { id: input.bookingId },
+    });
+
+    if (!existing) {
+      throw new Error("Booking not found.");
+    }
+
+    const now = new Date();
+    const booking = await prisma.bookingVerification.update({
+      data: {
+        status: input.status,
+        matchedEntryId: input.matchedEntryId ?? existing.matchedEntryId,
+        usedAt: input.status === "Used" ? now : existing.usedAt,
+        updatedAt: now,
+      },
+      where: { id: input.bookingId },
+    });
+
+    return toBookingRecord(booking);
+  }
+
   const bookings = await readBookingsMap();
   const booking = bookings[input.bookingId];
 

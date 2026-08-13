@@ -157,6 +157,34 @@ model QrScan {
   @@index([createdAt])
 }
 
+model BookingVerification {
+  id                  String   @id
+  customerName        String
+  customerEmail       String
+  customerPhone       String?
+  locationSlug        String
+  locationName        String
+  bayName             String?
+  productName         String
+  reservationStartsAt DateTime
+  reservationEndsAt   DateTime?
+  amountCents         Int?
+  source              String
+  externalReference   String?
+  rawEmailSubject     String?
+  rawEmailText        String?
+  status              String
+  matchedEntryId      String?
+  usedAt              DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([locationSlug, reservationStartsAt])
+  @@index([customerEmail, reservationStartsAt])
+  @@index([status, reservationStartsAt])
+  @@index([createdAt])
+}
+
 model Bay {
   id         String   @id @default(cuid())
   name       String
