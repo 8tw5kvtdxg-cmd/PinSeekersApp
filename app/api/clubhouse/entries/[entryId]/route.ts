@@ -8,6 +8,7 @@ import {
 } from "@/lib/clubhouse-entry-store";
 import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
 import { sendEntryDecisionEmails } from "@/lib/entry-decision-email";
+import { sendZapierWebhook } from "@/lib/zapier";
 
 export const dynamic = "force-dynamic";
 
@@ -81,6 +82,28 @@ export async function PATCH(
       }
 
       const emailedEntry = await markClubhouseEntryDecisionEmailSent(entryId);
+
+      await sendZapierWebhook(process.env.CUSTOMER_FOLLOWUP_ZAPIER_WEBHOOK_URL, {
+        decisionStatus,
+        entry: {
+          amountCents: emailedEntry.amountCents,
+          bayName: emailedEntry.bayName,
+          challengeSlug: emailedEntry.challengeSlug,
+          entryId: emailedEntry.id,
+          locationName: emailedEntry.locationName,
+          locationSlug: emailedEntry.locationSlug,
+          paymentMethod: emailedEntry.paymentMethod,
+          playerEmail: emailedEntry.playerEmail,
+          playerName: emailedEntry.playerName,
+          validUntil: emailedEntry.validUntil,
+        },
+        event: "entry_decision",
+        followUpType:
+          decisionStatus === "Confirmed"
+            ? "confirmed_entry_customer_followup"
+            : "denied_entry_customer_followup",
+        sentAt: new Date().toISOString(),
+      });
 
       return Response.json({ entry: emailedEntry });
     }

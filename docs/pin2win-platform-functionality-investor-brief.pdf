@@ -1,0 +1,1208 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [7 0 R 9 0 R 11 0 R 13 0 R 15 0 R 17 0 R 19 0 R 21 0 R 23 0 R 25 0 R] /Count 10 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+6 0 obj
+<< /Length 5237 >>
+stream
+0.184 0.420 0.247 rg
+BT /F2 9 Tf 456.00 730.00 Td (PIN2WINGOLF LLC) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 26 Tf 54.00 698.00 Td (Pin2Win Platform Functionality Brief) Tj ET
+0.184 0.420 0.247 RG 3 w 54 682.00 m 558 682.00 l S
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 656.00 Td (Prepared for investor review) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 624.00 Td (Executive Summary) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 602.00 Td (Pin2Win is a golf entertainment and marketing platform built to help simulator venues offer) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 589.00 Td (paid challenge experiences to their existing customers. The platform supports a) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 576.00 Td (partner-location model where customers discover participating venues, book simulator time) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 563.00 Td (through the partner's existing booking system, scan an onsite QR code, register for the) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 550.00 Td (challenge, and receive access to the simulator challenge experience after verification.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 530.00 Td (The current platform is designed around a focused initial launch with Alamo Golf Den and a) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 517.00 Td (Hole-In-One Challenge. The product has been intentionally narrowed to one clear offer, one) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 504.00 Td (customer path, and an admin workflow that supports partner operations, booking verification,) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 491.00 Td (entry review, customer communication, and performance tracking.) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 459.00 Td (Current Business Model Support) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 437.00 Td (The platform supports Pin2Win as a golf entertainment and marketing company for partner) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 424.00 Td (simulator venues. Its current workflow is designed to work with partners that already have) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 411.00 Td (their own booking and facility-access systems.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 391.00 Td (The platform currently supports:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 371.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 371.00 Td (Partner location discovery) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 358.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 358.00 Td (Partner booking-page redirection) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 345.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 345.00 Td (Onsite QR-code challenge access) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 332.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 332.00 Td (Booking email intake and verification) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 319.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 319.00 Td (Customer challenge registration) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 306.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 306.00 Td (Admin review and confirmation) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 293.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 293.00 Td (Event-code reveal workflow) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 280.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 280.00 Td (Partner-level analytics) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 267.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 267.00 Td (Customer and admin email notifications) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 254.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 254.00 Td (Zapier automation hooks for lead tracking and follow-up) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 225.00 Td (Connected Apps and Technology Stack) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 203.00 Td (Pin2Win is built as a connected platform rather than a single standalone website. The) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 190.00 Td (current functionality is made possible by a combination of custom software, hosting) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 177.00 Td (infrastructure, partner systems, payment tools, email services, and automation apps.) Tj ET
+0.184 0.420 0.247 rg
+BT /F2 12.5 Tf 54.00 149.00 Td (Core Platform) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 131.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 131.00 Td (Pin2Win web platform: Customer-facing website, QR landing pages, admin portal,) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 118.00 Td (partner-location management, booking verification, analytics, and entry review.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 105.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 105.00 Td (Next.js and React: Application framework used for the website, customer flows, admin) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 92.00 Td (portal, and API routes.) Tj ET
+0.350 0.396 0.373 rg
+BT /F1 8 Tf 54.00 32 Td (Pin2Win Platform Functionality Brief) Tj ET
+BT /F1 8 Tf 513.00 32 Td (Page 1) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Length 6643 >>
+stream
+0.184 0.420 0.247 rg
+BT /F2 9 Tf 456.00 730.00 Td (PIN2WINGOLF LLC) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 706.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 706.00 Td (Prisma: Database access layer used to manage production records such as locations,) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 693.00 Td (booking clicks, QR scans, booking verifications, users, and related operational data.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 680.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 680.00 Td (PostgreSQL database: Production data store used for key platform records and analytics.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 667.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 667.00 Td (Vercel: Production hosting and deployment platform for pin2wingolf.com.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 654.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 654.00 Td (GitHub: Source-code repository and deployment source connected to Vercel.) Tj ET
+0.184 0.420 0.247 rg
+BT /F2 12.5 Tf 54.00 629.00 Td (Partner and Venue Systems) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 611.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 611.00 Td (Golf918: Alamo Golf Den's booking system. Pin2Win links customers to the Golf918 booking) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 598.00 Td (page and uses booking confirmation emails as the source for booking verification) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 585.00 Td (automation.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 572.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 572.00 Td (Alamo Golf Den booking page: Current launch partner booking destination used in the Book) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 559.00 Td (Your Bay flow.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 546.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 546.00 Td (Simulator software platforms: The platform currently supports manually entered simulator) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 533.00 Td (event/access codes and is intentionally written broadly so Pin2Win can support E6,) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 520.00 Td (Trackman, Golfzon/Golfzon-style systems, Garmin, GC/foresight-style systems, or other) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 507.00 Td (simulator software as partners expand.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 494.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 494.00 Td (Partner facility access systems: Pin2Win can operate alongside a venue's existing) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 481.00 Td (access-code or door-code process without replacing it.) Tj ET
+0.184 0.420 0.247 rg
+BT /F2 12.5 Tf 54.00 456.00 Td (Payment and Merchant Tools) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 438.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 438.00 Td (Payarc: Intended production payment provider, pending merchant setup and approval.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 425.00 Td (Payarc routes and webhook structure are already present in the platform.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 412.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 412.00 Td (Stripe: Previously used for checkout testing, but no longer the preferred production) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 399.00 Td (payment path after account restrictions.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 386.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 386.00 Td (Partner payment systems: The current launch approach can work alongside a partner's own) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 373.00 Td (booking/payment system while direct Pin2Win checkout is finalized.) Tj ET
+0.184 0.420 0.247 rg
+BT /F2 12.5 Tf 54.00 348.00 Td (Email and Communication Tools) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 330.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 330.00 Td (Resend: Transactional email service used by the platform for account verification, entry) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 317.00 Td (confirmation/denial, payment/entry notifications where applicable, and QR-scan/admin) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 304.00 Td (notifications.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 291.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 291.00 Td (Outlook: Pin2Win business email inbox at pin2wingolf@outlook.com, used for operational) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 278.00 Td (communication, admin notifications, and partner/customer follow-up.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 265.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 265.00 Td (Domain DNS records: Required to verify email sending and improve deliverability through) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 252.00 Td (SPF/DKIM/DMARC records.) Tj ET
+0.184 0.420 0.247 rg
+BT /F2 12.5 Tf 54.00 227.00 Td (Automation and Operations) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 209.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 209.00 Td (Zapier Email Parser: Used to receive Golf918 booking confirmation emails and extract) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 196.00 Td (booking details.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 183.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 183.00 Td (Zapier Webhooks: Used to send parsed booking data into the Pin2Win booking intake) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 170.00 Td (endpoint.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 157.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 157.00 Td (Zapier Catch Hooks: Used for partner-lead tracking and customer follow-up automations.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 144.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 144.00 Td (Zapier Schedule: Can be used to call the daily admin digest endpoint and email Pin2Win a) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 131.00 Td (daily operating summary.) Tj ET
+0.184 0.420 0.247 rg
+BT /F2 12.5 Tf 54.00 106.00 Td (Marketing and Social Presence) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 88.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 88.00 Td (Instagram: Pin2Win's public social profile is active at) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 75.00 Td (https://www.instagram.com/pin2wingolf/.) Tj ET
+0.350 0.396 0.373 rg
+BT /F1 8 Tf 54.00 32 Td (Pin2Win Platform Functionality Brief) Tj ET
+BT /F1 8 Tf 513.00 32 Td (Page 2) Tj ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 8 0 R >>
+endobj
+10 0 obj
+<< /Length 5222 >>
+stream
+0.184 0.420 0.247 rg
+BT /F2 9 Tf 456.00 730.00 Td (PIN2WINGOLF LLC) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 706.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 706.00 Td (Zapier follow-up workflows: Can prompt confirmed customers to follow Pin2Win, tag the) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 693.00 Td (brand, share content, and return to partner locations.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 680.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 680.00 Td (Partner website and social channels: Partner venues can promote Pin2Win as an added) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 667.00 Td (entertainment experience at their location.) Tj ET
+0.184 0.420 0.247 rg
+BT /F2 12.5 Tf 54.00 642.00 Td (Current Integration Philosophy) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 624.00 Td (The platform is intentionally designed to work with tools that partners already use. Rather) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 611.00 Td (than forcing every venue to change booking systems, payment systems, or facility access) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 598.00 Td (systems immediately, Pin2Win can connect around those systems through booking links, email) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 585.00 Td (automation, QR flows, admin review, and partner-level analytics.) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 553.00 Td (Customer-Facing Website) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 531.00 Td (The public website introduces Pin2Win as a challenge experience available at partner) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 518.00 Td (locations. It avoids positioning the platform as only a prize or gambling concept and) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 505.00 Td (instead presents the business as an entertainment and marketing service.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 485.00 Td (Current public site functionality includes:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 465.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 465.00 Td (Home page focused on the customer challenge experience) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 452.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 452.00 Td (Locations page for finding participating partner venues) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 439.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 439.00 Td (Book Your Bay flow that lets customers choose a partner location) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 426.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 426.00 Td (Redirect tracking when customers click a partner booking link) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 413.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 413.00 Td (Partner inquiry/contact page for prospective venue operators) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 400.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 400.00 Td (Instagram/social presence link support) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 387.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 387.00 Td (Broad simulator-language positioning so the platform is not limited to one simulator) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 374.00 Td (software provider) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 345.00 Td (Partner Location Booking Flow) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 323.00 Td (Pin2Win does not currently replace a partner's existing booking system. Instead, it supports) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 310.00 Td (each partner by linking customers to the partner's own booking page.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 290.00 Td (For Alamo Golf Den, the platform links to:) Tj ET
+0.953 0.965 0.941 rg
+54 250.00 504 25.00 re f
+0.075 0.125 0.110 rg
+BT /F3 9.5 Tf 66.00 258.00 Td (https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 235.00 Td (The platform logs booking-link clicks by partner location. This helps Pin2Win understand how) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 222.00 Td (many customers are being sent to each partner's booking page.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 202.00 Td (This approach allows Pin2Win to launch without requiring a full scheduling integration or) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 189.00 Td (taking over a venue's normal booking operations.) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 157.00 Td (Onsite QR Challenge Flow) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 135.00 Td (The QR challenge page is intentionally not promoted in the public navigation. It is meant to) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 122.00 Td (be accessed only when a customer is physically present at a partner location and scans a) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 109.00 Td (posted QR code.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 89.00 Td (The QR landing page currently focuses on:) Tj ET
+0.350 0.396 0.373 rg
+BT /F1 8 Tf 54.00 32 Td (Pin2Win Platform Functionality Brief) Tj ET
+BT /F1 8 Tf 513.00 32 Td (Page 3) Tj ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 10 0 R >>
+endobj
+12 0 obj
+<< /Length 5197 >>
+stream
+0.184 0.420 0.247 rg
+BT /F2 9 Tf 456.00 730.00 Td (PIN2WINGOLF LLC) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 706.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 706.00 Td (Hole-In-One Challenge) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 693.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 693.00 Td ($20 entry) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 680.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 680.00 Td (Chance to win $10,000) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 667.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 667.00 Td (Customer registration) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 654.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 654.00 Td (Booking/payment verification) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 641.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 641.00 Td (Event-code reveal after the entry is approved) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 624.00 Td (The QR page supports location-aware tracking so the admin portal can measure onsite scan) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 611.00 Td (activity by partner.) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 579.00 Td (Booking Email Automation) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 557.00 Td (The platform includes an automated booking intake endpoint designed to receive booking) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 544.00 Td (confirmation data from Zapier or another automation tool.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 524.00 Td (Endpoint:) Tj ET
+0.953 0.965 0.941 rg
+54 484.00 504 25.00 re f
+0.075 0.125 0.110 rg
+BT /F3 9.5 Tf 66.00 492.00 Td (POST https://pin2wingolf.com/api/booking-email-intake) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 469.00 Td (This endpoint accepts booking confirmation data from Golf918-style emails and creates a) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 456.00 Td (booking verification record inside the Pin2Win database.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 436.00 Td (The system currently parses booking details such as:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 416.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 416.00 Td (Customer name) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 403.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 403.00 Td (Customer email, when available) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 390.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 390.00 Td (Partner location) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 377.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 377.00 Td (Bay number) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 364.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 364.00 Td (Reservation date and time) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 351.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 351.00 Td (Reservation duration) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 338.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 338.00 Td (Booking email subject and raw email body) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 321.00 Td (This allows Pin2Win to know when a valid partner booking exists and compare that booking) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 308.00 Td (against onsite QR scans.) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 276.00 Td (Booking Verification System) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 254.00 Td (Booking verification records are stored in the production database. This replaced an earlier) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 241.00 Td (local-file approach so the workflow is compatible with Vercel production hosting.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 221.00 Td (Booking records can be:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 201.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 201.00 Td (Created automatically through booking email intake) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 188.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 188.00 Td (Created manually in the admin portal) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 175.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 175.00 Td (Matched to QR scans) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 162.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 162.00 Td (Marked as used after a challenge entry is created) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 149.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 149.00 Td (Reviewed by admin when a match is unclear) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 132.00 Td (This is important for launch because Pin2Win can operate with a partner's existing booking) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 119.00 Td (system while still maintaining its own operational record of eligible challenge) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 106.00 Td (participants.) Tj ET
+0.350 0.396 0.373 rg
+BT /F1 8 Tf 54.00 32 Td (Pin2Win Platform Functionality Brief) Tj ET
+BT /F1 8 Tf 513.00 32 Td (Page 4) Tj ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 12 0 R >>
+endobj
+14 0 obj
+<< /Length 5394 >>
+stream
+0.184 0.420 0.247 rg
+BT /F2 9 Tf 456.00 730.00 Td (PIN2WINGOLF LLC) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 694.00 Td (Admin Portal) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 672.00 Td (The admin portal is the operational control center for Pin2Win. It includes navigation) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 659.00 Td (across the main business functions and is designed to support partner management, booking) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 646.00 Td (verification, challenge administration, and analytics.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 626.00 Td (Current admin areas include:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 606.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 606.00 Td (Dashboard) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 593.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 593.00 Td (Booking Queue) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 580.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 580.00 Td (Analytics) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 567.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 567.00 Td (Entries) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 554.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 554.00 Td (Results) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 541.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 541.00 Td (Review) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 528.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 528.00 Td (Event Code) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 515.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 515.00 Td (Locations) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 502.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 502.00 Td (Users) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 485.00 Td (The admin navigation is accessible across admin pages, making the portal easier to operate) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 472.00 Td (during live testing.) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 440.00 Td (Partner Location Management) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 418.00 Td (The admin portal supports partner location management.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 398.00 Td (Admin users can:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 378.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 378.00 Td (Add new partner locations) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 365.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 365.00 Td (Edit existing locations) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 352.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 352.00 Td (Add or update location websites) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 339.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 339.00 Td (Add or update booking-page URLs) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 326.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 326.00 Td (Select simulator software/provider) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 313.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 313.00 Td (Add custom simulator software names) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 300.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 300.00 Td (Generate and view location-specific QR codes) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 287.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 287.00 Td (View partner readiness information) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 270.00 Td (This prepares the platform to scale beyond Alamo Golf Den to additional simulator venues.) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 238.00 Td (Event Code Management) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 216.00 Td (The platform supports event-code management in the admin portal. The event code is currently) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 203.00 Td (entered manually by the admin after the simulator challenge is created by the venue or) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 190.00 Td (simulator software provider.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 170.00 Td (The event-code workflow is intentionally broader than E6-only language so Pin2Win can) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 157.00 Td (support other simulator platforms in the future.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 137.00 Td (Current approach:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 117.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 117.00 Td (Partner or admin creates the challenge in simulator software) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 104.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 104.00 Td (Simulator software generates an event/access code) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 91.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 91.00 Td (Admin enters that code into Pin2Win) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 78.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 78.00 Td (Customer receives/reveals the event code after verification) Tj ET
+0.350 0.396 0.373 rg
+BT /F1 8 Tf 54.00 32 Td (Pin2Win Platform Functionality Brief) Tj ET
+BT /F1 8 Tf 513.00 32 Td (Page 5) Tj ET
+endstream
+endobj
+15 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 14 0 R >>
+endobj
+16 0 obj
+<< /Length 4475 >>
+stream
+0.184 0.420 0.247 rg
+BT /F2 9 Tf 456.00 730.00 Td (PIN2WINGOLF LLC) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 706.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 706.00 Td (Customer enters that code on the simulator software interface at the venue) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 677.00 Td (Entry Review and Confirmation) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 655.00 Td (The admin portal includes an entry review process. Entries can be reviewed in a table-style) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 642.00 Td (format, with details accessible per entry.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 622.00 Td (Admin users can:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 602.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 602.00 Td (View challenge entries) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 589.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 589.00 Td (Confirm an entry) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 576.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 576.00 Td (Deny an entry) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 563.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 563.00 Td (Send confirmation or denial emails) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 550.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 550.00 Td (Notify Pin2Win and the entrant) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 537.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 537.00 Td (Mark booking verification records as used after successful entry creation) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 520.00 Td (This gives Pin2Win operational control during the proof-of-concept stage.) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 488.00 Td (Email Notifications) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 466.00 Td (The platform currently supports email notifications through Resend.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 446.00 Td (Email-supported workflows include:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 426.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 426.00 Td (Account email verification) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 413.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 413.00 Td (Entry confirmation/denial emails) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 400.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 400.00 Td (Payment/entry confirmation emails where applicable) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 387.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 387.00 Td (QR scan notifications) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 374.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 374.00 Td (Admin/customer notification flows) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 357.00 Td (Pin2Win email recipient:) Tj ET
+0.953 0.965 0.941 rg
+54 317.00 504 25.00 re f
+0.075 0.125 0.110 rg
+BT /F3 9.5 Tf 66.00 325.00 Td (pin2wingolf@outlook.com) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 302.00 Td (The platform can send emails to both the entrant and Pin2Win when admin decisions are made.) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 270.00 Td (Zapier Automation Support) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 248.00 Td (Zapier support has been added to extend platform operations without requiring custom) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 235.00 Td (integrations for every tool.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 215.00 Td (Current Zapier-supported workflows include:) Tj ET
+0.184 0.420 0.247 rg
+BT /F2 12.5 Tf 54.00 187.00 Td (Partner Lead Tracking) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 169.00 Td (The partner inquiry form can send lead data to Zapier through:) Tj ET
+0.953 0.965 0.941 rg
+54 129.00 504 25.00 re f
+0.075 0.125 0.110 rg
+BT /F3 9.5 Tf 66.00 137.00 Td (PARTNER_LEAD_ZAPIER_WEBHOOK_URL) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 114.00 Td (This can trigger:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 94.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 94.00 Td (Email notification to Pin2Win) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 81.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 81.00 Td (CRM entry) Tj ET
+0.350 0.396 0.373 rg
+BT /F1 8 Tf 54.00 32 Td (Pin2Win Platform Functionality Brief) Tj ET
+BT /F1 8 Tf 513.00 32 Td (Page 6) Tj ET
+endstream
+endobj
+17 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 16 0 R >>
+endobj
+18 0 obj
+<< /Length 5014 >>
+stream
+0.184 0.420 0.247 rg
+BT /F2 9 Tf 456.00 730.00 Td (PIN2WINGOLF LLC) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 706.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 706.00 Td (Spreadsheet logging) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 693.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 693.00 Td (Follow-up task creation) Tj ET
+0.184 0.420 0.247 rg
+BT /F2 12.5 Tf 54.00 668.00 Td (Customer Follow-Up) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 650.00 Td (When an admin confirms or denies a customer entry, the platform can send that event to) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 637.00 Td (Zapier through:) Tj ET
+0.953 0.965 0.941 rg
+54 597.00 504 25.00 re f
+0.075 0.125 0.110 rg
+BT /F3 9.5 Tf 66.00 605.00 Td (CUSTOMER_FOLLOWUP_ZAPIER_WEBHOOK_URL) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 582.00 Td (This can trigger:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 562.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 562.00 Td (Delayed customer follow-up emails) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 549.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 549.00 Td (Instagram/social follow requests) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 536.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 536.00 Td (Customer feedback requests) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 523.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 523.00 Td (Rebooking prompts) Tj ET
+0.184 0.420 0.247 rg
+BT /F2 12.5 Tf 54.00 498.00 Td (Daily Admin Digest) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 480.00 Td (The platform includes a digest endpoint:) Tj ET
+0.953 0.965 0.941 rg
+54 440.00 504 25.00 re f
+0.075 0.125 0.110 rg
+BT /F3 9.5 Tf 66.00 448.00 Td (GET https://pin2wingolf.com/api/admin/digest?days=1) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 425.00 Td (Zapier can call this on a schedule and email a daily summary to Pin2Win.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 405.00 Td (The digest can include:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 385.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 385.00 Td (Booking-link clicks) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 372.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 372.00 Td (Booking verifications) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 359.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 359.00 Td (QR scans) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 346.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 346.00 Td (Matched QR scans) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 333.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 333.00 Td (Unmatched scans needing review) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 320.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 320.00 Td (Entries) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 307.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 307.00 Td (Confirmed entries) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 278.00 Td (Analytics and Funnel Tracking) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 256.00 Td (The admin portal includes partner-level funnel analytics.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 236.00 Td (Current analytics include:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 216.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 216.00 Td (Booking clicks by partner) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 203.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 203.00 Td (QR scans by partner) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 190.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 190.00 Td (Matched QR scans) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 177.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 177.00 Td (Unmatched scans needing admin review) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 164.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 164.00 Td (Entry counts) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 151.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 151.00 Td (Confirmed entry counts) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 138.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 138.00 Td (Scan rate) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 125.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 125.00 Td (Entry rate) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 112.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 112.00 Td (Latest activity by partner) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 95.00 Td (This gives Pin2Win visibility into how well each partner location converts customer interest) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 82.00 Td (into onsite challenge participation.) Tj ET
+0.350 0.396 0.373 rg
+BT /F1 8 Tf 54.00 32 Td (Pin2Win Platform Functionality Brief) Tj ET
+BT /F1 8 Tf 513.00 32 Td (Page 7) Tj ET
+endstream
+endobj
+19 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 18 0 R >>
+endobj
+20 0 obj
+<< /Length 4720 >>
+stream
+0.184 0.420 0.247 rg
+BT /F2 9 Tf 456.00 730.00 Td (PIN2WINGOLF LLC) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 694.00 Td (Launch Testing Tools) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 672.00 Td (The admin portal includes launch-readiness tools for testing partner locations.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 652.00 Td (These tools help validate:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 632.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 632.00 Td (Partner location setup) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 619.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 619.00 Td (Booking URL availability) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 606.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 606.00 Td (QR-code routing) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 593.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 593.00 Td (Challenge/event-code availability) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 580.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 580.00 Td (Entry flow readiness) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 567.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 567.00 Td (Admin review workflow) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 550.00 Td (This is especially useful before running a live test with Alamo Golf Den.) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 518.00 Td (Payment Status) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 496.00 Td (The platform previously used Stripe Checkout, but Stripe restricted the account due to) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 483.00 Td (concerns around prize-based games. Pin2Win is pursuing Payarc as the intended payment) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 470.00 Td (provider.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 450.00 Td (Current payment-related status:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 430.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 430.00 Td (Stripe is no longer the preferred production payment path) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 417.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 417.00 Td (Payarc routes and webhook structure exist in the platform) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 404.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 404.00 Td (Full Payarc launch depends on merchant approval/setup) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 391.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 391.00 Td (The platform can continue testing booking verification and admin workflows while Payarc) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 378.00 Td (setup is pending) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 349.00 Td (Current Launch Partner) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 327.00 Td (Current initial partner:) Tj ET
+0.953 0.965 0.941 rg
+54 254.00 504 58.00 re f
+0.075 0.125 0.110 rg
+BT /F3 9.5 Tf 66.00 295.00 Td (Alamo Golf Den) Tj ET
+0.075 0.125 0.110 rg
+BT /F3 9.5 Tf 66.00 284.00 Td (7001 I-10 #225) Tj ET
+0.075 0.125 0.110 rg
+BT /F3 9.5 Tf 66.00 273.00 Td (San Antonio, TX 78213) Tj ET
+0.075 0.125 0.110 rg
+BT /F3 9.5 Tf 66.00 262.00 Td (https://alamogolfden.com) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 239.00 Td (Alamo Golf Den currently uses Golf918 for bookings and Payarc through its existing booking) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 226.00 Td (workflow.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 206.00 Td (The current proof-of-concept launch approach is to offer the challenge to existing Alamo) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 193.00 Td (customers while they are onsite at the bay.) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 161.00 Td (Near-Term Test Plan) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 139.00 Td (The next practical test is an end-to-end booking and QR scan workflow with Alamo Golf Den.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 119.00 Td (Recommended test steps:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 99.00 Td (1.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 99.00 Td (Alamo generates a test Golf918 booking confirmation.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 86.00 Td (2.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 86.00 Td (Booking email is sent or copied to the Zapier parser mailbox.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 73.00 Td (3.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 73.00 Td (Zapier posts the booking data to Pin2Win.) Tj ET
+0.350 0.396 0.373 rg
+BT /F1 8 Tf 54.00 32 Td (Pin2Win Platform Functionality Brief) Tj ET
+BT /F1 8 Tf 513.00 32 Td (Page 8) Tj ET
+endstream
+endobj
+21 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 20 0 R >>
+endobj
+22 0 obj
+<< /Length 7024 >>
+stream
+0.184 0.420 0.247 rg
+BT /F2 9 Tf 456.00 730.00 Td (PIN2WINGOLF LLC) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 706.00 Td (4.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 706.00 Td (Admin confirms the booking appears in the Booking Queue.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 693.00 Td (5.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 693.00 Td (Customer scans the onsite QR code during the booking window.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 680.00 Td (6.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 680.00 Td (Pin2Win logs the QR scan.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 667.00 Td (7.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 667.00 Td (Platform attempts to match the scan to the booking.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 654.00 Td (8.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 654.00 Td (Customer registers for the Hole-In-One Challenge.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 641.00 Td (9.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 641.00 Td (Admin reviews and confirms the entry.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 628.00 Td (10.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 628.00 Td (Customer and Pin2Win receive confirmation email.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 615.00 Td (11.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 615.00 Td (Customer receives the simulator event code and starts the challenge.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 602.00 Td (12.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 602.00 Td (Admin reviews analytics after the test.) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 573.00 Td (Investor-Relevant Platform Strengths) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 551.00 Td (Pin2Win currently has several important early-stage strengths:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 531.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 531.00 Td (It works with a partner's existing booking infrastructure.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 518.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 518.00 Td (It does not require immediate replacement of venue operations.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 505.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 505.00 Td (It supports scalable partner-location management.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 492.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 492.00 Td (It tracks customer funnel activity by location.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 479.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 479.00 Td (It supports onsite-only QR access.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 466.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 466.00 Td (It includes admin review controls for early operational safety.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 453.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 453.00 Td (It supports automation through Zapier.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 440.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 440.00 Td (It is positioned broadly enough to support simulator platforms beyond E6.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 427.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 427.00 Td (It is focused on a simple launch offer: Hole-In-One Challenge.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 414.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 414.00 Td (It can generate useful operating data during a proof-of-concept launch.) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 385.00 Td (Current Limitations and Open Items) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 363.00 Td (The platform is close to pilot readiness, but several items remain important:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 343.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 343.00 Td (Payarc merchant approval and production payment setup are still pending.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 330.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 330.00 Td (The booking email automation needs live partner testing.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 317.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 317.00 Td (Customer email visibility from partner booking confirmations needs to be confirmed.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 304.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 304.00 Td (The live QR-to-booking match should be tested during an actual booked time slot.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 291.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 291.00 Td (Prize/legal/compliance positioning should continue to be reviewed carefully.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 278.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 278.00 Td (Long-term entry storage should eventually move fully into the production database.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 58.00 265.00 Td (") Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 265.00 Td (Zapier trial limitations should be reviewed before relying on paid automations long) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 72.00 252.00 Td (term.) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 223.00 Td (Recommended Next Steps) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 201.00 Td (The best next step is to complete a controlled live pilot with Alamo Golf Den.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 181.00 Td (Priority actions:) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 161.00 Td (1.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 161.00 Td (Complete Zapier booking email test with an Alamo-generated booking.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 148.00 Td (2.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 148.00 Td (Confirm Payarc merchant setup path.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 135.00 Td (3.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 135.00 Td (Run one onsite QR scan and challenge registration test.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 122.00 Td (4.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 122.00 Td (Confirm admin review and email confirmation behavior.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 109.00 Td (5.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 109.00 Td (Review admin analytics after the test.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 96.00 Td (6.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 96.00 Td (Decide whether to keep Zapier or move automations to another service.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 56.00 83.00 Td (7.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 76.00 83.00 Td (Prepare partner-facing sales materials using the pilot data.) Tj ET
+0.350 0.396 0.373 rg
+BT /F1 8 Tf 54.00 32 Td (Pin2Win Platform Functionality Brief) Tj ET
+BT /F1 8 Tf 513.00 32 Td (Page 9) Tj ET
+endstream
+endobj
+23 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 22 0 R >>
+endobj
+24 0 obj
+<< /Length 1165 >>
+stream
+0.184 0.420 0.247 rg
+BT /F2 9 Tf 456.00 730.00 Td (PIN2WINGOLF LLC) Tj ET
+0.075 0.125 0.110 rg
+BT /F2 16 Tf 54.00 694.00 Td (Closing) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 672.00 Td (Pin2Win has moved beyond a basic landing page into a functional early-stage platform. It now) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 659.00 Td (includes partner discovery, booking funnel tracking, QR-based onsite challenge access,) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 646.00 Td (booking verification, admin controls, email notifications, automation hooks, and) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 633.00 Td (partner-level analytics.) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 613.00 Td (The platform is well positioned for a controlled proof-of-concept launch with Alamo Golf) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 600.00 Td (Den, with the key remaining dependency being payment-provider readiness and live workflow) Tj ET
+0.075 0.125 0.110 rg
+BT /F1 10.5 Tf 54.00 587.00 Td (testing.) Tj ET
+0.350 0.396 0.373 rg
+BT /F1 8 Tf 54.00 32 Td (Pin2Win Platform Functionality Brief) Tj ET
+BT /F1 8 Tf 513.00 32 Td (Page 10) Tj ET
+endstream
+endobj
+25 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 24 0 R >>
+endobj
+xref
+0 26
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000178 00000 n 
+0000000248 00000 n 
+0000000323 00000 n 
+0000000391 00000 n 
+0000005679 00000 n 
+0000005825 00000 n 
+0000012519 00000 n 
+0000012665 00000 n 
+0000017939 00000 n 
+0000018087 00000 n 
+0000023336 00000 n 
+0000023484 00000 n 
+0000028930 00000 n 
+0000029078 00000 n 
+0000033605 00000 n 
+0000033753 00000 n 
+0000038819 00000 n 
+0000038967 00000 n 
+0000043739 00000 n 
+0000043887 00000 n 
+0000050963 00000 n 
+0000051111 00000 n 
+0000052328 00000 n 
+trailer
+<< /Size 26 /Root 1 0 R >>
+startxref
+52476
+%%EOF
