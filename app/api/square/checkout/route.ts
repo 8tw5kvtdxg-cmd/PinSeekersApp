@@ -57,6 +57,8 @@ export async function POST(request: Request) {
     }).toString()}`;
     const paymentLink = await createSquarePaymentLink({
       amountCents: challenge.entryFeeCents,
+      buyerEmail: player.email,
+      buyerPhoneNumber: phoneNumber,
       checkoutId,
       description: `Pin2Win ${challenge.name}`,
       redirectPath,

@@ -106,6 +106,8 @@ export function verifySquareWebhookSignature(input: {
 
 export async function createSquarePaymentLink(input: {
   amountCents: number;
+  buyerEmail?: string;
+  buyerPhoneNumber?: string;
   checkoutId: string;
   description: string;
   redirectPath?: string;
@@ -115,6 +117,12 @@ export async function createSquarePaymentLink(input: {
     input.redirectPath ?? "/checkout/success",
     getAppBaseUrl(input.request),
   );
+  const prePopulatedData = {
+    ...(input.buyerEmail ? { buyer_email: input.buyerEmail } : {}),
+    ...(input.buyerPhoneNumber
+      ? { buyer_phone_number: input.buyerPhoneNumber }
+      : {}),
+  };
 
   redirectUrl.searchParams.set("squareCheckoutId", input.checkoutId);
 
@@ -128,6 +136,9 @@ export async function createSquarePaymentLink(input: {
         description: input.description,
         idempotency_key: randomUUID(),
         payment_note: input.checkoutId,
+        ...(Object.keys(prePopulatedData).length > 0
+          ? { pre_populated_data: prePopulatedData }
+          : {}),
         quick_pay: {
           location_id: getSquareLocationId(),
           name: input.description,

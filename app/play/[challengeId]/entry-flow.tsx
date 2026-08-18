@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
   CheckCircle2,
-  ClipboardCheck,
   Clock,
   CreditCard,
   DollarSign,
@@ -25,8 +24,6 @@ const alamoBookingUrl = "https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5x
 
 type EntryFlowProps = {
   challenge: ClubhouseChallenge;
-  initialBookingMatch?: BookingMatch | null;
-  initialBookingStatus?: "matched" | "none" | "unknown";
   squareReturn?: {
     checkoutId?: string;
     orderId?: string;
@@ -47,17 +44,6 @@ type EntryDraft = {
   playerName: string;
   phoneNumber: string;
   e6DisplayName: string;
-};
-
-type BookingMatch = {
-  id: string;
-  maskedName: string;
-  maskedEmail: string;
-  locationName: string;
-  bayName?: string;
-  productName: string;
-  reservationLabel: string;
-  status: string;
 };
 
 type SquareCheckout = {
@@ -116,8 +102,6 @@ function formatEntryFee(cents: number) {
 
 export function EntryFlow({
   challenge,
-  initialBookingMatch = null,
-  initialBookingStatus = "unknown",
   squareReturn,
 }: EntryFlowProps) {
   const storageKey = `pin2win-entry-draft-${challenge.slug}`;
@@ -131,14 +115,6 @@ export function EntryFlow({
   const [playerName, setPlayerName] = useState(draft.playerName);
   const [phoneNumber, setPhoneNumber] = useState(draft.phoneNumber);
   const [e6DisplayName, setE6DisplayName] = useState(draft.e6DisplayName);
-  const [venueBookingReference, setVenueBookingReference] = useState("");
-  const [bookingMatch, setBookingMatch] =
-    useState<BookingMatch | null>(initialBookingMatch);
-  const [bookingMatchStatus, setBookingMatchStatus] = useState<
-    "loading" | "matched" | "none" | "unknown"
-  >(initialBookingStatus);
-  const [confirmedBookingId, setConfirmedBookingId] = useState("");
-  const [isLoadingBookingMatch, setIsLoadingBookingMatch] = useState(false);
   const [entryId, setEntryId] = useState("");
   const [playerAccount, setPlayerAccount] = useState<PlayerAccount | null>(null);
   const [accountMode, setAccountMode] = useState<"create" | "login">("create");
@@ -152,7 +128,6 @@ export function EntryFlow({
   const [isLoadingAccount, setIsLoadingAccount] = useState(true);
   const [isSubmittingAccount, setIsSubmittingAccount] = useState(false);
   const [isResendingVerification, setIsResendingVerification] = useState(false);
-  const [isCreatingEntry, setIsCreatingEntry] = useState(false);
   const [isStartingSquareCheckout, setIsStartingSquareCheckout] =
     useState(false);
   const [isCompletingSquareCheckout, setIsCompletingSquareCheckout] =
@@ -180,49 +155,6 @@ export function EntryFlow({
 
     void loadPlayerAccount();
   }, []);
-
-  useEffect(() => {
-    async function loadBookingMatch() {
-      setIsLoadingBookingMatch(true);
-      setBookingMatchStatus("loading");
-
-      try {
-        const params = new URLSearchParams();
-
-        if (locationSlug) {
-          params.set("location", locationSlug);
-        }
-
-        if (bayName) {
-          params.set("bay", bayName);
-        }
-
-        if (playerAccount?.emailVerified && playerAccount.email) {
-          params.set("email", playerAccount.email);
-        }
-
-        const response = await fetch(
-          `/api/clubhouse/bookings/match?${params.toString()}`,
-          { cache: "no-store" },
-        );
-        const data = (await response.json()) as {
-          booking?: BookingMatch | null;
-        };
-
-        const nextBookingMatch = response.ok ? data.booking ?? null : null;
-
-        setBookingMatch(nextBookingMatch);
-        setBookingMatchStatus(nextBookingMatch ? "matched" : "none");
-      } catch {
-        setBookingMatch(null);
-        setBookingMatchStatus("unknown");
-      } finally {
-        setIsLoadingBookingMatch(false);
-      }
-    }
-
-    void loadBookingMatch();
-  }, [bayName, locationSlug, playerAccount?.email, playerAccount?.emailVerified]);
 
   useEffect(() => {
     const checkoutId = squareReturn?.checkoutId?.trim();
@@ -516,69 +448,6 @@ export function EntryFlow({
     }
   }
 
-  async function createVenueEntry() {
-    const wasSaved = savePlayerInfo();
-
-    if (!wasSaved) {
-      return;
-    }
-
-    if (!isVerifiedPlayer) {
-      setPaymentError("Verify your email before creating an entry.");
-      return;
-    }
-
-    if (!confirmedBookingId) {
-      setPaymentError(
-        "Confirm the matched Alamo booking before revealing the event code.",
-      );
-      return;
-    }
-
-    setIsCreatingEntry(true);
-    setPaymentError("");
-
-    try {
-      const response = await fetch("/api/clubhouse/entries", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          challengeSlug: challenge.slug,
-          playerName,
-          phoneNumber,
-          e6DisplayName,
-          venueBookingReference,
-          bookingVerificationId: confirmedBookingId,
-          locationSlug,
-          bayName,
-        }),
-      });
-      const data = (await response.json()) as {
-        entry?: {
-          id: string;
-          challengeSlug: string;
-          playerName: string;
-          phoneNumber?: string;
-          e6DisplayName: string;
-          e6EventCode: string;
-        };
-        error?: string;
-      };
-
-      if (!response.ok || !data.entry) {
-        throw new Error(data.error ?? "Could not create entry.");
-      }
-
-      revealEntryCode(data.entry);
-    } catch (error) {
-      setPaymentError(
-        error instanceof Error ? error.message : "Could not create entry.",
-      );
-    } finally {
-      setIsCreatingEntry(false);
-    }
-  }
-
   return (
     <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
       <section>
@@ -614,43 +483,6 @@ export function EntryFlow({
         >
           Backup venue booking option <ExternalLink size={17} />
         </a>
-        {locationSlug ? (
-          <div
-            className={`mt-4 rounded-lg border p-4 ${
-              bookingMatchStatus === "matched"
-                ? "border-[#cfe3c6] bg-[#f3faef]"
-                : bookingMatchStatus === "none"
-                ? "border-[#f0d8a8] bg-[#fff8e8]"
-                : "border-[#ded6c8] bg-white"
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              {bookingMatchStatus === "matched" ? (
-                <CheckCircle2 className="mt-0.5 shrink-0 text-[#2f6b3f]" size={22} />
-              ) : bookingMatchStatus === "none" ? (
-                <MailWarning className="mt-0.5 shrink-0 text-[#8a6419]" size={22} />
-              ) : (
-                <Clock className="mt-0.5 shrink-0 text-[#87908a]" size={22} />
-              )}
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
-                  Scanned location
-                </p>
-                <p className="mt-1 font-black">
-                  {locationSlug.replaceAll("-", " ")}
-                  {bayName ? ` - ${bayName}` : ""}
-                </p>
-                <p className="mt-2 text-sm font-bold leading-6 text-[#59655f]">
-                  {bookingMatchStatus === "matched"
-                    ? "Active bay reservation detected for this location window. Pin2Win has been notified."
-                    : bookingMatchStatus === "none"
-                    ? "No active bay reservation was found yet. You can continue, but your entry may require review."
-                    : "Checking for an active bay reservation tied to this QR scan."}
-                </p>
-              </div>
-            </div>
-          </div>
-        ) : null}
 
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
           {[
@@ -989,78 +821,6 @@ export function EntryFlow({
               </p>
             ) : null}
 
-            <details className="mt-5 rounded-md border border-[#ece5d8] bg-white p-4">
-              <summary className="cursor-pointer text-sm font-black text-[#2f6b3f]">
-                Use venue booking verification instead
-              </summary>
-              <div className="mt-4 grid gap-3">
-                {isLoadingBookingMatch ? (
-                  <p className="rounded-md bg-[#fbf8f1] p-3 text-sm font-bold text-[#59655f]">
-                    Checking today&apos;s Alamo bookings for this QR location...
-                  </p>
-                ) : bookingMatch ? (
-                  <div className="rounded-md border border-[#d9e8d1] bg-[#f3faef] p-4">
-                    <p className="text-xs font-black uppercase tracking-[0.12em] text-[#2f6b3f]">
-                      Possible booking found
-                    </p>
-                    <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
-                      <div>
-                        <dt className="font-black text-[#87908a]">Name</dt>
-                        <dd className="mt-1 font-black">{bookingMatch.maskedName}</dd>
-                      </div>
-                      <div>
-                        <dt className="font-black text-[#87908a]">Email</dt>
-                        <dd className="mt-1 font-black">{bookingMatch.maskedEmail}</dd>
-                      </div>
-                      <div>
-                        <dt className="font-black text-[#87908a]">Time</dt>
-                        <dd className="mt-1 font-black">
-                          {bookingMatch.reservationLabel}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="font-black text-[#87908a]">Booking</dt>
-                        <dd className="mt-1 font-black">
-                          {bookingMatch.productName}
-                        </dd>
-                      </div>
-                    </dl>
-                    <button
-                      className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#18211f] px-4 text-sm font-black text-white transition hover:bg-[#2a3935]"
-                      type="button"
-                      onClick={() => {
-                        setConfirmedBookingId(bookingMatch.id);
-                        setVenueBookingReference("");
-                        setPaymentReady(false);
-                        setEntryId("");
-                        setPaymentError("");
-                      }}
-                    >
-                      <CheckCircle2 size={17} />
-                      {confirmedBookingId === bookingMatch.id
-                        ? "Booking confirmed"
-                        : "Yes, this is my booking"}
-                    </button>
-                  </div>
-                ) : (
-                  <p className="rounded-md bg-[#fff8e8] p-3 text-sm font-bold leading-6 text-[#6b5a30]">
-                    No unused Pin2Win booking was found for this location
-                    window.
-                  </p>
-                )}
-              </div>
-              <button
-                className="mt-4 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white transition hover:bg-[#2a3935] disabled:cursor-not-allowed disabled:bg-[#ded6c8] disabled:text-[#6b756f]"
-                disabled={isCreatingEntry}
-                type="button"
-                onClick={createVenueEntry}
-              >
-                <ClipboardCheck size={17} />
-                {isCreatingEntry
-                  ? "Creating entry..."
-                  : "Confirm booking and reveal event code"}
-              </button>
-            </details>
           </div>
 
           <div ref={accessSectionRef} className="rounded-lg bg-[#fbf8f1] p-5">

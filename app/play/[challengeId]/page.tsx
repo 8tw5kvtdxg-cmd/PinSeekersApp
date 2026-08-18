@@ -2,10 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EntryFlow } from "@/app/play/[challengeId]/entry-flow";
 import { getClubhouseChallenge } from "@/lib/clubhouse";
-import {
-  findLikelyBookingMatch,
-  toPublicBookingMatch,
-} from "@/lib/booking-verification-store";
+import { findLikelyBookingMatch } from "@/lib/booking-verification-store";
 import { sendQrScanNotification } from "@/lib/qr-scan-notification-email";
 import { recordQrScan } from "@/lib/qr-scan-store";
 
@@ -82,8 +79,6 @@ export default async function ClubhouseChallengePage({
         <div className="mt-10">
           <EntryFlow
             challenge={challenge}
-            initialBookingMatch={booking ? toPublicBookingMatch(booking) : null}
-            initialBookingStatus={location ? (booking ? "matched" : "none") : "unknown"}
             squareReturn={{
               checkoutId: squareCheckoutId ?? checkoutId ?? referenceId ?? "",
               orderId: orderId ?? "",
