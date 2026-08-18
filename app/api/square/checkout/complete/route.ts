@@ -6,7 +6,12 @@ import {
   getSquareCheckoutRecord,
   updateSquareCheckoutRecord,
 } from "@/lib/square-checkout-store";
-import { getSquareOrder, squareOrderLooksPaid } from "@/lib/square";
+import {
+  getSquareOrder,
+  getSquarePayment,
+  squareOrderLooksPaid,
+  squarePaymentLooksPaid,
+} from "@/lib/square";
 import { sendPaymentConfirmationEmails } from "@/lib/payment-confirmation-email";
 
 export const dynamic = "force-dynamic";
@@ -14,9 +19,15 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   const body = (await request.json()) as {
     checkoutId?: unknown;
+    squareOrderId?: unknown;
+    squarePaymentId?: unknown;
   };
   const checkoutId =
     typeof body.checkoutId === "string" ? body.checkoutId.trim() : "";
+  const squareOrderId =
+    typeof body.squareOrderId === "string" ? body.squareOrderId.trim() : "";
+  const squarePaymentId =
+    typeof body.squarePaymentId === "string" ? body.squarePaymentId.trim() : "";
 
   if (!checkoutId) {
     return Response.json({ error: "Checkout ID is required." }, { status: 400 });
@@ -37,9 +48,20 @@ export async function POST(request: Request) {
       return Response.json({ entry: existingEntry });
     }
 
+    if (squareOrderId && squareOrderId !== checkout.squareOrderId) {
+      return Response.json(
+        { error: "Square order did not match this checkout." },
+        { status: 400 },
+      );
+    }
+
+    const squarePayment = squarePaymentId
+      ? await getSquarePayment({ paymentId: squarePaymentId })
+      : null;
     const squareOrder = await getSquareOrder({ orderId: checkout.squareOrderId });
     const isConfirmed =
       checkout.status === "Succeeded" ||
+      squarePaymentLooksPaid(squarePayment) ||
       squareOrderLooksPaid(squareOrder) ||
       process.env.SQUARE_ALLOW_CLIENT_COMPLETION === "true";
 
@@ -57,6 +79,7 @@ export async function POST(request: Request) {
       checkout.status === "Succeeded"
         ? checkout
         : await updateSquareCheckoutRecord(checkout.id, {
+            squarePaymentId: squarePaymentId || checkout.squarePaymentId,
             status: "Succeeded",
           });
     const entry = await createClubhouseEntryRecord({

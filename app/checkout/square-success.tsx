@@ -6,6 +6,8 @@ import { CheckCircle2, Clock, KeyRound } from "lucide-react";
 
 type SquareSuccessProps = {
   checkoutId: string;
+  squareOrderId?: string;
+  squarePaymentId?: string;
 };
 
 type Entry = {
@@ -16,7 +18,11 @@ type Entry = {
   e6EventCode: string;
 };
 
-export function SquareSuccess({ checkoutId }: SquareSuccessProps) {
+export function SquareSuccess({
+  checkoutId,
+  squareOrderId,
+  squarePaymentId,
+}: SquareSuccessProps) {
   const [entry, setEntry] = useState<Entry | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(Boolean(checkoutId));
@@ -29,7 +35,7 @@ export function SquareSuccess({ checkoutId }: SquareSuccessProps) {
     async function completeCheckout() {
       try {
         const response = await fetch("/api/square/checkout/complete", {
-          body: JSON.stringify({ checkoutId }),
+          body: JSON.stringify({ checkoutId, squareOrderId, squarePaymentId }),
           headers: { "Content-Type": "application/json" },
           method: "POST",
         });
@@ -55,7 +61,7 @@ export function SquareSuccess({ checkoutId }: SquareSuccessProps) {
     }
 
     void completeCheckout();
-  }, [checkoutId]);
+  }, [checkoutId, squareOrderId, squarePaymentId]);
 
   if (!checkoutId) {
     return (

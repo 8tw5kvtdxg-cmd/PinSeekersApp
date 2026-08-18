@@ -14,7 +14,7 @@ import { AdminLogoutForm } from "@/app/admin/logout-form";
 
 const adminNavItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/bookings", label: "Booking Queue", icon: MailCheck },
+  { href: "/admin/bookings", label: "Booking Emails", icon: MailCheck },
   { href: "/admin/funnel", label: "Analytics", icon: TrendingUp },
   { href: "/admin/entries", label: "Entries", icon: ListChecks },
   { href: "/admin/results", label: "Results", icon: PencilLine },

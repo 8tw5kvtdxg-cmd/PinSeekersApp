@@ -7,7 +7,7 @@ import {
   updateSquareCheckoutRecord,
 } from "@/lib/square-checkout-store";
 import { sendPaymentConfirmationEmails } from "@/lib/payment-confirmation-email";
-import { squareOrderLooksPaid } from "@/lib/square";
+import { squareOrderLooksPaid, verifySquareWebhookSignature } from "@/lib/square";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +31,19 @@ function findPaymentId(payload: unknown) {
 }
 
 export async function POST(request: Request) {
-  const payload = (await request.json().catch(() => null)) as unknown;
+  const rawBody = await request.text();
+
+  if (!verifySquareWebhookSignature({ request, rawBody })) {
+    return Response.json({ error: "Invalid Square webhook signature." }, { status: 403 });
+  }
+
+  let payload: unknown = null;
+
+  try {
+    payload = JSON.parse(rawBody || "null") as unknown;
+  } catch {
+    return Response.json({ received: false }, { status: 400 });
+  }
 
   if (!payload) {
     return Response.json({ received: false }, { status: 400 });

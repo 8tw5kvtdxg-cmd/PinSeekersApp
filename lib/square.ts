@@ -1,4 +1,5 @@
-import { randomUUID } from "node:crypto";
+import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
+import { getAppBaseUrl } from "@/lib/app-url";
 
 export type SquarePaymentLink = {
   id: string;
@@ -42,19 +43,14 @@ function getSquareEnvironmentLabel() {
     : "sandbox";
 }
 
-function getAppBaseUrl(request: Request) {
-  const configuredUrl =
-    process.env.PIN2WIN_APP_URL ??
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.VERCEL_URL;
+function getSquareWebhookNotificationUrl(request?: Request) {
+  const configuredUrl = process.env.SQUARE_WEBHOOK_NOTIFICATION_URL?.trim();
 
   if (configuredUrl) {
-    return configuredUrl.startsWith("http")
-      ? configuredUrl
-      : `https://${configuredUrl}`;
+    return configuredUrl;
   }
 
-  return new URL(request.url).origin;
+  return `${getAppBaseUrl(request)}/api/square/webhook`;
 }
 
 function getString(source: Record<string, unknown>, field: string) {
@@ -71,20 +67,63 @@ function getObject(source: Record<string, unknown>, field: string) {
     : {};
 }
 
+function getArray(source: Record<string, unknown>, field: string) {
+  const value = source[field];
+
+  return Array.isArray(value) ? value : [];
+}
+
+function safeEqual(left: string, right: string) {
+  const leftBuffer = Buffer.from(left);
+  const rightBuffer = Buffer.from(right);
+
+  if (leftBuffer.length !== rightBuffer.length) {
+    return false;
+  }
+
+  return timingSafeEqual(leftBuffer, rightBuffer);
+}
+
+export function verifySquareWebhookSignature(input: {
+  request: Request;
+  rawBody: string;
+}) {
+  const signatureKey = process.env.SQUARE_WEBHOOK_SIGNATURE_KEY?.trim();
+
+  if (!signatureKey) {
+    return process.env.NODE_ENV !== "production";
+  }
+
+  const signature =
+    input.request.headers.get("x-square-hmacsha256-signature") ?? "";
+  const notificationUrl = getSquareWebhookNotificationUrl(input.request);
+  const expectedSignature = createHmac("sha256", signatureKey)
+    .update(`${notificationUrl}${input.rawBody}`)
+    .digest("base64");
+
+  return safeEqual(signature, expectedSignature);
+}
+
 export async function createSquarePaymentLink(input: {
   amountCents: number;
   checkoutId: string;
   description: string;
+  redirectPath?: string;
   request: Request;
 }) {
+  const redirectUrl = new URL(
+    input.redirectPath ?? "/checkout/success",
+    getAppBaseUrl(input.request),
+  );
+
+  redirectUrl.searchParams.set("squareCheckoutId", input.checkoutId);
+
   const response = await fetch(
     `${getSquareApiBaseUrl()}/v2/online-checkout/payment-links`,
     {
       body: JSON.stringify({
         checkout_options: {
-          redirect_url: `${getAppBaseUrl(input.request)}/checkout/success?squareCheckoutId=${encodeURIComponent(
-            input.checkoutId,
-          )}`,
+          redirect_url: redirectUrl.toString(),
         },
         description: input.description,
         idempotency_key: randomUUID(),
@@ -181,12 +220,65 @@ export async function getSquareOrder(input: { orderId: string }) {
   return (await response.json().catch(() => null)) as Record<string, unknown> | null;
 }
 
+export async function getSquarePayment(input: { paymentId: string }) {
+  const response = await fetch(
+    `${getSquareApiBaseUrl()}/v2/payments/${encodeURIComponent(input.paymentId)}`,
+    {
+      cache: "no-store",
+      headers: {
+        Authorization: `Bearer ${getSquareAccessToken()}`,
+        "Content-Type": "application/json",
+        "Square-Version": getSquareVersion(),
+      },
+      method: "GET",
+    },
+  );
+
+  if (!response.ok) {
+    return null;
+  }
+
+  return (await response.json().catch(() => null)) as Record<string, unknown> | null;
+}
+
 export function squareOrderLooksPaid(payload: unknown) {
+  if (!payload || typeof payload !== "object") {
+    return false;
+  }
+
+  const source = payload as Record<string, unknown>;
+  const order = getObject(source, "order");
+  const orderSource = Object.keys(order).length > 0 ? order : source;
+  const state = getString(orderSource, "state").toUpperCase();
+  const tenders = getArray(orderSource, "tenders");
+  const fulfillments = getArray(orderSource, "fulfillments");
   const text = JSON.stringify(payload).toLowerCase();
 
   return (
+    (state === "OPEN" && tenders.length > 0) ||
+    (state === "COMPLETED" && tenders.length > 0) ||
+    fulfillments.some((fulfillment) => {
+      if (!fulfillment || typeof fulfillment !== "object") {
+        return false;
+      }
+
+      return getString(fulfillment as Record<string, unknown>, "state") === "COMPLETED";
+    }) ||
     text.includes("\"state\":\"completed\"") ||
     text.includes("\"status\":\"completed\"") ||
     text.includes("\"status\":\"approved\"")
   );
+}
+
+export function squarePaymentLooksPaid(payload: unknown) {
+  if (!payload || typeof payload !== "object") {
+    return false;
+  }
+
+  const source = payload as Record<string, unknown>;
+  const payment = getObject(source, "payment");
+  const paymentSource = Object.keys(payment).length > 0 ? payment : source;
+  const status = getString(paymentSource, "status").toUpperCase();
+
+  return status === "COMPLETED" || status === "APPROVED";
 }

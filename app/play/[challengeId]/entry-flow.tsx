@@ -27,6 +27,11 @@ type EntryFlowProps = {
   challenge: ClubhouseChallenge;
   initialBookingMatch?: BookingMatch | null;
   initialBookingStatus?: "matched" | "none" | "unknown";
+  squareReturn?: {
+    checkoutId?: string;
+    orderId?: string;
+    paymentId?: string;
+  };
 };
 
 type PlayerAccount = {
@@ -102,10 +107,18 @@ function getInitialQrParam(name: string) {
   return new URLSearchParams(window.location.search).get(name) ?? "";
 }
 
+function formatEntryFee(cents: number) {
+  return new Intl.NumberFormat("en-US", {
+    currency: "USD",
+    style: "currency",
+  }).format(cents / 100);
+}
+
 export function EntryFlow({
   challenge,
   initialBookingMatch = null,
   initialBookingStatus = "unknown",
+  squareReturn,
 }: EntryFlowProps) {
   const storageKey = `pin2win-entry-draft-${challenge.slug}`;
   const draft = readEntryDraft(storageKey);
@@ -142,6 +155,8 @@ export function EntryFlow({
   const [isCreatingEntry, setIsCreatingEntry] = useState(false);
   const [isStartingSquareCheckout, setIsStartingSquareCheckout] =
     useState(false);
+  const [isCompletingSquareCheckout, setIsCompletingSquareCheckout] =
+    useState(Boolean(squareReturn?.checkoutId));
 
   useEffect(() => {
     async function loadPlayerAccount() {
@@ -208,6 +223,60 @@ export function EntryFlow({
 
     void loadBookingMatch();
   }, [bayName, locationSlug, playerAccount?.email, playerAccount?.emailVerified]);
+
+  useEffect(() => {
+    const checkoutId = squareReturn?.checkoutId?.trim();
+
+    if (!checkoutId) {
+      return;
+    }
+
+    async function completeReturnedSquareCheckout() {
+      setPaymentError("");
+      setPaymentNotice("Confirming Square payment...");
+
+      try {
+        const response = await fetch("/api/square/checkout/complete", {
+          body: JSON.stringify({
+            checkoutId,
+            squareOrderId: squareReturn?.orderId,
+            squarePaymentId: squareReturn?.paymentId,
+          }),
+          headers: { "Content-Type": "application/json" },
+          method: "POST",
+        });
+        const data = (await response.json()) as {
+          entry?: {
+            id: string;
+            challengeSlug: string;
+            playerName: string;
+            phoneNumber?: string;
+            e6DisplayName: string;
+            e6EventCode: string;
+          };
+          error?: string;
+        };
+
+        if (!response.ok || !data.entry) {
+          throw new Error(data.error ?? "Could not confirm Square checkout.");
+        }
+
+        revealEntryCode(data.entry);
+        setPaymentNotice("Payment confirmed. Your event code is unlocked.");
+      } catch (error) {
+        setPaymentError(
+          error instanceof Error
+            ? error.message
+            : "Could not confirm Square checkout.",
+        );
+        setPaymentNotice("");
+      } finally {
+        setIsCompletingSquareCheckout(false);
+      }
+    }
+
+    void completeReturnedSquareCheckout();
+  }, [squareReturn?.checkoutId, squareReturn?.orderId, squareReturn?.paymentId]);
 
   async function submitAccountForm() {
     const trimmedUsername = username.trim();
@@ -520,16 +589,18 @@ export function EntryFlow({
           {challenge.name}
         </h1>
         <p className="mt-5 text-lg leading-8 text-[#53605a]">
-          Enter the Hole-In-One Challenge for $20 while onsite during your
-          reserved simulator bay time, then create or load your Pin2Win account
-          to continue.
+          Enter the Hole-In-One Challenge for {formatEntryFee(challenge.entryFeeCents)}
+          while onsite during your reserved simulator bay time, then create or
+          load your Pin2Win account to continue.
         </p>
         <div className="mt-6 max-w-sm">
           <div className="rounded-lg bg-[#18211f] p-4 text-white">
             <div className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-[#a8c878]">
               <DollarSign size={17} /> Entry
             </div>
-            <p className="mt-2 text-3xl font-black">$20</p>
+            <p className="mt-2 text-3xl font-black">
+              {formatEntryFee(challenge.entryFeeCents)}
+            </p>
             <p className="mt-2 text-sm font-bold text-white/72">
               Hole-In-One Challenge entry fee
             </p>
@@ -871,7 +942,7 @@ export function EntryFlow({
                 Challenge entry
               </p>
               <p className="mt-1 text-2xl font-black">
-                ${(challenge.entryFeeCents / 100).toFixed(0)}
+                {formatEntryFee(challenge.entryFeeCents)}
               </p>
               <p className="mt-2 text-sm font-bold leading-6 text-[#59655f]">
                 Payment is handled by Square. You will return to Pin2Win after
@@ -880,12 +951,18 @@ export function EntryFlow({
             </div>
             <button
               className="mt-4 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-5 text-sm font-black text-white transition hover:bg-[#3f7f4c] disabled:cursor-not-allowed disabled:bg-[#ded6c8] disabled:text-[#6b756f]"
-              disabled={isStartingSquareCheckout || paymentReady}
+              disabled={
+                isStartingSquareCheckout ||
+                isCompletingSquareCheckout ||
+                paymentReady
+              }
               type="button"
               onClick={startSquareCheckout}
             >
               {paymentReady ? <CheckCircle2 size={17} /> : <CreditCard size={17} />}
-              {isStartingSquareCheckout
+              {isCompletingSquareCheckout
+                ? "Confirming payment..."
+                : isStartingSquareCheckout
                 ? "Starting checkout..."
                 : paymentReady
                 ? "Entry created"

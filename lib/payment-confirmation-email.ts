@@ -1,3 +1,4 @@
+import { getAppBaseUrl } from "@/lib/app-url";
 import type { ClubhouseEntryRecord } from "@/lib/clubhouse-entry-store";
 import { getClubhouseChallenge } from "@/lib/clubhouse";
 import type { PayarcCheckoutRecord } from "@/lib/payarc-checkout-store";
@@ -5,25 +6,6 @@ import type { SquareCheckoutRecord } from "@/lib/square-checkout-store";
 
 const pin2WinNotificationEmail =
   process.env.PIN2WIN_PAYMENT_NOTIFICATION_EMAIL ?? "pin2wingolf@outlook.com";
-
-function getAppBaseUrl(request?: Request) {
-  const configuredUrl =
-    process.env.PIN2WIN_APP_URL ??
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.VERCEL_URL;
-
-  if (configuredUrl) {
-    return configuredUrl.startsWith("http")
-      ? configuredUrl
-      : `https://${configuredUrl}`;
-  }
-
-  if (request) {
-    return new URL(request.url).origin;
-  }
-
-  return "http://localhost:3000";
-}
 
 function formatCurrency(cents: number) {
   return new Intl.NumberFormat("en-US", {

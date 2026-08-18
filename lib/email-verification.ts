@@ -1,30 +1,12 @@
 import { createHash, randomBytes } from "node:crypto";
 import { resolveMx } from "node:dns/promises";
+import { getAppBaseUrl } from "@/lib/app-url";
 import { getPrismaClient } from "@/lib/prisma";
 
 const verificationTokenDurationMs = 1000 * 60 * 60 * 24;
 
 function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
-}
-
-function getAppBaseUrl(request?: Request) {
-  const configuredUrl =
-    process.env.PIN2WIN_APP_URL ??
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.VERCEL_URL;
-
-  if (configuredUrl) {
-    return configuredUrl.startsWith("http")
-      ? configuredUrl
-      : `https://${configuredUrl}`;
-  }
-
-  if (request) {
-    return new URL(request.url).origin;
-  }
-
-  return "http://localhost:3000";
 }
 
 export function isEmailFormatValid(email: string) {

@@ -14,10 +14,26 @@ export default async function ClubhouseChallengePage({
   searchParams,
 }: {
   params: Promise<{ challengeId: string }>;
-  searchParams: Promise<{ bay?: string; location?: string }>;
+  searchParams: Promise<{
+    bay?: string;
+    checkoutId?: string;
+    location?: string;
+    orderId?: string;
+    referenceId?: string;
+    squareCheckoutId?: string;
+    transactionId?: string;
+  }>;
 }) {
   const { challengeId } = await params;
-  const { bay, location } = await searchParams;
+  const {
+    bay,
+    checkoutId,
+    location,
+    orderId,
+    referenceId,
+    squareCheckoutId,
+    transactionId,
+  } = await searchParams;
   const challenge = getClubhouseChallenge(challengeId);
 
   if (!challenge) {
@@ -68,6 +84,11 @@ export default async function ClubhouseChallengePage({
             challenge={challenge}
             initialBookingMatch={booking ? toPublicBookingMatch(booking) : null}
             initialBookingStatus={location ? (booking ? "matched" : "none") : "unknown"}
+            squareReturn={{
+              checkoutId: squareCheckoutId ?? checkoutId ?? referenceId ?? "",
+              orderId: orderId ?? "",
+              paymentId: transactionId ?? "",
+            }}
           />
         </div>
       </div>

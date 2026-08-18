@@ -1,26 +1,8 @@
+import { getAppBaseUrl } from "@/lib/app-url";
 import type { BookingVerificationRecord } from "@/lib/booking-verification-store";
 
 const pin2WinNotificationEmail =
   process.env.PIN2WIN_PAYMENT_NOTIFICATION_EMAIL ?? "pin2wingolf@outlook.com";
-
-function getAppBaseUrl(request?: Request) {
-  const configuredUrl =
-    process.env.PIN2WIN_APP_URL ??
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.VERCEL_URL;
-
-  if (configuredUrl) {
-    return configuredUrl.startsWith("http")
-      ? configuredUrl
-      : `https://${configuredUrl}`;
-  }
-
-  if (request) {
-    return new URL(request.url).origin;
-  }
-
-  return "http://localhost:3000";
-}
 
 export async function sendQrScanNotification(input: {
   bayName?: string;

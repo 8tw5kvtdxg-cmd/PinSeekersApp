@@ -47,10 +47,19 @@ export async function POST(request: Request) {
 
   try {
     const checkoutId = nextSquareCheckoutId();
+    const redirectPath = `/play/${challenge.slug}?${new URLSearchParams({
+      ...(typeof body.locationSlug === "string" && body.locationSlug
+        ? { location: body.locationSlug }
+        : {}),
+      ...(typeof body.bayName === "string" && body.bayName
+        ? { bay: body.bayName }
+        : {}),
+    }).toString()}`;
     const paymentLink = await createSquarePaymentLink({
       amountCents: challenge.entryFeeCents,
       checkoutId,
       description: `Pin2Win ${challenge.name}`,
+      redirectPath,
       request,
     });
     const checkout = await createSquareCheckoutRecord({
