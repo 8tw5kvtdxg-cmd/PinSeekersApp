@@ -84,6 +84,29 @@ function safeEqual(left: string, right: string) {
   return timingSafeEqual(leftBuffer, rightBuffer);
 }
 
+function normalizeSquareBuyerPhoneNumber(value?: string) {
+  if (!value) {
+    return "";
+  }
+
+  const trimmedValue = value.trim();
+  const digits = trimmedValue.replace(/\D/g, "");
+
+  if (trimmedValue.startsWith("+") && digits.length >= 8 && digits.length <= 15) {
+    return `+${digits}`;
+  }
+
+  if (digits.length === 10) {
+    return `+1${digits}`;
+  }
+
+  if (digits.length === 11 && digits.startsWith("1")) {
+    return `+${digits}`;
+  }
+
+  return "";
+}
+
 export function verifySquareWebhookSignature(input: {
   request: Request;
   rawBody: string;
@@ -117,11 +140,12 @@ export async function createSquarePaymentLink(input: {
     input.redirectPath ?? "/checkout/success",
     getAppBaseUrl(input.request),
   );
+  const buyerPhoneNumber = normalizeSquareBuyerPhoneNumber(
+    input.buyerPhoneNumber,
+  );
   const prePopulatedData = {
     ...(input.buyerEmail ? { buyer_email: input.buyerEmail } : {}),
-    ...(input.buyerPhoneNumber
-      ? { buyer_phone_number: input.buyerPhoneNumber }
-      : {}),
+    ...(buyerPhoneNumber ? { buyer_phone_number: buyerPhoneNumber } : {}),
   };
 
   redirectUrl.searchParams.set("squareCheckoutId", input.checkoutId);
