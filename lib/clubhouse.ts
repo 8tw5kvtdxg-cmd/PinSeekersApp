@@ -63,7 +63,7 @@ export const clubhouseChallenges: ClubhouseChallenge[] = [
     type: "HOLE_IN_ONE",
     venue: "All partner locations",
     bayLabel: "Any active simulator bay",
-    entryFeeCents: 2000,
+    entryFeeCents: 10,
     status: "Ready",
     startsAt: "May 22, 2026, 10:00 AM",
     endsAt: "May 24, 2026, 8:00 PM",
