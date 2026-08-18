@@ -37,18 +37,25 @@ export async function POST(request: Request) {
 
   const body = (await request.json()) as {
     username?: unknown;
+    name?: unknown;
     email?: unknown;
+    phone?: unknown;
     password?: unknown;
   };
   const username =
     typeof body.username === "string" ? normalizeUsername(body.username) : "";
+  const name = typeof body.name === "string" ? body.name.trim() : "";
   const email =
     typeof body.email === "string" ? normalizeEmail(body.email) : "";
+  const phone = typeof body.phone === "string" ? body.phone.trim() : "";
   const password = typeof body.password === "string" ? body.password : "";
 
-  if (!username || !email || password.length < 8) {
+  if (!username || !name || !email || !phone || password.length < 8) {
     return Response.json(
-      { error: "Username, email, and an 8+ character password are required." },
+      {
+        error:
+          "Name, phone, username, email, and an 8+ character password are required.",
+      },
       { status: 400 },
     );
   }
@@ -85,9 +92,10 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.create({
       data: {
-        name: username,
+        name,
         username,
         email,
+        phone,
         passwordHash: hashPassword(password),
       },
       select: {
@@ -96,6 +104,7 @@ export async function POST(request: Request) {
         username: true,
         email: true,
         phone: true,
+        simulatorDisplayName: true,
         emailVerifiedAt: true,
       },
     });

@@ -81,6 +81,7 @@ model User {
   username        String    @unique
   email           String    @unique
   phone           String?
+  simulatorDisplayName String?
   passwordHash    String
   emailVerifiedAt DateTime?
   createdAt       DateTime  @default(now())

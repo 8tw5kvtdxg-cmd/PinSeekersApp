@@ -37,6 +37,7 @@ type PlayerAccount = {
   username: string;
   email: string;
   phone: string;
+  simulatorDisplayName: string;
   emailVerified: boolean;
 };
 
@@ -119,6 +120,8 @@ export function EntryFlow({
   const [playerAccount, setPlayerAccount] = useState<PlayerAccount | null>(null);
   const [accountMode, setAccountMode] = useState<"create" | "login">("create");
   const [username, setUsername] = useState("");
+  const [signupName, setSignupName] = useState("");
+  const [signupPhone, setSignupPhone] = useState("");
   const [emailOrLogin, setEmailOrLogin] = useState("");
   const [password, setPassword] = useState("");
   const [accountError, setAccountError] = useState("");
@@ -145,6 +148,9 @@ export function EntryFlow({
           setPlayerAccount(data.user);
           setPlayerName((current) => current || data.user?.name || "");
           setPhoneNumber((current) => current || data.user?.phone || "");
+          setE6DisplayName(
+            (current) => current || data.user?.simulatorDisplayName || "",
+          );
         }
       } catch {
         setPlayerAccount(null);
@@ -217,11 +223,12 @@ export function EntryFlow({
     if (
       !trimmedEmailOrLogin ||
       !password.trim() ||
-      (accountMode === "create" && !trimmedUsername)
+      (accountMode === "create" &&
+        (!trimmedUsername || !signupName.trim() || !signupPhone.trim()))
     ) {
       setAccountError(
         accountMode === "create"
-          ? "Username, email, and password are required."
+          ? "Name, phone, username, email, and password are required."
           : "Email/username and password are required.",
       );
       return;
@@ -241,7 +248,9 @@ export function EntryFlow({
             accountMode === "create"
               ? {
                   username: trimmedUsername,
+                  name: signupName.trim(),
                   email: trimmedEmailOrLogin,
+                  phone: signupPhone.trim(),
                   password,
                 }
               : {
@@ -264,6 +273,13 @@ export function EntryFlow({
       setPlayerAccount(data.user);
       setPlayerName((current) => current || data.user?.name || "");
       setPhoneNumber((current) => current || data.user?.phone || "");
+      setE6DisplayName(
+        (current) => current || data.user?.simulatorDisplayName || "",
+      );
+      if (accountMode === "create") {
+        setSignupName("");
+        setSignupPhone("");
+      }
       setPassword("");
       setAccountNotice(
         data.warning
@@ -322,7 +338,7 @@ export function EntryFlow({
     playerName.trim() && phoneNumber.trim() && e6DisplayName.trim(),
   );
 
-  function savePlayerInfo(nextEntryId = entryId) {
+  async function savePlayerInfo(nextEntryId = entryId) {
     const trimmedPlayerName = playerName.trim();
     const trimmedPhoneNumber = phoneNumber.trim();
     const trimmedE6DisplayName = e6DisplayName.trim();
@@ -332,7 +348,7 @@ export function EntryFlow({
       setPaymentError(
         "Enter your name, phone number, and simulator account name before continuing.",
       );
-      return;
+      return false;
     }
 
     window.localStorage.setItem(
@@ -357,6 +373,39 @@ export function EntryFlow({
     }
 
     setAccountReady(true);
+
+    if (playerAccount) {
+      try {
+        const response = await fetch("/api/account/profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: trimmedPlayerName,
+            phone: trimmedPhoneNumber,
+            simulatorDisplayName: trimmedE6DisplayName,
+          }),
+        });
+        const data = (await response.json()) as {
+          user?: PlayerAccount;
+          error?: string;
+        };
+
+        if (!response.ok || !data.user) {
+          throw new Error(data.error ?? "Could not save profile.");
+        }
+
+        setPlayerAccount(data.user);
+        setPaymentNotice("Player profile saved for faster future entries.");
+      } catch (error) {
+        setPaymentError(
+          error instanceof Error
+            ? error.message
+            : "Could not save player profile.",
+        );
+
+        return false;
+      }
+    }
 
     return true;
   }
@@ -400,7 +449,7 @@ export function EntryFlow({
   }
 
   async function startSquareCheckout() {
-    const wasSaved = savePlayerInfo();
+    const wasSaved = await savePlayerInfo();
 
     if (!wasSaved) {
       return;
@@ -609,13 +658,30 @@ export function EntryFlow({
 
                 <div className="mt-4 grid gap-3">
                   {accountMode === "create" ? (
-                    <input
-                      className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
-                      placeholder="Username"
-                      value={username}
-                      onChange={(event) => setUsername(event.target.value)}
-                      aria-label="Username"
-                    />
+                    <>
+                      <input
+                        className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
+                        placeholder="Full name"
+                        value={signupName}
+                        onChange={(event) => setSignupName(event.target.value)}
+                        aria-label="Full name"
+                      />
+                      <input
+                        className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
+                        inputMode="tel"
+                        placeholder="Phone number"
+                        value={signupPhone}
+                        onChange={(event) => setSignupPhone(event.target.value)}
+                        aria-label="Phone number"
+                      />
+                      <input
+                        className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
+                        placeholder="Username"
+                        value={username}
+                        onChange={(event) => setUsername(event.target.value)}
+                        aria-label="Username"
+                      />
+                    </>
                   ) : null}
                   <input
                     className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
@@ -748,7 +814,9 @@ export function EntryFlow({
             <button
               className="mt-4 inline-flex h-10 items-center justify-center rounded-md bg-[#18211f] px-4 text-sm font-black text-white transition hover:bg-[#2a3935]"
               type="button"
-              onClick={() => savePlayerInfo()}
+              onClick={() => {
+                void savePlayerInfo();
+              }}
             >
               Save player info
             </button>

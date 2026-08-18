@@ -57,6 +57,7 @@ export async function POST(request: Request) {
         username: true,
         email: true,
         phone: true,
+        simulatorDisplayName: true,
         emailVerifiedAt: true,
       },
     });

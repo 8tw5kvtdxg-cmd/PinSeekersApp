@@ -113,6 +113,7 @@ export async function getCurrentPlayer() {
       username: true,
       email: true,
       phone: true,
+      simulatorDisplayName: true,
       emailVerifiedAt: true,
       createdAt: true,
     },
@@ -147,6 +148,7 @@ export function publicPlayer(user: {
   username: string;
   email: string;
   phone: string | null;
+  simulatorDisplayName?: string | null;
   emailVerifiedAt?: Date | null;
 }) {
   return {
@@ -155,6 +157,7 @@ export function publicPlayer(user: {
     username: user.username,
     email: user.email,
     phone: user.phone ?? "",
+    simulatorDisplayName: user.simulatorDisplayName ?? "",
     emailVerified: Boolean(user.emailVerifiedAt),
   };
 }

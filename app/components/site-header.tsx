@@ -113,9 +113,27 @@ export function SiteHeader() {
 
   async function logout() {
     await fetch("/api/account/logout", { method: "POST" });
+
+    if (pathname.startsWith("/play/") && typeof window !== "undefined") {
+      for (let index = window.localStorage.length - 1; index >= 0; index -= 1) {
+        const key = window.localStorage.key(index);
+
+        if (
+          key?.startsWith("pin2win-entry-draft-") ||
+          key?.startsWith("pin2win-entry-")
+        ) {
+          window.localStorage.removeItem(key);
+        }
+      }
+    }
+
     setPlayerAccount(null);
     setIsProfileOpen(false);
     setIsOpen(false);
+
+    if (pathname.startsWith("/play/") && typeof window !== "undefined") {
+      window.location.href = "/";
+    }
   }
 
   function closeMenus() {

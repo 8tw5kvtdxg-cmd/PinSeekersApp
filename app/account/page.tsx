@@ -49,6 +49,7 @@ type PlayerAccount = {
   username: string;
   email: string;
   phone: string;
+  simulatorDisplayName: string;
   emailVerified: boolean;
 };
 
@@ -83,6 +84,8 @@ export default function AccountPage() {
     "dashboard",
   );
   const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [emailOrLogin, setEmailOrLogin] = useState("");
   const [password, setPassword] = useState("");
   const [playerAccount, setPlayerAccount] = useState<PlayerAccount | null>(null);
@@ -138,11 +141,11 @@ export default function AccountPage() {
     if (
       !trimmedEmailOrLogin ||
       !password.trim() ||
-      (mode === "create" && !trimmedUsername)
+      (mode === "create" && (!trimmedUsername || !fullName.trim() || !phone.trim()))
     ) {
       setAccountError(
         mode === "create"
-          ? "Username, email, and password are required."
+          ? "Name, phone, username, email, and password are required."
           : "Email/username and password are required.",
       );
       return;
@@ -161,7 +164,9 @@ export default function AccountPage() {
             mode === "create"
               ? {
                   username: trimmedUsername,
+                  name: fullName.trim(),
                   email: trimmedEmailOrLogin,
+                  phone: phone.trim(),
                   password,
                 }
               : {
@@ -342,15 +347,36 @@ export default function AccountPage() {
               </div>
 
               {mode === "create" ? (
-                <label className="grid gap-2 text-sm font-bold text-[#53605a]">
-                  Username
-                  <input
-                    className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-                    placeholder="jordan-smith"
-                    value={username}
-                    onChange={(event) => setUsername(event.target.value)}
-                  />
-                </label>
+                <>
+                  <label className="grid gap-2 text-sm font-bold text-[#53605a]">
+                    Full name
+                    <input
+                      className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
+                      placeholder="Jordan Smith"
+                      value={fullName}
+                      onChange={(event) => setFullName(event.target.value)}
+                    />
+                  </label>
+                  <label className="grid gap-2 text-sm font-bold text-[#53605a]">
+                    Phone
+                    <input
+                      className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
+                      inputMode="tel"
+                      placeholder="210-555-0123"
+                      value={phone}
+                      onChange={(event) => setPhone(event.target.value)}
+                    />
+                  </label>
+                  <label className="grid gap-2 text-sm font-bold text-[#53605a]">
+                    Username
+                    <input
+                      className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
+                      placeholder="jordan-smith"
+                      value={username}
+                      onChange={(event) => setUsername(event.target.value)}
+                    />
+                  </label>
+                </>
               ) : null}
 
               <label className="grid gap-2 text-sm font-bold text-[#53605a]">
@@ -623,6 +649,7 @@ export default function AccountPage() {
                 ["Username", playerAccount?.username ?? ""],
                 ["Email", playerAccount?.email ?? ""],
                 ["Phone", playerAccount?.phone ?? ""],
+                ["Simulator display name", playerAccount?.simulatorDisplayName ?? ""],
               ].map(([label, value]) => (
                 <label
                   key={label}
