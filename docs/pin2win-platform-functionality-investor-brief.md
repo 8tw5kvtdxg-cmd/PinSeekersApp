@@ -110,7 +110,6 @@ The QR landing page currently focuses on:
 
 - Hole-In-One Challenge
 - $20 entry
-- Chance to win $10,000
 - Customer registration
 - Booking/payment verification
 - Event-code reveal after the entry is approved

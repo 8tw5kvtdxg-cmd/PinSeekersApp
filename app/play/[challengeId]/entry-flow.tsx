@@ -16,7 +16,6 @@ import {
   MailCheck,
   MailWarning,
   ShieldCheck,
-  Trophy,
   UserPlus,
   UserRound,
 } from "lucide-react";
@@ -518,22 +517,19 @@ export function EntryFlow({
           {challenge.name}
         </h1>
         <p className="mt-5 text-lg leading-8 text-[#53605a]">
-          Enter for $20 and take your shot at winning $10,000 with a verified
-          hole-in-one. Use this page while onsite during your reserved simulator
-          bay time, then create or load your Pin2Win account to continue.
+          Enter the Hole-In-One Challenge for $20 while onsite during your
+          reserved simulator bay time, then create or load your Pin2Win account
+          to continue.
         </p>
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        <div className="mt-6 max-w-sm">
           <div className="rounded-lg bg-[#18211f] p-4 text-white">
             <div className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-[#a8c878]">
               <DollarSign size={17} /> Entry
             </div>
             <p className="mt-2 text-3xl font-black">$20</p>
-          </div>
-          <div className="rounded-lg bg-[#2f6b3f] p-4 text-white">
-            <div className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-[#d9f2a4]">
-              <Trophy size={17} /> Prize opportunity
-            </div>
-            <p className="mt-2 text-3xl font-black">$10,000</p>
+            <p className="mt-2 text-sm font-bold text-white/72">
+              Hole-In-One Challenge entry fee
+            </p>
           </div>
         </div>
         <a
