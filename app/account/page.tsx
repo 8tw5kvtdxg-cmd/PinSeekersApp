@@ -10,6 +10,7 @@ import {
   ClipboardCheck,
   Flag,
   Gauge,
+  KeyRound,
   Lock,
   LogOut,
   QrCode,
@@ -173,6 +174,7 @@ export default function AccountPage() {
       const data = (await response.json()) as {
         user?: PlayerAccount;
         error?: string;
+        warning?: string;
       };
 
       if (!response.ok || !data.user) {
@@ -182,7 +184,9 @@ export default function AccountPage() {
       setPlayerAccount(data.user);
       setIsLoggedIn(true);
       setAccountNotice(
-        mode === "create"
+        data.warning
+          ? data.warning
+          : mode === "create"
           ? "Account created. Check your email to verify before entering a challenge."
           : "",
       );
@@ -370,6 +374,14 @@ export default function AccountPage() {
                   onChange={(event) => setPassword(event.target.value)}
                 />
               </label>
+              {mode === "login" ? (
+                <Link
+                  href="/account/recovery"
+                  className="inline-flex items-center gap-2 text-sm font-black text-[#2f6b3f]"
+                >
+                  <KeyRound size={16} /> Forgot password/username?
+                </Link>
+              ) : null}
 
               <button
                 className="mt-2 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#18211f] px-6 text-sm font-black text-white transition hover:bg-[#2a3935]"

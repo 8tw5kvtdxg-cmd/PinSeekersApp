@@ -253,6 +253,7 @@ export function EntryFlow({
       const data = (await response.json()) as {
         user?: PlayerAccount;
         error?: string;
+        warning?: string;
       };
 
       if (!response.ok || !data.user) {
@@ -264,7 +265,9 @@ export function EntryFlow({
       setPhoneNumber((current) => current || data.user?.phone || "");
       setPassword("");
       setAccountNotice(
-        accountMode === "create"
+        data.warning
+          ? data.warning
+          : accountMode === "create"
           ? "Account created. Check your email to verify before continuing."
           : data.user.emailVerified
           ? "Logged in. You can continue this entry."
@@ -750,6 +753,14 @@ export function EntryFlow({
                       ? "Create and send email"
                       : "Login"}
                   </button>
+                  {accountMode === "login" ? (
+                    <Link
+                      href="/account/recovery"
+                      className="inline-flex items-center gap-2 text-sm font-black text-[#2f6b3f]"
+                    >
+                      <KeyRound size={16} /> Forgot password/username?
+                    </Link>
+                  ) : null}
                 </div>
               </div>
             )}

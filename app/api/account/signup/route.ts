@@ -16,6 +16,15 @@ import {
 
 export const dynamic = "force-dynamic";
 
+function isPrismaUniqueConstraintError(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: unknown }).code === "P2002"
+  );
+}
+
 export async function POST(request: Request) {
   const prisma = getPrismaClient();
 
@@ -51,6 +60,29 @@ export async function POST(request: Request) {
       return Response.json({ error: emailValidationError }, { status: 400 });
     }
 
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ email }, { username }],
+      },
+      select: {
+        email: true,
+        username: true,
+      },
+    });
+
+    if (existingUser) {
+      const isEmailMatch = existingUser.email === email;
+
+      return Response.json(
+        {
+          error: isEmailMatch
+            ? "An account with that email already exists."
+            : "That username is already taken.",
+        },
+        { status: 409 },
+      );
+    }
+
     const user = await prisma.user.create({
       data: {
         name: username,
@@ -71,13 +103,22 @@ export async function POST(request: Request) {
       userId: user.id,
       email: user.email,
     });
+    let verificationSent = true;
+    let verificationWarning = "";
 
-    await sendEmailVerification({
-      email: user.email,
-      username: user.username,
-      token,
-      request,
-    });
+    try {
+      await sendEmailVerification({
+        email: user.email,
+        username: user.username,
+        token,
+        request,
+      });
+    } catch (emailError) {
+      console.error("Could not send signup verification email.", emailError);
+      verificationSent = false;
+      verificationWarning =
+        "Account created, but the verification email could not be sent. Use resend verification from your account page.";
+    }
 
     const cookieStore = await cookies();
 
@@ -92,16 +133,21 @@ export async function POST(request: Request) {
     });
 
     return Response.json(
-      { user: publicPlayer(user), verificationSent: true },
+      {
+        user: publicPlayer(user),
+        verificationSent,
+        warning: verificationWarning || undefined,
+      },
       { status: 201 },
     );
   } catch (error) {
+    console.error("Could not create account.", error);
+
     return Response.json(
       {
-        error:
-          error instanceof Error && error.message.includes("Unique constraint")
-            ? "An account with that email or username already exists."
-            : "Could not create account.",
+        error: isPrismaUniqueConstraintError(error)
+          ? "An account with that email or username already exists."
+          : "Could not create account.",
       },
       { status: 400 },
     );
