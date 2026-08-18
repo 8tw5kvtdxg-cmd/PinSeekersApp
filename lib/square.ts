@@ -36,6 +36,12 @@ function getSquareVersion() {
   return process.env.SQUARE_VERSION?.trim() || "2026-07-15";
 }
 
+function getSquareEnvironmentLabel() {
+  return process.env.SQUARE_ENVIRONMENT === "production"
+    ? "production"
+    : "sandbox";
+}
+
 function getAppBaseUrl(request: Request) {
   const configuredUrl =
     process.env.PIN2WIN_APP_URL ??
@@ -106,6 +112,28 @@ export async function createSquarePaymentLink(input: {
   >;
 
   if (!response.ok) {
+    const isUnauthorized =
+      response.status === 401 ||
+      (Array.isArray(data.errors) &&
+        data.errors.some((error) => {
+          if (!error || typeof error !== "object") {
+            return false;
+          }
+
+          const squareError = error as Record<string, unknown>;
+
+          return (
+            getString(squareError, "category") === "AUTHENTICATION_ERROR" ||
+            getString(squareError, "code") === "UNAUTHORIZED"
+          );
+        }));
+
+    if (isUnauthorized) {
+      throw new Error(
+        `Square could not authorize the checkout request. Check that SQUARE_ENVIRONMENT is ${getSquareEnvironmentLabel()} and that SQUARE_ACCESS_TOKEN and SQUARE_LOCATION_ID are from the same Square ${getSquareEnvironmentLabel()} account.`,
+      );
+    }
+
     const errors = Array.isArray(data.errors)
       ? data.errors
           .map((error) =>
