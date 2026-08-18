@@ -270,13 +270,14 @@ export default function AccountPage() {
             <div className="mt-10 max-w-2xl">
               <UserPlus className="text-[#2f6b3f]" size={36} />
               <h1 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">
-                Create your player account.
+                {mode === "create"
+                  ? "Create your player account."
+                  : "Login to your player account."}
               </h1>
               <p className="mt-5 text-lg leading-8 text-[#53605a]">
-                Save your shot history, follow your live challenge rank, and
-                keep your player details ready for the next entry. Repeat
-                players also unlock rewards program benefits, including faster
-                entry, member-only offers, and perks for playing more challenges.
+                {mode === "create"
+                  ? "Save your shot history, follow your live challenge rank, and keep your player details ready for the next entry. Repeat players also unlock rewards program benefits, including faster entry, member-only offers, and perks for playing more challenges."
+                  : "Access your player dashboard, manage your account, and keep your details ready for your next Pin2Win challenge entry."}
               </p>
             </div>
 
