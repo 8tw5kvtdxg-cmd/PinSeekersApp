@@ -185,6 +185,78 @@ model BookingVerification {
   @@index([createdAt])
 }
 
+model SquareCheckout {
+  id                      String   @id
+  playerEmail             String
+  challengeSlug           String
+  playerName              String
+  phoneNumber             String
+  e6DisplayName           String
+  locationSlug            String?
+  locationName            String?
+  bayName                 String?
+  amountCents             Int
+  status                  String
+  squareOrderId           String   @unique
+  squarePaymentLinkId     String?
+  squarePaymentLinkUrl    String
+  squarePaymentId         String?
+  entryId                 String?
+  confirmationEmailSentAt String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@index([playerEmail, createdAt])
+  @@index([status, createdAt])
+}
+
+model ClubhouseEntryRecord {
+  id                            String   @id
+  challengeSlug                 String
+  playerName                    String
+  playerEmail                   String?
+  phoneNumber                   String?
+  e6DisplayName                 String
+  paymentStatus                 String
+  paidAt                        String
+  validFrom                     String
+  validUntil                    String
+  attemptLimit                  Int
+  resultStatus                  String
+  result                        String?
+  resultValue                   Float?
+  resultUnit                    String?
+  evidence                      String?
+  e6EventCode                   String
+  stripeCheckoutSessionId       String?  @unique
+  payarcCheckoutId              String?  @unique
+  payarcOrderId                 String?
+  squareCheckoutId              String?  @unique
+  squareOrderId                 String?
+  squarePaymentId               String?
+  venueBookingReference         String?
+  bookingVerificationId         String?
+  bookingVerificationStatus     String?
+  paymentMethod                 String
+  locationSlug                  String
+  locationName                  String
+  bayName                       String?
+  amountCents                   Int
+  adminConfirmedAt              String?
+  adminConfirmedBy              String?
+  entryDecisionStatus           String?
+  entryDecisionAt               String?
+  entryDecisionBy               String?
+  entryDecisionEmailSentAt      String?
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+
+  @@index([challengeSlug, createdAt])
+  @@index([locationSlug, createdAt])
+  @@index([paymentStatus, createdAt])
+  @@index([entryDecisionStatus, createdAt])
+}
+
 model Bay {
   id         String   @id @default(cuid())
   name       String

@@ -11,6 +11,7 @@ import {
   updateBookingVerificationStatus,
 } from "@/lib/booking-verification-store";
 import { slugifyLocation } from "@/lib/location-utils";
+import { getPrismaClient } from "@/lib/prisma";
 
 export type ClubhouseEntryRecord = ClubhouseEntry & {
   e6EventCode: string;
@@ -18,10 +19,13 @@ export type ClubhouseEntryRecord = ClubhouseEntry & {
   stripeCheckoutSessionId?: string;
   payarcCheckoutId?: string;
   payarcOrderId?: string;
+  squareCheckoutId?: string;
+  squareOrderId?: string;
+  squarePaymentId?: string;
   venueBookingReference?: string;
   bookingVerificationId?: string;
   bookingVerificationStatus?: "Pending Match" | "Auto Verified" | "Needs Review";
-  paymentMethod: "Stripe" | "Venue booking" | "Payarc";
+  paymentMethod: "Stripe" | "Venue booking" | "Payarc" | "Square";
   locationSlug: string;
   locationName: string;
   bayName?: string;
@@ -71,7 +75,103 @@ async function writeJson(filePath: string, data: unknown) {
   await writeFile(filePath, `${JSON.stringify(data, null, 2)}\n`);
 }
 
+function toClubhouseEntryRecord(entry: {
+  id: string;
+  challengeSlug: string;
+  playerName: string;
+  playerEmail: string | null;
+  phoneNumber: string | null;
+  e6DisplayName: string;
+  paymentStatus: string;
+  paidAt: string;
+  validFrom: string;
+  validUntil: string;
+  attemptLimit: number;
+  resultStatus: string;
+  result: string | null;
+  resultValue: number | null;
+  resultUnit: string | null;
+  evidence: string | null;
+  e6EventCode: string;
+  stripeCheckoutSessionId: string | null;
+  payarcCheckoutId: string | null;
+  payarcOrderId: string | null;
+  squareCheckoutId: string | null;
+  squareOrderId: string | null;
+  squarePaymentId: string | null;
+  venueBookingReference: string | null;
+  bookingVerificationId: string | null;
+  bookingVerificationStatus: string | null;
+  paymentMethod: string;
+  locationSlug: string;
+  locationName: string;
+  bayName: string | null;
+  amountCents: number;
+  adminConfirmedAt: string | null;
+  adminConfirmedBy: string | null;
+  entryDecisionStatus: string | null;
+  entryDecisionAt: string | null;
+  entryDecisionBy: string | null;
+  entryDecisionEmailSentAt: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}): ClubhouseEntryRecord {
+  return {
+    id: entry.id,
+    challengeSlug: entry.challengeSlug,
+    playerName: entry.playerName,
+    playerEmail: entry.playerEmail ?? undefined,
+    phoneNumber: entry.phoneNumber ?? undefined,
+    e6DisplayName: entry.e6DisplayName,
+    paymentStatus: entry.paymentStatus as ClubhouseEntryRecord["paymentStatus"],
+    paidAt: entry.paidAt,
+    validFrom: entry.validFrom,
+    validUntil: entry.validUntil,
+    attemptLimit: entry.attemptLimit,
+    resultStatus: entry.resultStatus as ClubhouseEntryRecord["resultStatus"],
+    result: entry.result ?? undefined,
+    resultValue: entry.resultValue ?? undefined,
+    resultUnit: entry.resultUnit as ClubhouseEntryRecord["resultUnit"],
+    evidence: entry.evidence ?? undefined,
+    e6EventCode: entry.e6EventCode,
+    stripeCheckoutSessionId: entry.stripeCheckoutSessionId ?? undefined,
+    payarcCheckoutId: entry.payarcCheckoutId ?? undefined,
+    payarcOrderId: entry.payarcOrderId ?? undefined,
+    squareCheckoutId: entry.squareCheckoutId ?? undefined,
+    squareOrderId: entry.squareOrderId ?? undefined,
+    squarePaymentId: entry.squarePaymentId ?? undefined,
+    venueBookingReference: entry.venueBookingReference ?? undefined,
+    bookingVerificationId: entry.bookingVerificationId ?? undefined,
+    bookingVerificationStatus:
+      entry.bookingVerificationStatus as ClubhouseEntryRecord["bookingVerificationStatus"],
+    paymentMethod: entry.paymentMethod as ClubhouseEntryRecord["paymentMethod"],
+    locationSlug: entry.locationSlug,
+    locationName: entry.locationName,
+    bayName: entry.bayName ?? undefined,
+    amountCents: entry.amountCents,
+    adminConfirmedAt: entry.adminConfirmedAt ?? undefined,
+    adminConfirmedBy: entry.adminConfirmedBy ?? undefined,
+    entryDecisionStatus:
+      entry.entryDecisionStatus as ClubhouseEntryRecord["entryDecisionStatus"],
+    entryDecisionAt: entry.entryDecisionAt ?? undefined,
+    entryDecisionBy: entry.entryDecisionBy ?? undefined,
+    entryDecisionEmailSentAt: entry.entryDecisionEmailSentAt ?? undefined,
+    createdAt: entry.createdAt.toISOString(),
+    updatedAt: entry.updatedAt.toISOString(),
+  };
+}
+
 export async function listClubhouseEntryRecords() {
+  const prisma = getPrismaClient();
+
+  if (prisma) {
+    const entries = await prisma.clubhouseEntryRecord.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+
+    return entries.map(toClubhouseEntryRecord);
+  }
+
   const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
     entriesPath,
   );
@@ -142,6 +242,16 @@ export async function listClubhouseEntryRecordsForLocation(locationSlug: string)
 }
 
 export async function getClubhouseEntryRecord(entryId: string) {
+  const prisma = getPrismaClient();
+
+  if (prisma) {
+    const entry = await prisma.clubhouseEntryRecord.findUnique({
+      where: { id: entryId },
+    });
+
+    return entry ? toClubhouseEntryRecord(entry) : null;
+  }
+
   const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
     entriesPath,
   );
@@ -157,15 +267,6 @@ export async function updateClubhouseEntryResult(input: {
   resultStatus: ClubhouseEntryRecord["resultStatus"];
   evidence?: string;
 }) {
-  const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
-    entriesPath,
-  );
-  const entry = entries[input.entryId];
-
-  if (!entry) {
-    throw new Error("Entry not found.");
-  }
-
   const result = input.result.trim();
 
   if (!result) {
@@ -174,6 +275,41 @@ export async function updateClubhouseEntryResult(input: {
 
   if (!Number.isFinite(input.resultValue) || input.resultValue < 0) {
     throw new Error("Result sort value must be a positive number.");
+  }
+
+  const prisma = getPrismaClient();
+
+  if (prisma) {
+    const existing = await prisma.clubhouseEntryRecord.findUnique({
+      where: { id: input.entryId },
+    });
+
+    if (!existing) {
+      throw new Error("Entry not found.");
+    }
+
+    const updated = await prisma.clubhouseEntryRecord.update({
+      data: {
+        evidence: input.evidence?.trim() || null,
+        result,
+        resultStatus: input.resultStatus,
+        resultUnit: input.resultUnit,
+        resultValue: input.resultValue,
+        updatedAt: new Date(),
+      },
+      where: { id: input.entryId },
+    });
+
+    return toClubhouseEntryRecord(updated);
+  }
+
+  const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
+    entriesPath,
+  );
+  const entry = entries[input.entryId];
+
+  if (!entry) {
+    throw new Error("Entry not found.");
   }
 
   const updatedEntry: ClubhouseEntryRecord = {
@@ -208,6 +344,37 @@ export async function decideClubhouseEntryRecord(input: {
   decisionStatus: "Confirmed" | "Denied";
   decidedBy?: string;
 }) {
+  const prisma = getPrismaClient();
+
+  if (prisma) {
+    const entry = await prisma.clubhouseEntryRecord.findUnique({
+      where: { id: input.entryId },
+    });
+
+    if (!entry) {
+      throw new Error("Entry not found.");
+    }
+
+    const now = new Date();
+    const decidedBy = input.decidedBy?.trim() || "Admin";
+    const updated = await prisma.clubhouseEntryRecord.update({
+      data: {
+        adminConfirmedAt:
+          input.decisionStatus === "Confirmed" ? formatDisplayDate(now) : null,
+        adminConfirmedBy:
+          input.decisionStatus === "Confirmed" ? decidedBy : null,
+        entryDecisionAt: formatDisplayDate(now),
+        entryDecisionBy: decidedBy,
+        entryDecisionEmailSentAt: null,
+        entryDecisionStatus: input.decisionStatus,
+        updatedAt: now,
+      },
+      where: { id: input.entryId },
+    });
+
+    return toClubhouseEntryRecord(updated);
+  }
+
   const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
     entriesPath,
   );
@@ -238,6 +405,20 @@ export async function decideClubhouseEntryRecord(input: {
 }
 
 export async function markClubhouseEntryDecisionEmailSent(entryId: string) {
+  const prisma = getPrismaClient();
+
+  if (prisma) {
+    const updated = await prisma.clubhouseEntryRecord.update({
+      data: {
+        entryDecisionEmailSentAt: formatDisplayDate(new Date()),
+        updatedAt: new Date(),
+      },
+      where: { id: entryId },
+    });
+
+    return toClubhouseEntryRecord(updated);
+  }
+
   const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
     entriesPath,
   );
@@ -261,6 +442,20 @@ export async function markClubhouseEntryDecisionEmailSent(entryId: string) {
 }
 
 export async function deleteClubhouseEntryRecord(entryId: string) {
+  const prisma = getPrismaClient();
+
+  if (prisma) {
+    try {
+      await prisma.clubhouseEntryRecord.delete({
+        where: { id: entryId },
+      });
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
     entriesPath,
   );
@@ -312,6 +507,16 @@ export async function getClubhouseLeaderboardRows(challengeSlug: string) {
 export async function getClubhouseEntryRecordByStripeSessionId(
   stripeCheckoutSessionId: string,
 ) {
+  const prisma = getPrismaClient();
+
+  if (prisma) {
+    const entry = await prisma.clubhouseEntryRecord.findUnique({
+      where: { stripeCheckoutSessionId },
+    });
+
+    return entry ? toClubhouseEntryRecord(entry) : null;
+  }
+
   const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
     entriesPath,
   );
@@ -326,6 +531,16 @@ export async function getClubhouseEntryRecordByStripeSessionId(
 export async function getClubhouseEntryRecordByPayarcCheckoutId(
   payarcCheckoutId: string,
 ) {
+  const prisma = getPrismaClient();
+
+  if (prisma) {
+    const entry = await prisma.clubhouseEntryRecord.findUnique({
+      where: { payarcCheckoutId },
+    });
+
+    return entry ? toClubhouseEntryRecord(entry) : null;
+  }
+
   const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
     entriesPath,
   );
@@ -355,7 +570,31 @@ function formatDisplayDate(date: Date) {
   }).format(date);
 }
 
-function nextEntryId(entries: ClubhouseEntryRecord[], now: Date) {
+export async function getClubhouseEntryRecordBySquareCheckoutId(
+  squareCheckoutId: string,
+) {
+  const prisma = getPrismaClient();
+
+  if (prisma) {
+    const entry = await prisma.clubhouseEntryRecord.findUnique({
+      where: { squareCheckoutId },
+    });
+
+    return entry ? toClubhouseEntryRecord(entry) : null;
+  }
+
+  const entries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
+    entriesPath,
+  );
+
+  return (
+    Object.values(entries).find(
+      (entry) => entry.squareCheckoutId === squareCheckoutId,
+    ) ?? null
+  );
+}
+
+function nextEntryId(entries: Array<{ id: string }>, now: Date) {
   const dateKey = formatEntryDate(now);
   const currentMax = entries.reduce((max, entry) => {
     const prefix = `P2W-ENTRY-${dateKey}-`;
@@ -381,6 +620,9 @@ export async function createClubhouseEntryRecord(input: {
   stripeCheckoutSessionId?: string;
   payarcCheckoutId?: string;
   payarcOrderId?: string;
+  squareCheckoutId?: string;
+  squareOrderId?: string;
+  squarePaymentId?: string;
   venueBookingReference?: string;
   bookingVerificationId?: string;
   locationSlug?: string;
@@ -428,9 +670,14 @@ export async function createClubhouseEntryRecord(input: {
     throw new Error("This booking is no longer available for entry.");
   }
 
-  const existing = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
-    entriesPath,
-  );
+  const prisma = getPrismaClient();
+  const existing = prisma
+    ? await prisma.clubhouseEntryRecord.findMany({
+        select: { id: true, payarcCheckoutId: true, squareCheckoutId: true, stripeCheckoutSessionId: true },
+      })
+    : Object.values(
+        await readJsonObject<Record<string, ClubhouseEntryRecord>>(entriesPath),
+      );
 
   if (input.stripeCheckoutSessionId) {
     const existingStripeEntry = Object.values(existing).find(
@@ -439,7 +686,7 @@ export async function createClubhouseEntryRecord(input: {
     );
 
     if (existingStripeEntry) {
-      return existingStripeEntry;
+      return (await getClubhouseEntryRecord(existingStripeEntry.id)) ?? existingStripeEntry;
     }
   }
 
@@ -449,7 +696,17 @@ export async function createClubhouseEntryRecord(input: {
     );
 
     if (existingPayarcEntry) {
-      return existingPayarcEntry;
+      return (await getClubhouseEntryRecord(existingPayarcEntry.id)) ?? existingPayarcEntry;
+    }
+  }
+
+  if (input.squareCheckoutId) {
+    const existingSquareEntry = Object.values(existing).find(
+      (entry) => entry.squareCheckoutId === input.squareCheckoutId,
+    );
+
+    if (existingSquareEntry) {
+      return (await getClubhouseEntryRecord(existingSquareEntry.id)) ?? existingSquareEntry;
     }
   }
 
@@ -476,10 +733,15 @@ export async function createClubhouseEntryRecord(input: {
     stripeCheckoutSessionId: input.stripeCheckoutSessionId,
     payarcCheckoutId: input.payarcCheckoutId,
     payarcOrderId: input.payarcOrderId,
+    squareCheckoutId: input.squareCheckoutId,
+    squareOrderId: input.squareOrderId,
+    squarePaymentId: input.squarePaymentId,
     venueBookingReference: input.venueBookingReference?.trim() || undefined,
     bookingVerificationId: bookingVerification?.id,
     bookingVerificationStatus: bookingVerification ? "Auto Verified" : "Needs Review",
-    paymentMethod: input.payarcCheckoutId
+    paymentMethod: input.squareCheckoutId
+      ? "Square"
+      : input.payarcCheckoutId
       ? "Payarc"
       : input.stripeCheckoutSessionId
       ? "Stripe"
@@ -492,8 +754,32 @@ export async function createClubhouseEntryRecord(input: {
     updatedAt: timestamp,
   };
 
-  existing[entryId] = entry;
-  await writeJson(entriesPath, existing);
+  if (prisma) {
+    const created = await prisma.clubhouseEntryRecord.create({
+      data: {
+        ...entry,
+        createdAt: now,
+        updatedAt: now,
+      },
+    });
+
+    if (bookingVerification) {
+      await updateBookingVerificationStatus({
+        bookingId: bookingVerification.id,
+        status: "Used",
+        matchedEntryId: entryId,
+      });
+    }
+
+    return toClubhouseEntryRecord(created);
+  }
+
+  const jsonEntries = await readJsonObject<Record<string, ClubhouseEntryRecord>>(
+    entriesPath,
+  );
+
+  jsonEntries[entryId] = entry;
+  await writeJson(entriesPath, jsonEntries);
 
   if (bookingVerification) {
     await updateBookingVerificationStatus({

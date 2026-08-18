@@ -56,36 +56,12 @@ type BookingMatch = {
   status: string;
 };
 
-type PayarcCheckout = {
+type SquareCheckout = {
   id: string;
   amountCents: number;
-  payarcOrderId: string;
-  payarcOrderToken: string;
   paymentFormUrl: string;
-  checkoutScriptUrl: string;
+  squareOrderId: string;
 };
-
-type PayArcModal = {
-  renderModal: () => void;
-  closeModal?: () => void;
-  on: (
-    eventName: "paymentCompleted" | "paymentDeclined",
-    callback: () => void,
-  ) => void;
-};
-
-type PayArcConstructor = new (config: {
-  amount: number;
-  orderId: string;
-  orderToken: string;
-  viewScheme?: "light" | "dark";
-}) => PayArcModal;
-
-declare global {
-  interface Window {
-    PayArc?: PayArcConstructor;
-  }
-}
 
 function readEntryDraft(storageKey: string): EntryDraft {
   if (typeof window === "undefined") {
@@ -165,7 +141,7 @@ export function EntryFlow({
   const [isSubmittingAccount, setIsSubmittingAccount] = useState(false);
   const [isResendingVerification, setIsResendingVerification] = useState(false);
   const [isCreatingEntry, setIsCreatingEntry] = useState(false);
-  const [isStartingPayarcCheckout, setIsStartingPayarcCheckout] =
+  const [isStartingSquareCheckout, setIsStartingSquareCheckout] =
     useState(false);
 
   useEffect(() => {
@@ -420,64 +396,7 @@ export function EntryFlow({
     }, 50);
   }
 
-  async function loadPayarcScript(scriptUrl: string) {
-    if (window.PayArc) {
-      return;
-    }
-
-    await new Promise<void>((resolve, reject) => {
-      const existingScript = document.querySelector<HTMLScriptElement>(
-        `script[src="${scriptUrl}"]`,
-      );
-
-      if (existingScript) {
-        existingScript.addEventListener("load", () => resolve(), {
-          once: true,
-        });
-        existingScript.addEventListener(
-          "error",
-          () => reject(new Error("Payarc checkout could not be loaded.")),
-          { once: true },
-        );
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.src = scriptUrl;
-      script.async = true;
-      script.onload = () => resolve();
-      script.onerror = () =>
-        reject(new Error("Payarc checkout could not be loaded."));
-      document.body.appendChild(script);
-    });
-  }
-
-  async function completePayarcCheckout(checkoutId: string) {
-    const response = await fetch("/api/payarc/checkout/complete", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ checkoutId }),
-    });
-    const data = (await response.json()) as {
-      entry?: {
-        id: string;
-        challengeSlug: string;
-        playerName: string;
-        phoneNumber?: string;
-        e6DisplayName: string;
-        e6EventCode: string;
-      };
-      error?: string;
-    };
-
-    if (!response.ok || !data.entry) {
-      throw new Error(data.error ?? "Could not confirm Payarc checkout.");
-    }
-
-    revealEntryCode(data.entry);
-  }
-
-  async function startPayarcCheckout() {
+  async function startSquareCheckout() {
     const wasSaved = savePlayerInfo();
 
     if (!wasSaved) {
@@ -489,12 +408,12 @@ export function EntryFlow({
       return;
     }
 
-    setIsStartingPayarcCheckout(true);
+    setIsStartingSquareCheckout(true);
     setPaymentError("");
     setPaymentNotice("");
 
     try {
-      const response = await fetch("/api/payarc/checkout", {
+      const response = await fetch("/api/square/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -507,53 +426,22 @@ export function EntryFlow({
         }),
       });
       const data = (await response.json()) as {
-        checkout?: PayarcCheckout;
+        checkout?: SquareCheckout;
         error?: string;
       };
 
       if (!response.ok || !data.checkout) {
-        throw new Error(data.error ?? "Could not start Payarc checkout.");
+        throw new Error(data.error ?? "Could not start Square checkout.");
       }
 
       const checkout = data.checkout;
-
-      await loadPayarcScript(checkout.checkoutScriptUrl);
-
-      if (!window.PayArc) {
-        window.open(checkout.paymentFormUrl, "_blank", "noopener");
-        setPaymentNotice(
-          "Payarc opened in a new tab. Return here after payment if the event code does not appear automatically.",
-        );
-        return;
-      }
-
-      const payarc = new window.PayArc({
-        amount: checkout.amountCents,
-        orderId: checkout.payarcOrderId,
-        orderToken: checkout.payarcOrderToken,
-        viewScheme: "light",
-      });
-
-      payarc.on("paymentCompleted", () => {
-        setPaymentNotice("Payment received. Preparing your event code...");
-        void completePayarcCheckout(checkout.id).catch((caughtError) => {
-          setPaymentError(
-            caughtError instanceof Error
-              ? caughtError.message
-              : "Could not confirm Payarc checkout.",
-          );
-        });
-      });
-      payarc.on("paymentDeclined", () => {
-        setPaymentError("Payment was declined. Please try another card.");
-      });
-      payarc.renderModal();
+      window.location.href = checkout.paymentFormUrl;
     } catch (error) {
       setPaymentError(
         error instanceof Error ? error.message : "Could not start checkout.",
       );
     } finally {
-      setIsStartingPayarcCheckout(false);
+      setIsStartingSquareCheckout(false);
     }
   }
 
@@ -979,18 +867,18 @@ export function EntryFlow({
                 ${(challenge.entryFeeCents / 100).toFixed(0)}
               </p>
               <p className="mt-2 text-sm font-bold leading-6 text-[#59655f]">
-                Payment is handled by Payarc. The event code appears here after
-                checkout completes.
+                Payment is handled by Square. You will return to Pin2Win after
+                checkout to reveal the event code.
               </p>
             </div>
             <button
               className="mt-4 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-5 text-sm font-black text-white transition hover:bg-[#3f7f4c] disabled:cursor-not-allowed disabled:bg-[#ded6c8] disabled:text-[#6b756f]"
-              disabled={isStartingPayarcCheckout || paymentReady}
+              disabled={isStartingSquareCheckout || paymentReady}
               type="button"
-              onClick={startPayarcCheckout}
+              onClick={startSquareCheckout}
             >
               {paymentReady ? <CheckCircle2 size={17} /> : <CreditCard size={17} />}
-              {isStartingPayarcCheckout
+              {isStartingSquareCheckout
                 ? "Starting checkout..."
                 : paymentReady
                 ? "Entry created"

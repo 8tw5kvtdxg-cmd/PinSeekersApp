@@ -1,6 +1,7 @@
 import type { ClubhouseEntryRecord } from "@/lib/clubhouse-entry-store";
 import { getClubhouseChallenge } from "@/lib/clubhouse";
 import type { PayarcCheckoutRecord } from "@/lib/payarc-checkout-store";
+import type { SquareCheckoutRecord } from "@/lib/square-checkout-store";
 
 const pin2WinNotificationEmail =
   process.env.PIN2WIN_PAYMENT_NOTIFICATION_EMAIL ?? "pin2wingolf@outlook.com";
@@ -32,7 +33,7 @@ function formatCurrency(cents: number) {
 }
 
 export async function sendPaymentConfirmationEmails(input: {
-  checkout: PayarcCheckoutRecord;
+  checkout: PayarcCheckoutRecord | SquareCheckoutRecord;
   entry: ClubhouseEntryRecord;
   request?: Request;
 }) {
@@ -55,8 +56,12 @@ export async function sendPaymentConfirmationEmails(input: {
     `Bay: ${input.entry.bayName}`,
     `Simulator account name: ${input.entry.e6DisplayName}`,
     `Payment amount: ${formatCurrency(input.entry.amountCents ?? input.checkout.amountCents)}`,
-    `Payment provider: Payarc`,
-    `Payarc order: ${input.checkout.payarcOrderId}`,
+    `Payment provider: ${input.entry.paymentMethod}`,
+    `Payment reference: ${
+      "squareOrderId" in input.checkout
+        ? input.checkout.squareOrderId
+        : input.checkout.payarcOrderId
+    }`,
     `Valid until: ${input.entry.validUntil}`,
     "",
     "Simulator event code:",

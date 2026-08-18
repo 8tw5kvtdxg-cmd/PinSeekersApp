@@ -53,6 +53,10 @@ export default async function EntryConfirmationPage({
     attemptLimit: 1,
     resultStatus: "Pending E6 Result" as const,
   };
+  const fallbackEventCode =
+    "e6EventCode" in entry && typeof entry.e6EventCode === "string"
+      ? entry.e6EventCode
+      : challenge.e6JoinCode;
 
   return (
     <main className="min-h-screen bg-[#f8f4ec] text-[#18211f]">
@@ -127,11 +131,7 @@ export default async function EntryConfirmationPage({
               </div>
 
               <EventCodePanel
-                fallbackEventCode={
-                  "e6EventCode" in entry
-                    ? entry.e6EventCode
-                    : challenge.e6JoinCode
-                }
+                fallbackEventCode={fallbackEventCode}
                 entryId={entry.id}
               />
             </div>
