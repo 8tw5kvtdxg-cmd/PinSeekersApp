@@ -9,6 +9,7 @@ import {
   KeyRound,
   MapPin,
   MonitorPlay,
+  PencilLine,
   RefreshCw,
   ShieldCheck,
   UserRound,
@@ -37,11 +38,12 @@ type Entry = {
 const e6Steps = [
   "Go to the simulator computer at your bay.",
   "Open the E6 Golf app or E6 Connect.",
+  "Login or create a new account with E6 and make sure to use the same username listed with your Pin2Win entry. This helps Pin2Win verify your challenge entry and results of the challenge.",
   "Choose the events, online events, or clubhouse challenge area.",
   "Find the Pin2Win Hole-in-One Challenge, or enter the event code when prompted.",
   "Enter the simulator event code exactly as shown on this page.",
-  "Use the same simulator display name listed with your Pin2Win entry.",
-  "Start the challenge during your active Pin2Win play window.",
+  "Time to go Pin Hunting.",
+  "When you are finished use the button below to manually enter your result, closest shot out of 5. Pin2Win will verify your results and display on our monthly leaderboard.",
 ];
 
 export function SimulatorAccess({
@@ -52,6 +54,7 @@ export function SimulatorAccess({
   const [entry, setEntry] = useState<Entry | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(Boolean(checkoutId));
+  const [isEventCodeHidden, setIsEventCodeHidden] = useState(false);
 
   useEffect(() => {
     if (!checkoutId) {
@@ -81,6 +84,11 @@ export function SimulatorAccess({
 
         if (isMounted) {
           setEntry(data.entry);
+          setIsEventCodeHidden(
+            window.sessionStorage.getItem(
+              `pin2win-event-code-hidden:${data.entry.id}`,
+            ) === "true",
+          );
         }
       } catch (caughtError) {
         if (isMounted) {
@@ -103,6 +111,15 @@ export function SimulatorAccess({
       isMounted = false;
     };
   }, [checkoutId, squareOrderId, squarePaymentId]);
+
+  function handleResultEntryClick() {
+    if (!entry) {
+      return;
+    }
+
+    window.sessionStorage.setItem(`pin2win-event-code-hidden:${entry.id}`, "true");
+    setIsEventCodeHidden(true);
+  }
 
   if (!checkoutId) {
     return (
@@ -176,13 +193,27 @@ export function SimulatorAccess({
               <p className="text-sm font-black uppercase tracking-[0.16em] text-white/62">
                 Entry Code
               </p>
-              <p className="mt-3 break-all text-4xl font-black tracking-normal">
-                {entry?.e6EventCode}
-              </p>
-              <p className="mt-4 text-sm leading-6 text-white/72">
-                Enter this code in the simulator software to access the Pin2Win
-                Hole-in-One Challenge.
-              </p>
+              {isEventCodeHidden ? (
+                <>
+                  <p className="mt-3 text-2xl font-black tracking-normal">
+                    Hidden after result entry started
+                  </p>
+                  <p className="mt-4 text-sm leading-6 text-white/72">
+                    Your entry code was hidden to protect your completed
+                    challenge attempt.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="mt-3 break-all text-4xl font-black tracking-normal">
+                    {entry?.e6EventCode}
+                  </p>
+                  <p className="mt-4 text-sm leading-6 text-white/72">
+                    Enter this code in the simulator software to access the
+                    Pin2Win Hole-in-One Challenge.
+                  </p>
+                </>
+              )}
             </div>
 
             <dl className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -221,6 +252,15 @@ export function SimulatorAccess({
                 </li>
               ))}
             </ol>
+            {entry ? (
+              <Link
+                href={`/entry/${entry.id}/result`}
+                onClick={handleResultEntryClick}
+                className="mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white transition hover:bg-[#2a3935] sm:w-auto"
+              >
+                <PencilLine size={18} /> Manually enter result
+              </Link>
+            ) : null}
           </div>
         </div>
 
