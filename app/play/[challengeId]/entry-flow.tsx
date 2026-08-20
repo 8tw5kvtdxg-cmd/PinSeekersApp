@@ -11,11 +11,7 @@ import {
   Eye,
   KeyRound,
   LockKeyhole,
-  LogIn,
-  MailCheck,
-  MailWarning,
   ShieldCheck,
-  UserPlus,
   UserRound,
 } from "lucide-react";
 import type { ClubhouseChallenge } from "@/lib/clubhouse";
@@ -38,7 +34,6 @@ type PlayerAccount = {
   email: string;
   phone: string;
   simulatorDisplayName: string;
-  emailVerified: boolean;
 };
 
 type EntryDraft = {
@@ -108,7 +103,6 @@ export function EntryFlow({
   const storageKey = `pin2win-entry-draft-${challenge.slug}`;
   const draft = readEntryDraft(storageKey);
   const accessSectionRef = useRef<HTMLDivElement>(null);
-  const [accountReady, setAccountReady] = useState(false);
   const [paymentReady, setPaymentReady] = useState(false);
   const [eventCode, setEventCode] = useState(challenge.e6JoinCode);
   const [locationSlug] = useState(() => getInitialQrParam("location"));
@@ -118,19 +112,9 @@ export function EntryFlow({
   const [e6DisplayName, setE6DisplayName] = useState(draft.e6DisplayName);
   const [entryId, setEntryId] = useState("");
   const [playerAccount, setPlayerAccount] = useState<PlayerAccount | null>(null);
-  const [accountMode, setAccountMode] = useState<"create" | "login">("create");
-  const [username, setUsername] = useState("");
-  const [signupName, setSignupName] = useState("");
-  const [signupPhone, setSignupPhone] = useState("");
-  const [emailOrLogin, setEmailOrLogin] = useState("");
-  const [password, setPassword] = useState("");
-  const [accountError, setAccountError] = useState("");
-  const [accountNotice, setAccountNotice] = useState("");
   const [paymentError, setPaymentError] = useState("");
   const [paymentNotice, setPaymentNotice] = useState("");
   const [isLoadingAccount, setIsLoadingAccount] = useState(true);
-  const [isSubmittingAccount, setIsSubmittingAccount] = useState(false);
-  const [isResendingVerification, setIsResendingVerification] = useState(false);
   const [isStartingSquareCheckout, setIsStartingSquareCheckout] =
     useState(false);
   const [isCompletingSquareCheckout, setIsCompletingSquareCheckout] =
@@ -146,10 +130,14 @@ export function EntryFlow({
 
         if (response.ok && data.user) {
           setPlayerAccount(data.user);
-          setPlayerName((current) => current || data.user?.name || "");
-          setPhoneNumber((current) => current || data.user?.phone || "");
+          setPlayerName((current) => data.user?.name || current || "");
+          setPhoneNumber((current) => data.user?.phone || current || "");
           setE6DisplayName(
-            (current) => current || data.user?.simulatorDisplayName || "",
+            (current) =>
+              data.user?.simulatorDisplayName ||
+              data.user?.username ||
+              current ||
+              "",
           );
         }
       } catch {
@@ -215,125 +203,7 @@ export function EntryFlow({
 
     void completeReturnedSquareCheckout();
   }, [squareReturn?.checkoutId, squareReturn?.orderId, squareReturn?.paymentId]);
-
-  async function submitAccountForm() {
-    const trimmedUsername = username.trim();
-    const trimmedEmailOrLogin = emailOrLogin.trim();
-
-    if (
-      !trimmedEmailOrLogin ||
-      !password.trim() ||
-      (accountMode === "create" &&
-        (!trimmedUsername || !signupName.trim() || !signupPhone.trim()))
-    ) {
-      setAccountError(
-        accountMode === "create"
-          ? "Name, phone, username, email, and password are required."
-          : "Email/username and password are required.",
-      );
-      return;
-    }
-
-    setIsSubmittingAccount(true);
-    setAccountError("");
-    setAccountNotice("");
-
-    try {
-      const response = await fetch(
-        accountMode === "create" ? "/api/account/signup" : "/api/account/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(
-            accountMode === "create"
-              ? {
-                  username: trimmedUsername,
-                  name: signupName.trim(),
-                  email: trimmedEmailOrLogin,
-                  phone: signupPhone.trim(),
-                  password,
-                }
-              : {
-                  login: trimmedEmailOrLogin,
-                  password,
-                },
-          ),
-        },
-      );
-      const data = (await response.json()) as {
-        user?: PlayerAccount;
-        error?: string;
-        warning?: string;
-      };
-
-      if (!response.ok || !data.user) {
-        throw new Error(data.error ?? "Could not access account.");
-      }
-
-      setPlayerAccount(data.user);
-      setPlayerName((current) => current || data.user?.name || "");
-      setPhoneNumber((current) => current || data.user?.phone || "");
-      setE6DisplayName(
-        (current) => current || data.user?.simulatorDisplayName || "",
-      );
-      if (accountMode === "create") {
-        setSignupName("");
-        setSignupPhone("");
-      }
-      setPassword("");
-      setAccountNotice(
-        data.warning
-          ? data.warning
-          : accountMode === "create"
-          ? "Account created. Check your email to verify before continuing."
-          : data.user.emailVerified
-          ? "Logged in. You can continue this entry."
-          : "Logged in. Verify your email before continuing.",
-      );
-    } catch (error) {
-      setAccountError(
-        error instanceof Error ? error.message : "Could not access account.",
-      );
-    } finally {
-      setIsSubmittingAccount(false);
-    }
-  }
-
-  async function resendVerification() {
-    setIsResendingVerification(true);
-    setAccountError("");
-    setAccountNotice("");
-
-    try {
-      const response = await fetch("/api/account/resend-verification", {
-        method: "POST",
-      });
-      const data = (await response.json()) as {
-        alreadyVerified?: boolean;
-        error?: string;
-      };
-
-      if (!response.ok) {
-        throw new Error(data.error ?? "Verification email could not be sent.");
-      }
-
-      setAccountNotice(
-        data.alreadyVerified
-          ? "Email is already verified."
-          : "Verification email sent. Check your inbox.",
-      );
-    } catch (error) {
-      setAccountError(
-        error instanceof Error
-          ? error.message
-          : "Verification email could not be sent.",
-      );
-    } finally {
-      setIsResendingVerification(false);
-    }
-  }
-
-  const isVerifiedPlayer = Boolean(playerAccount?.emailVerified);
+  const hasPlayerAccount = Boolean(playerAccount);
   const hasEntryDetails = Boolean(
     playerName.trim() && phoneNumber.trim() && e6DisplayName.trim(),
   );
@@ -344,7 +214,6 @@ export function EntryFlow({
     const trimmedE6DisplayName = e6DisplayName.trim();
 
     if (!trimmedPlayerName || !trimmedPhoneNumber || !trimmedE6DisplayName) {
-      setAccountReady(false);
       setPaymentError(
         "Enter your name, phone number, and simulator account name before continuing.",
       );
@@ -371,8 +240,6 @@ export function EntryFlow({
         }),
       );
     }
-
-    setAccountReady(true);
 
     if (playerAccount) {
       try {
@@ -455,8 +322,8 @@ export function EntryFlow({
       return;
     }
 
-    if (!isVerifiedPlayer) {
-      setPaymentError("Verify your email before checkout.");
+    if (!playerAccount) {
+      setPaymentError("Login or create an account before checkout.");
       return;
     }
 
@@ -508,8 +375,8 @@ export function EntryFlow({
         </h1>
         <p className="mt-5 text-lg leading-8 text-[#53605a]">
           Enter the Hole-In-One Challenge for {formatEntryFee(challenge.entryFeeCents)}
-          while onsite during your reserved simulator bay time, then create or
-          load your Pin2Win account to continue.
+          while onsite during your reserved simulator bay time. Your saved
+          player details are loaded automatically.
         </p>
         <div className="mt-6 max-w-sm">
           <div className="rounded-lg bg-[#18211f] p-4 text-white">
@@ -573,8 +440,8 @@ export function EntryFlow({
             Unlock the simulator event code
           </h2>
           <p className="mt-3 text-sm leading-6 text-[#59655f]">
-            Verify your email, enter the player details, and complete checkout.
-            Pin2Win will then show your entry ID and simulator event code.
+            Confirm your player details and complete checkout. Pin2Win will
+            then send you to the simulator access page with your entry code.
           </p>
         </div>
 
@@ -582,19 +449,15 @@ export function EntryFlow({
           <div className="rounded-lg border border-[#ece5d8] p-4">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                {isVerifiedPlayer ? (
-                  <MailCheck className="text-[#2f6b3f]" size={24} />
-                ) : (
-                  <MailWarning className="text-[#8a6419]" size={24} />
-                )}
+                <CheckCircle2 className="text-[#2f6b3f]" size={24} />
                 <div>
                   <h3 className="font-black">1. Player account</h3>
                   <p className="text-sm text-[#59655f]">
-                    Login or create an account and verify your email.
+                    Login or create an account before checkout.
                   </p>
                 </div>
               </div>
-              {isVerifiedPlayer ? (
+              {hasPlayerAccount ? (
                 <CheckCircle2 className="text-[#2f6b3f]" size={22} />
               ) : null}
             </div>
@@ -612,138 +475,22 @@ export function EntryFlow({
                       {playerAccount.email}
                     </p>
                   </div>
-                  {playerAccount.emailVerified ? (
-                    <span className="inline-flex h-9 items-center justify-center rounded-md bg-[#eef7e9] px-3 text-xs font-black uppercase tracking-[0.12em] text-[#2f6b3f]">
-                      Verified
-                    </span>
-                  ) : (
-                    <button
-                      className="inline-flex h-10 items-center justify-center rounded-md bg-[#18211f] px-4 text-sm font-black text-white transition hover:bg-[#2a3935]"
-                      disabled={isResendingVerification}
-                      type="button"
-                      onClick={resendVerification}
-                    >
-                      {isResendingVerification ? "Sending..." : "Resend email"}
-                    </button>
-                  )}
+                  <span className="inline-flex h-9 items-center justify-center rounded-md bg-[#eef7e9] px-3 text-xs font-black uppercase tracking-[0.12em] text-[#2f6b3f]">
+                    Ready
+                  </span>
                 </div>
-                {!playerAccount.emailVerified ? (
-                  <p className="mt-3 text-sm font-bold text-[#8a6419]">
-                    Check your inbox and verify your email before continuing.
-                  </p>
-                ) : null}
               </div>
             ) : (
-              <div className="mt-4">
-                <div className="grid grid-cols-2 rounded-md bg-[#f2eadb] p-1">
-                  {(["create", "login"] as const).map((option) => (
-                    <button
-                      key={option}
-                      className={`h-10 rounded-md text-sm font-black capitalize transition ${
-                        accountMode === option
-                          ? "bg-[#18211f] text-white"
-                          : "text-[#53605a] hover:bg-white"
-                      }`}
-                      type="button"
-                      onClick={() => {
-                        setAccountMode(option);
-                        setAccountError("");
-                        setAccountNotice("");
-                      }}
-                    >
-                      {option === "create" ? "Create account" : "Login"}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="mt-4 grid gap-3">
-                  {accountMode === "create" ? (
-                    <>
-                      <input
-                        className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
-                        placeholder="Full name"
-                        value={signupName}
-                        onChange={(event) => setSignupName(event.target.value)}
-                        aria-label="Full name"
-                      />
-                      <input
-                        className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
-                        inputMode="tel"
-                        placeholder="Phone number"
-                        value={signupPhone}
-                        onChange={(event) => setSignupPhone(event.target.value)}
-                        aria-label="Phone number"
-                      />
-                      <input
-                        className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
-                        placeholder="Username"
-                        value={username}
-                        onChange={(event) => setUsername(event.target.value)}
-                        aria-label="Username"
-                      />
-                    </>
-                  ) : null}
-                  <input
-                    className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
-                    placeholder={
-                      accountMode === "create"
-                        ? "Email"
-                        : "Email or username"
-                    }
-                    type={accountMode === "create" ? "email" : "text"}
-                    value={emailOrLogin}
-                    onChange={(event) => setEmailOrLogin(event.target.value)}
-                    aria-label={
-                      accountMode === "create" ? "Email" : "Email or username"
-                    }
-                  />
-                  <input
-                    className="h-11 rounded-md border border-[#ded6c8] px-3 text-sm outline-none focus:border-[#2f6b3f]"
-                    placeholder="Password"
-                    type="password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    aria-label="Password"
-                  />
-                  <button
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-4 text-sm font-black text-white transition hover:bg-[#2a3935]"
-                    disabled={isSubmittingAccount}
-                    type="button"
-                    onClick={submitAccountForm}
-                  >
-                    {accountMode === "create" ? (
-                      <UserPlus size={17} />
-                    ) : (
-                      <LogIn size={17} />
-                    )}
-                    {isSubmittingAccount
-                      ? "Working..."
-                      : accountMode === "create"
-                      ? "Create and send email"
-                      : "Login"}
-                  </button>
-                  {accountMode === "login" ? (
-                    <Link
-                      href="/account/recovery"
-                      className="inline-flex items-center gap-2 text-sm font-black text-[#2f6b3f]"
-                    >
-                      <KeyRound size={16} /> Forgot password/username?
-                    </Link>
-                  ) : null}
-                </div>
-              </div>
+              <Link
+                href={`/play/${challenge.slug}/account?${new URLSearchParams({
+                  ...(locationSlug ? { location: locationSlug } : {}),
+                  ...(bayName ? { bay: bayName } : {}),
+                }).toString()}`}
+                className="mt-4 inline-flex h-11 items-center justify-center rounded-md bg-[#18211f] px-4 text-sm font-black text-white transition hover:bg-[#2a3935]"
+              >
+                Login or create account
+              </Link>
             )}
-
-            {accountError ? (
-              <p className="mt-3 rounded-md bg-[#fff5f2] px-3 py-2 text-sm font-bold text-[#9a3324]">
-                {accountError}
-              </p>
-            ) : null}
-            {accountNotice ? (
-              <p className="mt-3 rounded-md bg-[#eef7e9] px-3 py-2 text-sm font-bold text-[#2f6b3f]">
-                {accountNotice}
-              </p>
-            ) : null}
           </div>
 
           <div className="rounded-lg border border-[#ece5d8] p-4">
@@ -757,7 +504,7 @@ export function EntryFlow({
                   </p>
                 </div>
               </div>
-              {accountReady ? (
+              {hasEntryDetails ? (
                 <CheckCircle2 className="text-[#2f6b3f]" size={22} />
               ) : null}
             </div>
@@ -769,7 +516,6 @@ export function EntryFlow({
                 suppressHydrationWarning
                 onChange={(event) => {
                   setPlayerName(event.target.value);
-                  setAccountReady(false);
                   setPaymentReady(false);
                   setEntryId("");
                   setPaymentError("");
@@ -784,7 +530,6 @@ export function EntryFlow({
                 suppressHydrationWarning
                 onChange={(event) => {
                   setPhoneNumber(event.target.value);
-                  setAccountReady(false);
                   setPaymentReady(false);
                   setEntryId("");
                   setPaymentError("");
@@ -798,7 +543,6 @@ export function EntryFlow({
                 suppressHydrationWarning
                 onChange={(event) => {
                   setE6DisplayName(event.target.value);
-                  setAccountReady(false);
                   setPaymentReady(false);
                   setEntryId("");
                   setPaymentError("");
@@ -806,20 +550,11 @@ export function EntryFlow({
                 aria-label="Simulator display name"
               />
             </div>
-            {!accountReady && (playerName || phoneNumber || e6DisplayName) ? (
+            {!hasEntryDetails ? (
               <p className="mt-3 text-sm font-bold text-[#6b756f]">
-                Save player info before continuing so this entry uses your name.
+                Complete the missing player details before checkout.
               </p>
             ) : null}
-            <button
-              className="mt-4 inline-flex h-10 items-center justify-center rounded-md bg-[#18211f] px-4 text-sm font-black text-white transition hover:bg-[#2a3935]"
-              type="button"
-              onClick={() => {
-                void savePlayerInfo();
-              }}
-            >
-              Save player info
-            </button>
           </div>
 
           <div className="rounded-lg border border-[#ece5d8] p-4">
@@ -878,12 +613,12 @@ export function EntryFlow({
                 {paymentNotice}
               </p>
             ) : null}
-            {!isVerifiedPlayer ? (
+            {!hasPlayerAccount ? (
               <p className="mt-3 text-sm font-bold text-[#6b756f]">
-                Login and verify your email to continue.
+                Login or create an account to continue.
               </p>
             ) : null}
-            {isVerifiedPlayer && !hasEntryDetails ? (
+            {hasPlayerAccount && !hasEntryDetails ? (
               <p className="mt-3 text-sm font-bold text-[#6b756f]">
                 Enter your name, phone number, and simulator account name to continue.
               </p>

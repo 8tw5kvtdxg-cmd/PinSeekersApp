@@ -131,14 +131,6 @@ export async function getCurrentVerifiedPlayer() {
     } as const;
   }
 
-  if (!player.emailVerifiedAt) {
-    return {
-      player: null,
-      error: "Verify your email before entering a challenge.",
-      status: 403,
-    } as const;
-  }
-
   return { player, error: null, status: 200 } as const;
 }
 

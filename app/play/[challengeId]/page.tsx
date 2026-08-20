@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { EntryFlow } from "@/app/play/[challengeId]/entry-flow";
 import { getClubhouseChallenge } from "@/lib/clubhouse";
 import { findLikelyBookingMatch } from "@/lib/booking-verification-store";
+import { getCurrentPlayer } from "@/lib/player-auth";
 import { sendQrScanNotification } from "@/lib/qr-scan-notification-email";
 import { recordQrScan } from "@/lib/qr-scan-store";
 
@@ -65,6 +66,17 @@ export default async function ClubhouseChallengePage({
     }).catch((error) => {
       console.error("QR scan notification failed", error);
     });
+  }
+
+  const player = await getCurrentPlayer();
+
+  if (!player && !squareCheckoutId && !checkoutId && !referenceId) {
+    redirect(
+      `/play/${challenge.slug}/account?${new URLSearchParams({
+        ...(location ? { location } : {}),
+        ...(bay ? { bay } : {}),
+      }).toString()}`,
+    );
   }
 
   return (

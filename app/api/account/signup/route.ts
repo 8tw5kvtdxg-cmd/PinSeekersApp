@@ -1,9 +1,5 @@
 import { cookies } from "next/headers";
-import {
-  createEmailVerificationToken,
-  sendEmailVerification,
-  validateEmailForSignup,
-} from "@/lib/email-verification";
+import { validateEmailForSignup } from "@/lib/email-verification";
 import { getPrismaClient } from "@/lib/prisma";
 import {
   createPlayerSessionValue,
@@ -40,6 +36,7 @@ export async function POST(request: Request) {
     name?: unknown;
     email?: unknown;
     phone?: unknown;
+    simulatorDisplayName?: unknown;
     password?: unknown;
   };
   const username =
@@ -48,6 +45,10 @@ export async function POST(request: Request) {
   const email =
     typeof body.email === "string" ? normalizeEmail(body.email) : "";
   const phone = typeof body.phone === "string" ? body.phone.trim() : "";
+  const simulatorDisplayName =
+    typeof body.simulatorDisplayName === "string"
+      ? body.simulatorDisplayName.trim()
+      : username;
   const password = typeof body.password === "string" ? body.password : "";
 
   if (!username || !name || !email || !phone || password.length < 8) {
@@ -96,6 +97,8 @@ export async function POST(request: Request) {
         username,
         email,
         phone,
+        simulatorDisplayName,
+        emailVerifiedAt: new Date(),
         passwordHash: hashPassword(password),
       },
       select: {
@@ -108,27 +111,6 @@ export async function POST(request: Request) {
         emailVerifiedAt: true,
       },
     });
-    const token = await createEmailVerificationToken({
-      userId: user.id,
-      email: user.email,
-    });
-    let verificationSent = true;
-    let verificationWarning = "";
-
-    try {
-      await sendEmailVerification({
-        email: user.email,
-        username: user.username,
-        token,
-        request,
-      });
-    } catch (emailError) {
-      console.error("Could not send signup verification email.", emailError);
-      verificationSent = false;
-      verificationWarning =
-        "Account created, but the verification email could not be sent. Use resend verification from your account page.";
-    }
-
     const cookieStore = await cookies();
 
     cookieStore.set({
@@ -144,8 +126,6 @@ export async function POST(request: Request) {
     return Response.json(
       {
         user: publicPlayer(user),
-        verificationSent,
-        warning: verificationWarning || undefined,
       },
       { status: 201 },
     );
