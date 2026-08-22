@@ -153,7 +153,6 @@ export function QrAccountGate({
                 Full name
                 <input
                   className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-                  placeholder="Jordan Smith"
                   value={fullName}
                   onChange={(event) => setFullName(event.target.value)}
                 />
@@ -163,7 +162,6 @@ export function QrAccountGate({
                 <input
                   className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
                   inputMode="tel"
-                  placeholder="210-555-0123"
                   value={phone}
                   onChange={(event) => setPhone(event.target.value)}
                 />
@@ -172,7 +170,6 @@ export function QrAccountGate({
                 Pin2Win username
                 <input
                   className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-                  placeholder="jordan-smith"
                   value={username}
                   onChange={(event) => {
                     setUsername(event.target.value);
@@ -184,7 +181,6 @@ export function QrAccountGate({
                 E6 username
                 <input
                   className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-                  placeholder="Same as your E6 account"
                   value={simulatorUsername}
                   onChange={(event) => setSimulatorUsername(event.target.value)}
                 />
@@ -196,11 +192,6 @@ export function QrAccountGate({
             {mode === "create" ? "Email" : "Email/Username"}
             <input
               className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-              placeholder={
-                mode === "create"
-                  ? "jordan@example.com"
-                  : "jordan@example.com or jordan-smith"
-              }
               type={mode === "create" ? "email" : "text"}
               value={emailOrLogin}
               onChange={(event) => setEmailOrLogin(event.target.value)}
@@ -210,7 +201,6 @@ export function QrAccountGate({
             Password
             <input
               className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-              placeholder="********"
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
