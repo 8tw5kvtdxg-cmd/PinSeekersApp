@@ -33,8 +33,7 @@ export function QrAccountGate({
   const [mode, setMode] = useState<"create" | "login">("create");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
-  const [username, setUsername] = useState("");
-  const [simulatorUsername, setSimulatorUsername] = useState("");
+  const [e6GolfUsername, setE6GolfUsername] = useState("");
   const [emailOrLogin, setEmailOrLogin] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -43,20 +42,18 @@ export function QrAccountGate({
   async function submitAccount(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const trimmedUsername = username.trim();
     const trimmedEmailOrLogin = emailOrLogin.trim();
-    const trimmedSimulatorUsername =
-      simulatorUsername.trim() || trimmedUsername;
+    const trimmedE6GolfUsername = e6GolfUsername.trim();
 
     if (
       !trimmedEmailOrLogin ||
       !password.trim() ||
       (mode === "create" &&
-        (!fullName.trim() || !phone.trim() || !trimmedUsername))
+        (!fullName.trim() || !phone.trim() || !trimmedE6GolfUsername))
     ) {
       setError(
         mode === "create"
-          ? "Name, phone, username, email, and password are required."
+          ? "Name, phone, E6 Golf username, email, and password are required."
           : "Email/username and password are required.",
       );
       return;
@@ -76,8 +73,7 @@ export function QrAccountGate({
                   name: fullName.trim(),
                   password,
                   phone: phone.trim(),
-                  simulatorDisplayName: trimmedSimulatorUsername,
-                  username: trimmedUsername,
+                  simulatorDisplayName: trimmedE6GolfUsername,
                 }
               : {
                   login: trimmedEmailOrLogin,
@@ -167,22 +163,11 @@ export function QrAccountGate({
                 />
               </label>
               <label className="grid gap-2 text-sm font-bold text-[#53605a]">
-                Pin2Win username
+                E6 Golf username
                 <input
                   className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-                  value={username}
-                  onChange={(event) => {
-                    setUsername(event.target.value);
-                    setSimulatorUsername((current) => current || event.target.value);
-                  }}
-                />
-              </label>
-              <label className="grid gap-2 text-sm font-bold text-[#53605a]">
-                E6 username
-                <input
-                  className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-                  value={simulatorUsername}
-                  onChange={(event) => setSimulatorUsername(event.target.value)}
+                  value={e6GolfUsername}
+                  onChange={(event) => setE6GolfUsername(event.target.value)}
                 />
               </label>
             </>
