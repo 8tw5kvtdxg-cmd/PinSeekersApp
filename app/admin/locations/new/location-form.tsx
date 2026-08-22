@@ -36,8 +36,8 @@ const simulatorProviders: {
 }[] = [
   {
     value: "E6_CONNECT",
-    label: "E6 Connect",
-    description: "For venues running E6 Connect as the primary challenge software.",
+    label: "E6 Golf",
+    description: "For venues running E6 Golf as the primary challenge software.",
   },
   {
     value: "TRUGOLF_APOGEE_E6",

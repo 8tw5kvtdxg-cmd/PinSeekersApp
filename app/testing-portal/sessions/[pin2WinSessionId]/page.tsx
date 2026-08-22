@@ -97,7 +97,7 @@ const challengeOptions: {
 
 const providerOptions = [
   { label: "TruGolf Apogee + E6", value: "TRUGOLF_APOGEE_E6" },
-  { label: "E6 Connect", value: "E6_CONNECT" },
+  { label: "E6 Golf", value: "E6_CONNECT" },
   { label: "FlightScope + E6", value: "FLIGHTSCOPE_E6" },
   { label: "Manual simulator entry", value: "MANUAL" },
   { label: "Other", value: "OTHER" },
@@ -241,7 +241,7 @@ function challengeLabel(session?: SimulatorSession | null) {
 function providerLabel(value?: string) {
   const labels: Record<string, string> = {
     TRUGOLF_APOGEE_E6: "TruGolf Apogee + E6",
-    E6_CONNECT: "E6 Connect",
+    E6_CONNECT: "E6 Golf",
     FLIGHTSCOPE_E6: "FlightScope + E6",
     MANUAL: "Manual simulator entry",
     OTHER: "Other simulator",

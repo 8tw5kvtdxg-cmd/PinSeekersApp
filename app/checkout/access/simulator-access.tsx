@@ -37,11 +37,11 @@ type Entry = {
 
 const e6Steps = [
   "Go to the simulator computer at your bay.",
-  "Open the E6 Golf app or E6 Connect.",
-  "Login or create a new account with E6 and make sure to use the same username listed with your Pin2Win entry. This helps Pin2Win verify your challenge entry and results of the challenge.",
-  "Choose the events, online events, or clubhouse challenge area.",
-  "Find the Pin2Win Hole-in-One Challenge, or enter the event code when prompted.",
-  "Enter the simulator event code exactly as shown on this page.",
+  "Open the E6 Golf app if it is not already open.",
+  "Most players will already be signed in to E6 when they arrive for their bay booking. Make sure the E6 username matches the username listed with your Pin2Win entry so Pin2Win can verify your challenge entry and result.",
+  "Select the Event navigation header in the E6 Golf app.",
+  "At the bottom left of the Event tab, select the button that says Enter event code or similar.",
+  "Type in the event code shown on this page to start the Pin2Win Hole-in-One Challenge.",
   "Time to go Pin Hunting.",
   "When you are finished use the button below to manually enter your result, closest shot out of 5. Pin2Win will verify your results and display on our monthly leaderboard.",
 ];

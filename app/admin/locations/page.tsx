@@ -59,7 +59,7 @@ const existingLocations = [
 
 const simulatorProviderLabels: Record<string, string> = {
   TRUGOLF_APOGEE_E6: "TruGolf Apogee + E6",
-  E6_CONNECT: "E6 Connect",
+  E6_CONNECT: "E6 Golf",
   FLIGHTSCOPE_E6: "FlightScope + E6",
   MANUAL: "Manual / Staff Verified",
   OTHER: "Other / To be confirmed",

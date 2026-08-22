@@ -7,7 +7,6 @@ import {
   ArrowRight,
   KeyRound,
   Lock,
-  QrCode,
   UserPlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -112,31 +111,20 @@ export function QrAccountGate({
   }
 
   return (
-    <div className="mt-10 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-      <section>
-        <QrCode className="text-[#2f6b3f]" size={38} />
-        <h1 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">
-          Login or create your Pin2Win account.
-        </h1>
-        <p className="mt-5 max-w-2xl text-lg leading-8 text-[#53605a]">
-          Start here for the {challengeName}. Your player details will carry
-          into checkout so you do not have to retype them on the entry page.
-        </p>
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          {[
-            ["1", "Account"],
-            ["2", "Checkout"],
-            ["3", "Event code"],
-          ].map(([step, label]) => (
-            <div key={step} className="rounded-lg border border-[#ded6c8] bg-white p-5">
-              <p className="text-sm font-black text-[#2f6b3f]">STEP {step}</p>
-              <p className="mt-2 font-black">{label}</p>
-            </div>
-          ))}
+    <div className="flex min-h-[calc(100vh-9rem)] items-center justify-center py-8">
+      <section className="w-full max-w-md rounded-lg border border-[#ded6c8] bg-white p-6 shadow-xl shadow-[#18211f]/10 sm:p-7">
+        <div className="mb-6 text-center">
+          <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
+            {challengeName}
+          </p>
+          <h1 className="mt-3 text-3xl font-black leading-tight">
+            {mode === "create" ? "Create your account" : "Login to continue"}
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-[#59655f]">
+            Your player details carry into checkout automatically.
+          </p>
         </div>
-      </section>
 
-      <section className="rounded-lg border border-[#ded6c8] bg-white p-6 shadow-xl shadow-[#18211f]/8">
         <div className="grid grid-cols-2 rounded-md bg-[#f2eadb] p-1">
           {(["create", "login"] as const).map((option) => (
             <button
@@ -159,17 +147,6 @@ export function QrAccountGate({
         </div>
 
         <form className="mt-6 grid gap-4" onSubmit={submitAccount}>
-          <div>
-            <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-              {mode === "create" ? "New player" : "Welcome back"}
-            </p>
-            <h2 className="mt-2 text-2xl font-black">
-              {mode === "create"
-                ? "Set up challenge access"
-                : "Continue to checkout"}
-            </h2>
-          </div>
-
           {mode === "create" ? (
             <>
               <label className="grid gap-2 text-sm font-bold text-[#53605a]">
