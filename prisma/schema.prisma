@@ -225,6 +225,24 @@ model SquareCheckout {
   @@index([status, createdAt])
 }
 
+model OperatingCost {
+  id            String   @id @default(cuid())
+  incurredAt    DateTime
+  vendor        String
+  category      String
+  description   String?
+  amountCents   Int
+  paymentMethod String?
+  account       String?
+  isDeductible  Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([incurredAt])
+  @@index([category, incurredAt])
+  @@index([isDeductible, incurredAt])
+}
+
 model ClubhouseEntryRecord {
   id                            String   @id
   challengeSlug                 String

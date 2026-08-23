@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   ClipboardCheck,
+  DollarSign,
   KeyRound,
   LayoutDashboard,
   ListChecks,
@@ -16,6 +17,7 @@ const adminNavItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/bookings", label: "Booking Emails", icon: MailCheck },
   { href: "/admin/funnel", label: "Analytics", icon: TrendingUp },
+  { href: "/admin/costs", label: "Costs", icon: DollarSign },
   { href: "/admin/entries", label: "Entries", icon: ListChecks },
   { href: "/admin/results", label: "Results", icon: PencilLine },
   { href: "/admin/verification", label: "Review", icon: ClipboardCheck },
