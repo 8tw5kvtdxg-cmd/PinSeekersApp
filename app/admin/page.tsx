@@ -20,6 +20,7 @@ import {
   getClubhouseLocationRevenueSummaries,
   listClubhouseEntryRecords,
 } from "@/lib/clubhouse-entry-store";
+import { RevenuePerformanceCard } from "@/app/admin/revenue-performance-card";
 import { getPrismaClient } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -66,6 +67,12 @@ function formatDateTime(value: string) {
   }).format(date);
 }
 
+function parseDateTime(value: string) {
+  const date = new Date(value);
+
+  return Number.isFinite(date.getTime()) ? date : null;
+}
+
 export default async function AdminDashboardPage() {
   await requireAdminSession("/admin");
 
@@ -100,6 +107,22 @@ export default async function AdminDashboardPage() {
     1 + dbLocationCount,
     new Set(["alamo-golf-den", ...Object.keys(revenueSummaryMap)]).size,
   );
+  const now = new Date();
+  const upcomingBookings = bookings
+    .filter((booking) => {
+      const reservationStartsAt = parseDateTime(booking.reservationStartsAt);
+
+      return reservationStartsAt
+        ? reservationStartsAt.getTime() >= now.getTime()
+        : false;
+    })
+    .sort((left, right) => {
+      const leftTime = parseDateTime(left.reservationStartsAt)?.getTime() ?? 0;
+      const rightTime = parseDateTime(right.reservationStartsAt)?.getTime() ?? 0;
+
+      return leftTime - rightTime;
+    })
+    .slice(0, 5);
   const activeChallenge = clubhouseChallenges[0];
 
   return (
@@ -173,6 +196,8 @@ export default async function AdminDashboardPage() {
         })}
       </section>
 
+      <RevenuePerformanceCard entries={registeredEntries} />
+
       <section className="mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-lg border border-[#ded6c8] bg-white p-6">
           <div className="flex items-center gap-3">
@@ -221,12 +246,12 @@ export default async function AdminDashboardPage() {
             <h2 className="text-2xl font-black">Next bookings</h2>
           </div>
           <div className="mt-5 grid gap-3">
-            {bookings.slice(0, 5).length === 0 ? (
+            {upcomingBookings.length === 0 ? (
               <p className="rounded-md bg-[#fbf8f1] p-4 text-sm font-bold text-[#59655f]">
-                No booking records yet. Add CC’d Alamo bookings in the booking queue.
+                No upcoming booking records yet.
               </p>
             ) : (
-              bookings.slice(0, 5).map((booking) => (
+              upcomingBookings.map((booking) => (
                 <div
                   key={booking.id}
                   className="grid gap-3 rounded-md bg-[#fbf8f1] p-4 sm:grid-cols-[1fr_170px_130px]"

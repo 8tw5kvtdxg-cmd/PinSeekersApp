@@ -19,6 +19,8 @@ type LiveEntryLogProps = {
   challengeFilter?: string;
 };
 
+const autoRefreshIntervalMs = 15000;
+
 function challengeName(challengeSlug: string) {
   return (
     clubhouseChallenges.find((challenge) => challenge.slug === challengeSlug)
@@ -74,7 +76,7 @@ export function LiveEntryLog({
   }
 
   useEffect(() => {
-    const interval = window.setInterval(refreshEntries, 2500);
+    const interval = window.setInterval(refreshEntries, autoRefreshIntervalMs);
 
     return () => window.clearInterval(interval);
   }, []);
@@ -99,7 +101,7 @@ export function LiveEntryLog({
             Live entry monitor
           </p>
           <p className="mt-1 text-sm font-bold text-[#59655f]">
-            Auto-refreshing every 2.5 seconds. Last updated: {lastUpdated}
+            Auto-refreshing every 15 seconds. Last updated: {lastUpdated}
           </p>
           {error ? (
             <p className="mt-2 text-sm font-bold text-[#9a3324]">{error}</p>

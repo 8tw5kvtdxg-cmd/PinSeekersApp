@@ -25,6 +25,8 @@ const statusOptions: ClubhouseEntryRecord["resultStatus"][] = [
   "Rejected",
 ];
 
+const autoRefreshIntervalMs = 15000;
+
 function resultStatusLabel(status: ClubhouseEntryRecord["resultStatus"]) {
   return status === "Pending E6 Result" ? "Pending Simulator Result" : status;
 }
@@ -180,7 +182,7 @@ export function ResultLogTable({
   useEffect(() => {
     const interval = window.setInterval(() => {
       void refreshEntries();
-    }, 3000);
+    }, autoRefreshIntervalMs);
 
     return () => window.clearInterval(interval);
   }, []);

@@ -1,34 +1,31 @@
-import Link from "next/link";
-import {
-  ArrowRight,
-  CalendarDays,
-  MailCheck,
-  MapPin,
-  TrendingUp,
-} from "lucide-react";
+import { BarChart3 } from "lucide-react";
 import type { BookingVerificationRecord } from "@/lib/booking-verification-store";
-import type { PartnerLocationSummary } from "@/lib/partner-locations";
 
 type BookingEmailAnalyticsProps = {
   bookings: BookingVerificationRecord[];
-  locations: PartnerLocationSummary[];
   selectedLocationSlug?: string;
 };
 
-type ChartBucket = {
+type MonthlyBookingBucket = {
   label: string;
   count: number;
+  isFuture: boolean;
 };
 
-const shortDateFormatter = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-});
-
-const fullDateFormatter = new Intl.DateTimeFormat("en-US", {
-  dateStyle: "medium",
-  timeStyle: "short",
-});
+const monthLabels = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 function asDate(value: string) {
   const date = new Date(value);
@@ -36,331 +33,271 @@ function asDate(value: string) {
   return Number.isFinite(date.getTime()) ? date : null;
 }
 
-function startOfWeek(date: Date) {
-  const nextDate = new Date(date);
-  const day = nextDate.getDay();
-
-  nextDate.setHours(0, 0, 0, 0);
-  nextDate.setDate(nextDate.getDate() - day);
-
-  return nextDate;
-}
-
-function startOfMonth(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), 1);
-}
-
-function bucketKey(date: Date, period: "week" | "month") {
-  const bucketDate = period === "week" ? startOfWeek(date) : startOfMonth(date);
-
-  return bucketDate.toISOString().slice(0, 10);
-}
-
-function bucketLabel(key: string, period: "week" | "month") {
-  const date = new Date(`${key}T00:00:00`);
-
-  if (!Number.isFinite(date.getTime())) {
-    return key;
-  }
-
-  if (period === "month") {
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      year: "numeric",
-    }).format(date);
-  }
-
-  const endDate = new Date(date);
-  endDate.setDate(endDate.getDate() + 6);
-
-  return `${shortDateFormatter.format(date)}-${shortDateFormatter.format(endDate)}`;
-}
-
-function buildBuckets(bookings: BookingVerificationRecord[], period: "week" | "month") {
-  const buckets = bookings.reduce<Record<string, number>>((summary, booking) => {
-    const date = asDate(booking.createdAt);
-
-    if (!date) {
-      return summary;
-    }
-
-    const key = bucketKey(date, period);
-
-    summary[key] = (summary[key] ?? 0) + 1;
-
-    return summary;
-  }, {});
-
-  return Object.entries(buckets)
-    .sort(([left], [right]) => left.localeCompare(right))
-    .slice(-8)
-    .map<ChartBucket>(([key, count]) => ({
-      label: bucketLabel(key, period),
-      count,
-    }));
-}
-
-function formatDate(value: string) {
+function formatDateTime(value: string) {
   const date = asDate(value);
 
-  return date ? fullDateFormatter.format(date) : "Not available";
-}
-
-function buildLocationRows(
-  locations: PartnerLocationSummary[],
-  bookings: BookingVerificationRecord[],
-) {
-  const bookingLocationMap = new Map(
-    bookings.map((booking) => [
-      booking.locationSlug,
-      {
-        id: `booking-${booking.locationSlug}`,
-        name: booking.locationName,
-        slug: booking.locationSlug,
-        bookingUrl: null,
-        websiteUrl: null,
-        isActive: true,
-      },
-    ]),
-  );
-  const mergedLocations = [
-    ...locations,
-    ...Array.from(bookingLocationMap.values()).filter(
-      (bookingLocation) =>
-        !locations.some((location) => location.slug === bookingLocation.slug),
-    ),
-  ];
-
-  return mergedLocations.map((location) => {
-    const locationBookings = bookings.filter(
-      (booking) => booking.locationSlug === location.slug,
-    );
-    const latestBooking = locationBookings
-      .slice()
-      .sort(
-        (left, right) =>
-          (asDate(right.createdAt)?.getTime() ?? 0) -
-          (asDate(left.createdAt)?.getTime() ?? 0),
-      )[0];
-
-    return {
-      location,
-      bookings: locationBookings,
-      bookingCount: locationBookings.length,
-      latestBookingAt: latestBooking?.createdAt ?? null,
-    };
-  });
-}
-
-function Chart({
-  buckets,
-  emptyLabel,
-}: {
-  buckets: ChartBucket[];
-  emptyLabel: string;
-}) {
-  const maxCount = Math.max(...buckets.map((bucket) => bucket.count), 1);
-
-  if (buckets.length === 0) {
-    return (
-      <div className="rounded-lg border border-dashed border-[#ded6c8] bg-[#fbf8f1] p-6 text-sm font-bold text-[#59655f]">
-        {emptyLabel}
-      </div>
-    );
+  if (!date) {
+    return "Not available";
   }
 
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function formatCurrency(cents?: number) {
+  if (typeof cents !== "number") {
+    return "Not captured";
+  }
+
+  return new Intl.NumberFormat("en-US", {
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    style: "currency",
+  }).format(cents / 100);
+}
+
+function buildMonthlyBuckets(bookings: BookingVerificationRecord[]) {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+  const counts = Array.from({ length: 12 }, () => 0);
+
+  bookings.forEach((booking) => {
+    const date = asDate(booking.createdAt);
+
+    if (!date || date.getFullYear() !== currentYear) {
+      return;
+    }
+
+    counts[date.getMonth()] += 1;
+  });
+
+  return counts.map<MonthlyBookingBucket>((count, index) => ({
+    count,
+    isFuture: index > currentMonth,
+    label: monthLabels[index],
+  }));
+}
+
+function chartMaxFromCount(maxCount: number) {
+  if (maxCount <= 10) {
+    return 10;
+  }
+
+  return Math.ceil(maxCount / 5) * 5;
+}
+
+function MonthlyBookingsChart({
+  buckets,
+  year,
+}: {
+  buckets: MonthlyBookingBucket[];
+  year: number;
+}) {
+  const maxCount = Math.max(...buckets.map((bucket) => bucket.count), 0);
+  const chartMax = chartMaxFromCount(maxCount);
+  const yAxisLabels = Array.from({ length: 5 }, (_, index) =>
+    Math.round((chartMax / 4) * (4 - index)),
+  );
+
   return (
-    <div className="grid gap-3">
-      {buckets.map((bucket) => (
-        <div
-          key={bucket.label}
-          className="grid grid-cols-[94px_1fr_42px] items-center gap-3 text-sm"
-        >
-          <p className="font-bold text-[#59655f]">{bucket.label}</p>
-          <div className="h-9 overflow-hidden rounded-md bg-[#edf1ea]">
-            <div
-              className="h-full rounded-md bg-[#2f6b3f]"
-              style={{ width: `${Math.max(8, (bucket.count / maxCount) * 100)}%` }}
-            />
+    <div className="overflow-x-auto">
+      <div className="min-w-[720px]">
+        <div className="grid grid-cols-[44px_1fr] gap-3">
+          <div className="grid h-72 grid-rows-5 text-right text-xs font-black text-[#87908a]">
+            {yAxisLabels.map((label, index) => (
+              <span key={`${label}-${index}`}>{label}</span>
+            ))}
           </div>
-          <p className="text-right font-black text-[#18211f]">{bucket.count}</p>
+
+          <div className="relative h-72 border-b border-l border-[#d8cfbf]">
+            <div className="absolute inset-0 grid grid-rows-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="border-t border-dashed border-[#ece5d8]"
+                />
+              ))}
+            </div>
+
+            <div className="relative z-10 grid h-full grid-cols-12 items-end gap-3 px-4">
+              {buckets.map((bucket) => (
+                <div
+                  key={bucket.label}
+                  className="flex h-full flex-col justify-end gap-2"
+                >
+                  <div className="flex justify-center">
+                    <span className="text-xs font-black text-[#18211f]">
+                      {bucket.count}
+                    </span>
+                  </div>
+                  <div
+                    className={`min-h-1 rounded-t-md ${
+                      bucket.isFuture ? "bg-[#cfd5cf]" : "bg-[#2f6b3f]"
+                    }`}
+                    style={{
+                      height:
+                        bucket.count === 0
+                          ? "4px"
+                          : `${Math.max(8, (bucket.count / chartMax) * 100)}%`,
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div />
+          <div className="grid grid-cols-12 gap-3 px-4 pt-3 text-center text-xs font-black uppercase tracking-[0.08em] text-[#59655f]">
+            {buckets.map((bucket) => (
+              <span
+                key={bucket.label}
+                className={bucket.isFuture ? "text-[#b3bab4]" : undefined}
+              >
+                {bucket.label}
+              </span>
+            ))}
+          </div>
         </div>
-      ))}
+
+        <div className="mt-4 grid grid-cols-[44px_1fr] gap-3 text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
+          <span>Count</span>
+          <span className="text-center">Date {year}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PreviousBookingsTable({
+  bookings,
+}: {
+  bookings: BookingVerificationRecord[];
+}) {
+  const now = new Date();
+  const previousBookings = bookings
+    .filter((booking) => {
+      const reservationStartsAt = asDate(booking.reservationStartsAt);
+
+      return reservationStartsAt
+        ? reservationStartsAt.getTime() < now.getTime()
+        : false;
+    })
+    .sort((left, right) => {
+      const leftTime = asDate(left.reservationStartsAt)?.getTime() ?? 0;
+      const rightTime = asDate(right.reservationStartsAt)?.getTime() ?? 0;
+
+      return rightTime - leftTime;
+    });
+
+  return (
+    <div className="mt-8 border-t border-[#ece5d8] pt-6">
+      <div className="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+        <div>
+          <h3 className="text-xl font-black">Previous bookings</h3>
+          <p className="mt-1 text-sm font-bold text-[#59655f]">
+            Completed reservation times captured from booking emails.
+          </p>
+        </div>
+        <p className="text-sm font-black text-[#87908a]">
+          {previousBookings.length} total
+        </p>
+      </div>
+
+      {previousBookings.length === 0 ? (
+        <div className="rounded-md bg-[#fbf8f1] p-4 text-sm font-bold text-[#59655f]">
+          No previous bookings have been captured yet.
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border border-[#ece5d8]">
+          <table className="min-w-[760px] w-full border-collapse text-left text-sm">
+            <thead className="bg-[#f2eadb] text-xs font-black uppercase tracking-[0.12em] text-[#59655f]">
+              <tr>
+                <th className="px-4 py-3">Customer</th>
+                <th className="px-4 py-3">Location</th>
+                <th className="px-4 py-3">Reservation</th>
+                <th className="px-4 py-3">Amount</th>
+                <th className="px-4 py-3">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#ece5d8] bg-white">
+              {previousBookings.map((booking) => (
+                <tr key={booking.id}>
+                  <td className="px-4 py-4">
+                    <p className="font-black text-[#18211f]">
+                      {booking.customerName}
+                    </p>
+                    <p className="mt-1 text-xs font-bold text-[#59655f]">
+                      {booking.customerEmail || "No email captured"}
+                    </p>
+                  </td>
+                  <td className="px-4 py-4">
+                    <p className="font-black text-[#18211f]">
+                      {booking.locationName}
+                    </p>
+                    <p className="mt-1 text-xs font-bold text-[#59655f]">
+                      {booking.bayName || booking.productName}
+                    </p>
+                  </td>
+                  <td className="px-4 py-4 font-bold text-[#59655f]">
+                    {formatDateTime(booking.reservationStartsAt)}
+                  </td>
+                  <td className="px-4 py-4 font-black text-[#18211f]">
+                    {formatCurrency(booking.amountCents)}
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="inline-flex h-8 items-center rounded-md bg-[#fbf8f1] px-3 text-xs font-black text-[#2f6b3f]">
+                      {booking.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
 
 export function BookingEmailAnalytics({
   bookings,
-  locations,
   selectedLocationSlug,
 }: BookingEmailAnalyticsProps) {
-  const locationRows = buildLocationRows(locations, bookings);
-  const selectedLocation = selectedLocationSlug
-    ? locationRows.find((row) => row.location.slug === selectedLocationSlug)
-    : null;
-  const visibleBookings = selectedLocation ? selectedLocation.bookings : bookings;
-  const recentBookings = visibleBookings
-    .slice()
-    .sort(
-      (left, right) =>
-        (asDate(right.createdAt)?.getTime() ?? 0) -
-        (asDate(left.createdAt)?.getTime() ?? 0),
-    );
-  const weeklyBuckets = buildBuckets(visibleBookings, "week");
-  const monthlyBuckets = buildBuckets(visibleBookings, "month");
-  const latestBooking = recentBookings[0];
-  const titlePrefix = selectedLocation?.location.name ?? "All partners";
+  const visibleBookings = selectedLocationSlug
+    ? bookings.filter((booking) => booking.locationSlug === selectedLocationSlug)
+    : bookings;
+  const buckets = buildMonthlyBuckets(visibleBookings);
+  const currentYear = new Date().getFullYear();
 
   return (
-    <div className="mt-10 grid gap-8">
-      <section className="grid gap-4 md:grid-cols-3">
-        {[
-          ["Booking emails", String(visibleBookings.length), MailCheck],
-          ["Partner locations", String(selectedLocation ? 1 : locationRows.length), MapPin],
-          [
-            "Latest email",
-            latestBooking ? formatDate(latestBooking.createdAt) : "None yet",
-            CalendarDays,
-          ],
-        ].map(([label, value, Icon]) => (
-          <div
-            key={label as string}
-            className="rounded-lg border border-[#ded6c8] bg-white p-5"
-          >
-            <Icon className="text-[#2f6b3f]" size={26} />
-            <p className="mt-4 text-2xl font-black">{value as string}</p>
-            <p className="mt-1 text-sm font-bold text-[#59655f]">
-              {label as string}
-            </p>
+    <section className="mt-10 rounded-lg border border-[#ded6c8] bg-white p-6">
+      <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+          <div className="flex items-center gap-3">
+            <BarChart3 className="text-[#2f6b3f]" size={28} />
+            <h2 className="text-2xl font-black">Bookings over time</h2>
           </div>
-        ))}
-      </section>
-
-      <section className="grid gap-5 lg:grid-cols-2">
-        <div className="rounded-lg border border-[#ded6c8] bg-white p-6">
-          <div className="mb-5 flex items-center gap-3">
-            <TrendingUp className="text-[#2f6b3f]" size={25} />
-            <div>
-              <h2 className="text-2xl font-black">{titlePrefix} weekly bookings</h2>
-              <p className="mt-1 text-sm font-bold text-[#59655f]">
-                Counted by booking emails received.
-              </p>
-            </div>
-          </div>
-          <Chart buckets={weeklyBuckets} emptyLabel="No booking emails captured yet." />
-        </div>
-
-        <div className="rounded-lg border border-[#ded6c8] bg-white p-6">
-          <div className="mb-5 flex items-center gap-3">
-            <CalendarDays className="text-[#2f6b3f]" size={25} />
-            <div>
-              <h2 className="text-2xl font-black">{titlePrefix} monthly bookings</h2>
-              <p className="mt-1 text-sm font-bold text-[#59655f]">
-                Used to show partner demand growth over time.
-              </p>
-            </div>
-          </div>
-          <Chart buckets={monthlyBuckets} emptyLabel="No monthly booking data yet." />
-        </div>
-      </section>
-
-      {!selectedLocation ? (
-        <section className="overflow-hidden rounded-lg border border-[#ded6c8] bg-white">
-          <div className="bg-[#18211f] px-5 py-4 text-white">
-            <h2 className="text-2xl font-black">Partner booking pages</h2>
-            <p className="mt-1 text-sm font-bold text-white/62">
-              Each active partner location gets its own booking analytics page.
-            </p>
-          </div>
-          <div className="divide-y divide-[#ece5d8]">
-            {locationRows.map((row) => (
-              <Link
-                key={row.location.slug}
-                href={`/admin/bookings/${row.location.slug}`}
-                className="grid gap-4 px-5 py-5 transition hover:bg-[#fbf8f1] md:grid-cols-[1.2fr_0.7fr_1fr_auto]"
-              >
-                <div>
-                  <p className="font-black">{row.location.name}</p>
-                  <p className="mt-1 text-sm font-bold text-[#59655f]">
-                    {row.location.slug}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-2xl font-black">{row.bookingCount}</p>
-                  <p className="text-sm font-bold text-[#59655f]">booking emails</p>
-                </div>
-                <div>
-                  <p className="text-sm font-black text-[#18211f]">
-                    {row.latestBookingAt
-                      ? formatDate(row.latestBookingAt)
-                      : "No emails yet"}
-                  </p>
-                  <p className="mt-1 text-sm font-bold text-[#59655f]">
-                    latest captured booking
-                  </p>
-                </div>
-                <div className="inline-flex items-center gap-2 text-sm font-black text-[#2f6b3f]">
-                  View page <ArrowRight size={16} />
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      <section className="overflow-hidden rounded-lg border border-[#ded6c8] bg-white">
-        <div className="bg-[#18211f] px-5 py-4 text-white">
-          <h2 className="text-2xl font-black">Recent booking emails</h2>
-          <p className="mt-1 text-sm font-bold text-white/62">
-            Incoming partner booking confirmations captured from the parser.
+          <p className="mt-2 text-sm font-bold leading-6 text-[#59655f]">
+            Monthly booking email count for {currentYear}.
           </p>
         </div>
-        {visibleBookings.length === 0 ? (
-          <div className="p-8 text-center">
-            <MailCheck className="mx-auto text-[#2f6b3f]" size={34} />
-            <h3 className="mt-4 text-xl font-black">No booking emails yet</h3>
-            <p className="mt-3 text-sm leading-6 text-[#59655f]">
-              Booking emails will appear here once the partner email parser posts
-              into Pin2Win.
-            </p>
-          </div>
-        ) : (
-          <div className="divide-y divide-[#ece5d8]">
-            {recentBookings.slice(0, 12).map((booking) => (
-              <article
-                key={booking.id}
-                className="grid gap-4 px-5 py-5 lg:grid-cols-[1fr_1fr_0.8fr_0.8fr]"
-              >
-                <div>
-                  <p className="font-black">{booking.customerName}</p>
-                  <p className="mt-1 text-sm font-bold text-[#59655f]">
-                    {booking.customerEmail || "No email captured"}
-                  </p>
-                </div>
-                <div>
-                  <p className="font-black">{booking.locationName}</p>
-                  <p className="mt-1 text-sm font-bold text-[#59655f]">
-                    {booking.bayName || booking.productName}
-                  </p>
-                </div>
-                <div>
-                  <p className="font-black">{formatDate(booking.reservationStartsAt)}</p>
-                  <p className="mt-1 text-sm font-bold text-[#59655f]">
-                    reservation time
-                  </p>
-                </div>
-                <div>
-                  <p className="font-black">{formatDate(booking.createdAt)}</p>
-                  <p className="mt-1 text-sm font-bold text-[#59655f]">
-                    email captured
-                  </p>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
-    </div>
+        <div className="rounded-md bg-[#fbf8f1] px-4 py-3 text-right">
+          <p className="text-2xl font-black">{visibleBookings.length}</p>
+          <p className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
+            total captured
+          </p>
+        </div>
+      </div>
+
+      <MonthlyBookingsChart buckets={buckets} year={currentYear} />
+      <PreviousBookingsTable bookings={visibleBookings} />
+    </section>
   );
 }

@@ -23,6 +23,8 @@ type LiveVerificationQueueProps = {
   initialEntries: ClubhouseEntryRecord[];
 };
 
+const autoRefreshIntervalMs = 15000;
+
 function challengeName(challengeSlug: string) {
   return (
     clubhouseChallenges.find((challenge) => challenge.slug === challengeSlug)
@@ -471,7 +473,7 @@ export function LiveVerificationQueue({
       }
     }
 
-    const interval = window.setInterval(refreshEntries, 1000);
+    const interval = window.setInterval(refreshEntries, autoRefreshIntervalMs);
     document.addEventListener("visibilitychange", refreshWhenVisible);
     window.addEventListener("focus", refreshEntries);
 
@@ -510,7 +512,7 @@ export function LiveVerificationQueue({
             Live verification monitor
           </p>
           <p className="mt-1 text-sm font-bold text-[#59655f]">
-            Auto-refreshing every second. Last updated: {lastUpdated}
+            Auto-refreshing every 15 seconds. Last updated: {lastUpdated}
           </p>
           {error ? (
             <p className="mt-2 text-sm font-bold text-[#9a3324]">{error}</p>

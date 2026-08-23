@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, MailCheck } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import { AdminShell } from "@/app/admin/admin-shell";
 import { BookingEmailAnalytics } from "@/app/admin/bookings/booking-email-analytics";
 import { requireAdminSession } from "@/lib/admin-auth";
@@ -28,18 +28,6 @@ export default async function AdminPartnerBookingPage({
     (booking) => booking.locationSlug === locationSlug,
   );
   const pageTitle = location?.name ?? locationBookings[0]?.locationName ?? "Partner";
-  const relatedLocations = location
-    ? locations
-    : [
-        {
-          id: `booking-${locationSlug}`,
-          name: pageTitle,
-          slug: locationSlug,
-          bookingUrl: null,
-          websiteUrl: null,
-          isActive: true,
-        },
-      ];
 
   return (
     <AdminShell
@@ -67,20 +55,8 @@ export default async function AdminPartnerBookingPage({
         </>
       }
     >
-      <section className="mt-8 rounded-lg border border-[#ded6c8] bg-white p-5">
-        <div className="flex items-start gap-3">
-          <MailCheck className="mt-1 shrink-0 text-[#2f6b3f]" size={26} />
-          <p className="leading-7 text-[#59655f]">
-            This page is generated from the partner location slug and booking
-            email records. New active locations added in the admin portal will
-            appear on the booking email dashboard automatically.
-          </p>
-        </div>
-      </section>
-
       <BookingEmailAnalytics
         bookings={allBookings}
-        locations={relatedLocations}
         selectedLocationSlug={locationSlug}
       />
     </AdminShell>
