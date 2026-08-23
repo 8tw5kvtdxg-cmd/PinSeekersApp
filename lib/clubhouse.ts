@@ -152,9 +152,10 @@ export function formatEntryFee(cents: number) {
 
 export function formatCurrency(cents: number) {
   return new Intl.NumberFormat("en-US", {
-    style: "currency",
     currency: "USD",
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    style: "currency",
   }).format(cents / 100);
 }
 
