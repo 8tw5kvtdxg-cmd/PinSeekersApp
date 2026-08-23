@@ -62,6 +62,10 @@ function formatCurrency(cents?: number) {
   }).format(cents / 100);
 }
 
+function displayEmail(email: string) {
+  return email.endsWith("@pin2wingolf.local") ? "No email captured" : email;
+}
+
 function buildMonthlyBuckets(bookings: BookingVerificationRecord[]) {
   const now = new Date();
   const currentYear = now.getFullYear();
@@ -234,7 +238,7 @@ function PreviousBookingsTable({
                       {booking.customerName}
                     </p>
                     <p className="mt-1 text-xs font-bold text-[#59655f]">
-                      {booking.customerEmail || "No email captured"}
+                      {displayEmail(booking.customerEmail)}
                     </p>
                   </td>
                   <td className="px-4 py-4">

@@ -179,6 +179,10 @@ function reservationLabel(startsAt: string) {
 }
 
 function maskEmail(email: string) {
+  if (email.endsWith("@pin2wingolf.local")) {
+    return "No email captured";
+  }
+
   const [name, domain] = email.split("@");
 
   if (!name || !domain) {
@@ -292,6 +296,57 @@ export async function createBookingVerificationRecord(input: {
   const now = new Date();
   const timestamp = now.toISOString();
   const datePrefix = now.toISOString().slice(0, 10).replaceAll("-", "");
+  const source = input.source ?? "Manual";
+  const externalReference = input.externalReference?.trim() || undefined;
+
+  if (prisma) {
+    const existingBooking = await prisma.bookingVerification.findFirst({
+      where: externalReference
+        ? {
+            externalReference,
+            source,
+          }
+        : source === "Email CC" || source === "Import"
+          ? {
+              bayName: input.bayName?.trim() || null,
+              customerName,
+              locationSlug,
+              reservationStartsAt: reservationStartDate,
+              source,
+            }
+          : undefined,
+    });
+
+    if (existingBooking) {
+      return toBookingRecord(existingBooking);
+    }
+  } else if (source === "Email CC" || source === "Import" || externalReference) {
+    const bookings = Object.values(await readBookingsMap());
+    const existingBooking = bookings.find((booking) => {
+      if (
+        externalReference &&
+        booking.externalReference === externalReference &&
+        booking.source === source
+      ) {
+        return true;
+      }
+
+      return (
+        (source === "Email CC" || source === "Import") &&
+        booking.source === source &&
+        booking.locationSlug === locationSlug &&
+        (booking.bayName ?? "") === (input.bayName?.trim() || "") &&
+        booking.customerName === customerName &&
+        parseDate(booking.reservationStartsAt)?.getTime() ===
+          reservationStartDate.getTime()
+      );
+    });
+
+    if (existingBooking) {
+      return existingBooking;
+    }
+  }
+
   const existingBookings = prisma
     ? await prisma.bookingVerification.findMany({
         select: { id: true },
@@ -314,8 +369,8 @@ export async function createBookingVerificationRecord(input: {
     reservationStartsAt,
     reservationEndsAt: input.reservationEndsAt?.trim() || undefined,
     amountCents: input.amountCents,
-    source: input.source ?? "Manual",
-    externalReference: input.externalReference?.trim() || undefined,
+    source,
+    externalReference,
     rawEmailSubject: input.rawEmailSubject?.trim() || undefined,
     rawEmailText: input.rawEmailText?.trim() || undefined,
     status: "Pending Match",
@@ -441,7 +496,12 @@ export async function findLikelyBookingMatch(input: {
       return false;
     }
 
-    if (normalizedEmail && booking.customerEmail !== normalizedEmail) {
+    if (
+      normalizedEmail &&
+      booking.customerEmail &&
+      !booking.customerEmail.endsWith("@pin2wingolf.local") &&
+      booking.customerEmail !== normalizedEmail
+    ) {
       return false;
     }
 

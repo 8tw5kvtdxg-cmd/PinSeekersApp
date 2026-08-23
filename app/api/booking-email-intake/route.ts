@@ -6,6 +6,34 @@ function cleanText(value: unknown, maxLength = 1000) {
   return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
 }
 
+function firstCleanText(values: unknown[], maxLength = 1000) {
+  for (const value of values) {
+    const text = cleanText(value, maxLength);
+
+    if (text) {
+      return text;
+    }
+  }
+
+  return "";
+}
+
+function extractEmail(value: string) {
+  return value.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)?.[0] ?? "";
+}
+
+function missingCustomerEmail() {
+  return `missing-booking-email-${Date.now()}@pin2wingolf.local`;
+}
+
+function normalizeKnownLocationName(value: string) {
+  return /alamo\s+golf\s+den/i.test(value) ? "Alamo Golf Den" : value;
+}
+
+function normalizeKnownLocationSlug(value: string) {
+  return /alamo\s+golf\s+den/i.test(value) ? "alamo-golf-den" : "";
+}
+
 function cleanAmountCents(value: unknown) {
   if (typeof value === "number" && Number.isFinite(value)) {
     return Math.round(value);
@@ -109,42 +137,116 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json()) as Record<string, unknown>;
-  const rawEmailText = cleanText(
-    body.rawEmailText ?? body.body ?? body.bodyPreview,
+  const rawEmailText = firstCleanText(
+    [
+      body.rawEmailText,
+      body.raw_email_text,
+      body.emailText,
+      body.email_text,
+      body.body,
+      body.Body,
+      body.plainBody,
+      body.plain_body,
+      body.bodyPlain,
+      body.body_plain,
+      body.bodyPreview,
+      body.body_preview,
+      body.message,
+      body.text,
+    ],
     5000,
   );
   const parsedEmail = rawEmailText ? parseGolf918Email(rawEmailText) : null;
-  const customerEmail =
-    cleanText(body.customerEmail, 320) ||
-    cleanText(body.toEmail, 320) ||
-    cleanText(body.recipientEmail, 320);
+  const locationName = normalizeKnownLocationName(
+    firstCleanText([body.locationName, body.location_name, body.location], 180) ||
+      parsedEmail?.locationName ||
+      "Alamo Golf Den",
+  );
+  const locationSlug =
+    firstCleanText([body.locationSlug, body.location_slug], 120) ||
+    normalizeKnownLocationSlug(locationName);
+  const customerEmail = firstCleanText(
+    [
+      body.customerEmail,
+      body.customer_email,
+      body.email,
+      body.Email,
+      body.fromEmail,
+      body.from_email,
+      body.senderEmail,
+      body.sender_email,
+      body.replyTo,
+      body.reply_to,
+      extractEmail(rawEmailText),
+    ],
+    320,
+  );
 
   try {
     const booking = await createBookingVerificationRecord({
       customerName:
-        cleanText(body.customerName, 180) || parsedEmail?.customerName || "",
-      customerEmail,
-      customerPhone: cleanText(body.customerPhone, 80),
-      locationSlug: cleanText(body.locationSlug, 120),
-      locationName:
-        cleanText(body.locationName, 180) ||
-        parsedEmail?.locationName ||
-        "Alamo Golf Den",
-      bayName: cleanText(body.bayName, 120) || parsedEmail?.bayName || "",
+        firstCleanText(
+          [
+            body.customerName,
+            body.customer_name,
+            body.name,
+            body.Name,
+            parsedEmail?.customerName,
+          ],
+          180,
+        ) || "Booking customer",
+      customerEmail: customerEmail || missingCustomerEmail(),
+      customerPhone: firstCleanText(
+        [body.customerPhone, body.customer_phone, body.phone, body.Phone],
+        80,
+      ),
+      locationSlug,
+      locationName,
+      bayName:
+        firstCleanText([body.bayName, body.bay_name, body.bay], 120) ||
+        parsedEmail?.bayName ||
+        "",
       productName:
-        cleanText(body.productName, 180) || "Alamo Golf Den Bay Booking",
+        firstCleanText([body.productName, body.product_name, body.product], 180) ||
+        "Alamo Golf Den Bay Booking",
       reservationStartsAt:
-        cleanText(body.reservationStartsAt, 120) ||
+        firstCleanText(
+          [
+            body.reservationStartsAt,
+            body.reservation_starts_at,
+            body.startsAt,
+            body.starts_at,
+            body.startTime,
+            body.start_time,
+          ],
+          120,
+        ) ||
         parsedEmail?.reservationStartsAt ||
         "",
       reservationEndsAt:
-        cleanText(body.reservationEndsAt, 120) ||
+        firstCleanText(
+          [
+            body.reservationEndsAt,
+            body.reservation_ends_at,
+            body.endsAt,
+            body.ends_at,
+            body.endTime,
+            body.end_time,
+          ],
+          120,
+        ) ||
         parsedEmail?.reservationEndsAt ||
         "",
       amountCents: cleanAmountCents(body.amountCents ?? body.amount),
       source: "Email CC",
-      externalReference: cleanText(body.externalReference, 180),
-      rawEmailSubject: cleanText(body.rawEmailSubject, 500),
+      externalReference: firstCleanText(
+        [body.externalReference, body.external_reference, body.id],
+        180,
+      ),
+      rawEmailSubject: firstCleanText(
+        [body.rawEmailSubject, body.raw_email_subject, body.subject, body.Subject],
+        500,
+      ),
       rawEmailText,
     });
 
