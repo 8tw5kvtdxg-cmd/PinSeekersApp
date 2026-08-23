@@ -18,7 +18,7 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ bookingId: string }> },
 ) {
-  if (!isAdminRequestAuthenticated(request)) {
+  if (!(await isAdminRequestAuthenticated(request))) {
     return Response.json({ error: "Admin login required." }, { status: 401 });
   }
 

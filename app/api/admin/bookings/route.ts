@@ -7,7 +7,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  if (!isAdminRequestAuthenticated(request)) {
+  if (!(await isAdminRequestAuthenticated(request))) {
     return Response.json({ error: "Admin login required." }, { status: 401 });
   }
 
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!isAdminRequestAuthenticated(request)) {
+  if (!(await isAdminRequestAuthenticated(request))) {
     return Response.json({ error: "Admin login required." }, { status: 401 });
   }
 

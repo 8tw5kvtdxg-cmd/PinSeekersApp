@@ -8,7 +8,7 @@ const sessionDurationMs = 1000 * 60 * 60 * 8;
 
 function getAdminUsername() {
   return process.env.PIN2WIN_ADMIN_USERNAME ?? (
-    process.env.NODE_ENV === "production" ? "" : "admin"
+    process.env.NODE_ENV === "production" ? "" : "Pin2Win_Admin"
   );
 }
 
@@ -110,13 +110,12 @@ export function verifyAdminSessionValue(value: string | undefined) {
 
 export async function isAdminAuthenticated() {
   const cookieStore = await cookies();
-
   return verifyAdminSessionValue(
     cookieStore.get(adminSessionCookieName)?.value,
   );
 }
 
-export function isAdminRequestAuthenticated(request: Request) {
+export async function isAdminRequestAuthenticated(request: Request) {
   const cookieMap = parseCookieHeader(request.headers.get("cookie"));
 
   return verifyAdminSessionValue(cookieMap.get(adminSessionCookieName));

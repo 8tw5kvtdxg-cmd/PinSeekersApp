@@ -3,12 +3,12 @@ import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
-function isAuthorized(request: Request) {
+async function isAuthorized(request: Request) {
   const digestSecret =
     process.env.ZAPIER_ADMIN_DIGEST_SECRET ??
     process.env.BOOKING_EMAIL_INTAKE_SECRET;
 
-  if (isAdminRequestAuthenticated(request)) {
+  if (await isAdminRequestAuthenticated(request)) {
     return true;
   }
 
@@ -26,7 +26,7 @@ function isAuthorized(request: Request) {
 }
 
 export async function GET(request: Request) {
-  if (!isAuthorized(request)) {
+  if (!(await isAuthorized(request))) {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
 

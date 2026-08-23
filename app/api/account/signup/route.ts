@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { adminSessionCookieName } from "@/lib/admin-auth";
 import { validateEmailForSignup } from "@/lib/email-verification";
 import { getPrismaClient } from "@/lib/prisma";
 import {
@@ -175,6 +176,16 @@ export async function POST(request: Request) {
       secure: process.env.NODE_ENV === "production",
       path: "/",
       maxAge: 60 * 60 * 24 * 30,
+    });
+
+    cookieStore.set({
+      name: adminSessionCookieName,
+      value: "",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 0,
     });
 
     return Response.json(
