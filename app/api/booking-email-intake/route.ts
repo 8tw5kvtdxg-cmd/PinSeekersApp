@@ -91,7 +91,9 @@ function addMinutesToIso(value: string, minutes: number) {
 function parseGolf918Email(rawEmailText: string) {
   const normalized = rawEmailText.replace(/\r/g, "");
   const greetingMatch = normalized.match(/\bHi\s+([^,\n]+),/i);
-  const locationMatch = normalized.match(/\*\*([^*\n]+(?:LLC|Golf Den)[^*\n]*)\*\*/i);
+  const locationMatch =
+    normalized.match(/\*\*([^*\n]+(?:LLC|Golf Den)[^*\n]*)\*\*/i) ??
+    normalized.match(/^\s*([^\n]*(?:LLC|Golf Den)[^\n]*)\s*$/im);
   const bayMatch = normalized.match(
     /\*\*(Bay\s*[^:*]+):\*\*\s*([^\n]+?)(?:\n|$)/i,
   );
@@ -140,7 +142,9 @@ export async function POST(request: Request) {
   const rawEmailText = firstCleanText(
     [
       body.rawEmailText,
+      body.rawText,
       body.raw_email_text,
+      body.raw_text,
       body.emailText,
       body.email_text,
       body.body,
