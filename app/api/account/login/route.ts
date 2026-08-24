@@ -1,5 +1,9 @@
 import { cookies } from "next/headers";
-import { adminSessionCookieName } from "@/lib/admin-auth";
+import {
+  adminSessionCookieName,
+  createAdminSessionValue,
+  isAdminEmail,
+} from "@/lib/admin-auth";
 import { getPrismaClient } from "@/lib/prisma";
 import {
   createPlayerSessionValue,
@@ -73,12 +77,12 @@ export async function POST(request: Request) {
 
   cookieStore.set({
     name: adminSessionCookieName,
-    value: "",
+    value: isAdminEmail(user.email) ? createAdminSessionValue(user.email) : "",
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 0,
+    maxAge: isAdminEmail(user.email) ? 60 * 60 * 8 : 0,
   });
 
   return Response.json({ user: publicPlayer(user) });
