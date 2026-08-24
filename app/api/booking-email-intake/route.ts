@@ -22,6 +22,12 @@ function extractEmail(value: string) {
   return value.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)?.[0] ?? "";
 }
 
+function cleanCustomerEmail(value: string) {
+  const email = extractEmail(value);
+
+  return /pin2wingolf@outlook\.com/i.test(email) ? "" : email;
+}
+
 function missingCustomerEmail() {
   return `missing-booking-email-${Date.now()}@pin2wingolf.local`;
 }
@@ -32,6 +38,12 @@ function normalizeKnownLocationName(value: string) {
 
 function normalizeKnownLocationSlug(value: string) {
   return /alamo\s+golf\s+den/i.test(value) ? "alamo-golf-den" : "";
+}
+
+function cleanBayName(value: string) {
+  const normalized = value.trim();
+
+  return /^bay\s+\d+/i.test(normalized) ? normalized : "";
 }
 
 function cleanAmountCents(value: unknown) {
@@ -171,20 +183,30 @@ export async function POST(request: Request) {
     normalizeKnownLocationSlug(locationName);
   const customerEmail = firstCleanText(
     [
-      body.customerEmail,
-      body.customer_email,
-      body.email,
-      body.Email,
-      body.fromEmail,
-      body.from_email,
-      body.senderEmail,
-      body.sender_email,
-      body.replyTo,
-      body.reply_to,
-      extractEmail(rawEmailText),
+      cleanCustomerEmail(cleanText(body.customerEmail, 320)),
+      cleanCustomerEmail(cleanText(body.customer_email, 320)),
+      cleanCustomerEmail(cleanText(body.email, 320)),
+      cleanCustomerEmail(cleanText(body.Email, 320)),
+      cleanCustomerEmail(extractEmail(rawEmailText)),
+      cleanCustomerEmail(cleanText(body.replyTo, 320)),
+      cleanCustomerEmail(cleanText(body.reply_to, 320)),
+      cleanCustomerEmail(cleanText(body.fromEmail, 320)),
+      cleanCustomerEmail(cleanText(body.from_email, 320)),
+      cleanCustomerEmail(cleanText(body.senderEmail, 320)),
+      cleanCustomerEmail(cleanText(body.sender_email, 320)),
     ],
     320,
   );
+  const bayName =
+    firstCleanText(
+      [
+        cleanBayName(cleanText(body.bayName, 120)),
+        cleanBayName(cleanText(body.bay_name, 120)),
+        cleanBayName(cleanText(body.bay, 120)),
+        parsedEmail?.bayName,
+      ],
+      120,
+    ) || "";
 
   try {
     const booking = await createBookingVerificationRecord({
@@ -206,10 +228,7 @@ export async function POST(request: Request) {
       ),
       locationSlug,
       locationName,
-      bayName:
-        firstCleanText([body.bayName, body.bay_name, body.bay], 120) ||
-        parsedEmail?.bayName ||
-        "",
+      bayName,
       productName:
         firstCleanText([body.productName, body.product_name, body.product], 180) ||
         "Alamo Golf Den Bay Booking",
