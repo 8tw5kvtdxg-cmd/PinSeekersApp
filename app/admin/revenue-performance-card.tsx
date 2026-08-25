@@ -1,4 +1,3 @@
-import { TrendingUp } from "lucide-react";
 import type { ClubhouseEntryRecord } from "@/lib/clubhouse-entry-store";
 
 type RevenuePerformanceCardProps = {
@@ -89,16 +88,10 @@ function buildRevenuePerformance(entries: ClubhouseEntryRecord[]) {
   const transactions = currentYearEntries.length;
 
   return {
-    averageSaleCents:
-      transactions > 0 ? Math.round(currentYearRevenueCents / transactions) : 0,
     currentRangeLabel: `Jan 1 - ${formatShortDate(now)}`,
     currentYear,
-    currentYearRevenueCents,
     grossSalesCents: currentYearRevenueCents,
-    netSalesCents: currentYearRevenueCents,
     priorRangeLabel: `Jan 1 - Dec 31, ${priorYear}`,
-    priorYear,
-    priorYearRevenueCents,
     transactions,
     buckets: monthLabels.map<MonthlyRevenueBucket>((label, index) => ({
       currentYearCents: currentYearMonths[index],
@@ -116,14 +109,6 @@ function chartMaxFromCents(maxCents: number) {
   return Math.ceil(maxCents / 100) * 100;
 }
 
-function TrendBadge() {
-  return (
-    <span className="inline-flex h-9 items-center justify-center gap-2 rounded-full bg-[#f0f0f0] px-4 text-sm font-black text-[#70756f]">
-      <TrendingUp size={15} /> N/A
-    </span>
-  );
-}
-
 function Metric({
   label,
   value,
@@ -132,12 +117,9 @@ function Metric({
   value: string;
 }) {
   return (
-    <div className="grid grid-cols-[1fr_auto] items-center gap-5">
-      <div>
-        <p className="text-sm font-bold text-[#70756f]">{label}</p>
-        <p className="mt-2 text-2xl font-black text-[#101514]">{value}</p>
-      </div>
-      <TrendBadge />
+    <div className="rounded-lg border border-[#ece5d8] bg-[#faf8f3] p-5">
+      <p className="text-sm font-bold text-[#70756f]">{label}</p>
+      <p className="mt-2 text-3xl font-black text-[#101514]">{value}</p>
     </div>
   );
 }
@@ -175,16 +157,14 @@ export function RevenuePerformanceCard({
         </div>
       </div>
 
-      <div className="mt-10 grid gap-8 lg:grid-cols-[260px_1fr] lg:items-end">
-        <div>
-          <p className="text-sm font-bold text-[#70756f]">Net sales</p>
-          <p className="mt-2 text-4xl font-black text-[#101514]">
-            {formatMoney(performance.netSalesCents)}
-          </p>
-          <div className="mt-4">
-            <TrendBadge />
-          </div>
-          <div className="mt-24 grid gap-3 text-sm font-bold text-[#70756f]">
+      <div className="mt-10 grid gap-8 lg:grid-cols-[220px_1fr] lg:items-end">
+        <div className="grid gap-5">
+          <Metric
+            label="Gross sales"
+            value={formatMoney(performance.grossSalesCents)}
+          />
+          <Metric label="Transactions" value={String(performance.transactions)} />
+          <div className="grid gap-3 pt-4 text-sm font-bold text-[#70756f]">
             <div className="flex items-center gap-2">
               <span className="h-4 w-4 rounded-sm bg-[#1167ff]" />
               <span>{performance.currentRangeLabel}</span>
@@ -251,22 +231,6 @@ export function RevenuePerformanceCard({
         </div>
       </div>
 
-      <div className="mt-10 border-t border-[#ece5d8] pt-8">
-        <div className="grid gap-x-20 gap-y-8 md:grid-cols-2">
-          <Metric
-            label="Gross sales"
-            value={formatMoney(performance.grossSalesCents)}
-          />
-          <Metric label="Transactions" value={String(performance.transactions)} />
-          <Metric label="Labor % of net sales" value="0.00%" />
-          <Metric
-            label="Average sale"
-            value={formatMoney(performance.averageSaleCents)}
-          />
-          <Metric label="Comps & discounts" value="$0.00" />
-          <Metric label="Tips" value="$0.00" />
-        </div>
-      </div>
     </section>
   );
 }
