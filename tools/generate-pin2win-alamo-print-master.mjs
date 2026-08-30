@@ -66,11 +66,11 @@ function overlaySvg() {
   const pillW = 1300;
   const pillH = 180;
   const qrCardX = 640;
-  const qrCardY = 2515;
+  const qrCardY = 2465;
   const qrCardW = 960;
-  const qrCardH = 1080;
+  const qrCardH = 1110;
   const qrX = 775;
-  const qrY = 2630;
+  const qrY = 2565;
   const qrSize = 690;
 
   return Buffer.from(`
@@ -134,20 +134,14 @@ function overlaySvg() {
         fill: white,
         rx: 0,
       })}
-      ${text("SCAN TO PLAY", lowerCenter, 3450, { size: 102, weight: 900, fill: white })}
-      ${text("pin2wingolf.com | @pin2wingolf", lowerCenter, 3532, {
+      ${text("SCAN TO PLAY", lowerCenter, 3380, { size: 98, weight: 900, fill: white })}
+      ${text("pin2wingolf.com | @pin2wingolf", lowerCenter, 3458, {
         size: 40,
         weight: 800,
         fill: "#f6d783",
       })}
-
-      ${roundedRect(325, 3685, 1590, 110, {
-        fill: "#050505",
-        rx: 56,
-        opacity: 0.9,
-      })}
-      ${text("Valid onsite entry required. Eligibility and terms apply.", lowerCenter, 3756, {
-        size: 38,
+      ${text("Valid onsite entry required. Eligibility and terms apply.", lowerCenter, 3535, {
+        size: 31,
         weight: 800,
         fill: "#f2f2f2",
       })}
@@ -236,7 +230,7 @@ const outputPdf = path.join(outputDir, "pin2win-alamo-final-print-master-centere
 await sharp(base)
   .composite([
     { input: overlaySvg(), top: 0, left: 0 },
-    { input: qrBuffer, top: 2630, left: 775 },
+    { input: qrBuffer, top: 2565, left: 775 },
   ])
   .jpeg({ quality: 95, mozjpeg: true })
   .toFile(outputJpg);

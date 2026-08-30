@@ -2,6 +2,7 @@ import {
   createClubhouseEntryRecord,
   getClubhouseEntryRecordBySquareCheckoutId,
 } from "@/lib/clubhouse-entry-store";
+import { findOrCreateCheckoutEntry } from "@/lib/payment-idempotency";
 import {
   getSquareCheckoutRecordByOrderId,
   updateSquareCheckoutRecord,
@@ -69,45 +70,45 @@ export async function POST(request: Request) {
     squarePaymentId: findPaymentId(payload) || checkout.squarePaymentId,
     status: "Succeeded",
   });
-  const existingEntry = await getClubhouseEntryRecordBySquareCheckoutId(
-    updatedCheckout.id,
-  );
+  const entry = await findOrCreateCheckoutEntry({
+    findExisting: async () =>
+      await getClubhouseEntryRecordBySquareCheckoutId(updatedCheckout.id),
+    createEntry: async () => {
+      const createdEntry = await createClubhouseEntryRecord({
+        challengeSlug: updatedCheckout.challengeSlug,
+        playerName: updatedCheckout.playerName,
+        playerEmail: updatedCheckout.playerEmail,
+        phoneNumber: updatedCheckout.phoneNumber,
+        e6DisplayName: updatedCheckout.e6DisplayName,
+        squareCheckoutId: updatedCheckout.id,
+        squareOrderId: updatedCheckout.squareOrderId,
+        squarePaymentId: updatedCheckout.squarePaymentId,
+        venueBookingReference: `Square order ${updatedCheckout.squareOrderId}`,
+        locationSlug: updatedCheckout.locationSlug,
+        locationName: updatedCheckout.locationName,
+        bayName: updatedCheckout.bayName,
+      });
 
-  if (existingEntry) {
-    return Response.json({
-      received: true,
-      matched: true,
-      entryId: existingEntry.id,
+      await updateSquareCheckoutRecord(updatedCheckout.id, {
+        entryId: createdEntry.id,
+      });
+
+      return createdEntry;
+    },
+    recoverExisting: async () =>
+      await getClubhouseEntryRecordBySquareCheckoutId(updatedCheckout.id),
+  });
+
+  if (!updatedCheckout.confirmationEmailSentAt) {
+    await sendPaymentConfirmationEmails({
+      checkout: updatedCheckout,
+      entry,
+      request,
+    });
+    await updateSquareCheckoutRecord(updatedCheckout.id, {
+      confirmationEmailSentAt: new Date().toISOString(),
     });
   }
-
-  const entry = await createClubhouseEntryRecord({
-    challengeSlug: updatedCheckout.challengeSlug,
-    playerName: updatedCheckout.playerName,
-    playerEmail: updatedCheckout.playerEmail,
-    phoneNumber: updatedCheckout.phoneNumber,
-    e6DisplayName: updatedCheckout.e6DisplayName,
-    squareCheckoutId: updatedCheckout.id,
-    squareOrderId: updatedCheckout.squareOrderId,
-    squarePaymentId: updatedCheckout.squarePaymentId,
-    venueBookingReference: `Square order ${updatedCheckout.squareOrderId}`,
-    locationSlug: updatedCheckout.locationSlug,
-    locationName: updatedCheckout.locationName,
-    bayName: updatedCheckout.bayName,
-  });
-
-  await updateSquareCheckoutRecord(updatedCheckout.id, {
-    entryId: entry.id,
-  });
-
-  await sendPaymentConfirmationEmails({
-    checkout: updatedCheckout,
-    entry,
-    request,
-  });
-  await updateSquareCheckoutRecord(updatedCheckout.id, {
-    confirmationEmailSentAt: new Date().toISOString(),
-  });
 
   return Response.json({
     received: true,

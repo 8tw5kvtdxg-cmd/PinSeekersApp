@@ -1,4 +1,5 @@
 import { getClubhouseChallenge } from "@/lib/clubhouse";
+import { isLegacyPayarcEnabled } from "@/lib/payment-provider";
 import {
   createPayarcCheckoutRecord,
   nextPayarcCheckoutId,
@@ -12,6 +13,14 @@ import { getCurrentVerifiedPlayer } from "@/lib/player-auth";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  if (!isLegacyPayarcEnabled()) {
+    return Response.json(
+      {
+        error: "Payarc is disabled for this deployment. Square is the active payment provider.",
+      },
+      { status: 410 },
+    );
+  }
   const { player, error, status } = await getCurrentVerifiedPlayer();
 
   if (error || !player) {

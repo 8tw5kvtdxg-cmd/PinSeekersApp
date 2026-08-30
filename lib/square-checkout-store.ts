@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { canTransitionCheckoutStatus } from "@/lib/checkout-status";
 import { getPrismaClient } from "@/lib/prisma";
 
 export type SquareCheckoutStatus = "Pending" | "Succeeded" | "Failed";
@@ -139,6 +140,21 @@ export async function updateSquareCheckoutRecord(
 
   if (!prisma) {
     throw new Error("Database is required for Square checkout.");
+  }
+
+  const existing = await prisma.squareCheckout.findUnique({
+    where: { id: checkoutId },
+  });
+
+  if (!existing) {
+    throw new Error("Square checkout was not found.");
+  }
+
+  const currentStatus = existing.status as SquareCheckoutStatus;
+  const nextStatus = patch.status as SquareCheckoutStatus | undefined;
+
+  if (nextStatus && !canTransitionCheckoutStatus(currentStatus, nextStatus)) {
+    return toSquareCheckoutRecord(existing);
   }
 
   const checkout = await prisma.squareCheckout.update({

@@ -49,8 +49,8 @@ export async function POST(request: Request) {
     const checkoutId = nextSquareCheckoutId();
     const paymentLink = await createSquarePaymentLink({
       amountCents: challenge.entryFeeCents,
-      buyerEmail: player.email,
-      buyerPhoneNumber: phoneNumber,
+      buyerEmail: "", // Skip email pre-population due to Square API validation issues
+      buyerPhoneNumber: "", // Skip phone pre-population due to Square API validation issues
       checkoutId,
       description: `Pin2Win ${challenge.name}`,
       redirectPath: "/checkout/access",

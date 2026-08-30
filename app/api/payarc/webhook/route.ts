@@ -2,6 +2,8 @@ import {
   createClubhouseEntryRecord,
   getClubhouseEntryRecordByPayarcCheckoutId,
 } from "@/lib/clubhouse-entry-store";
+import { findOrCreateCheckoutEntry } from "@/lib/payment-idempotency";
+import { isLegacyPayarcEnabled } from "@/lib/payment-provider";
 import {
   listPayarcCheckoutRecords,
   updatePayarcCheckoutRecord,
@@ -39,6 +41,15 @@ function webhookLooksSuccessful(payload: unknown) {
 }
 
 export async function POST(request: Request) {
+  if (!isLegacyPayarcEnabled()) {
+    return Response.json(
+      {
+        error: "Payarc webhooks are disabled for this deployment.",
+      },
+      { status: 410 },
+    );
+  }
+
   const payload = (await request.json().catch(() => null)) as unknown;
 
   if (!payload) {
@@ -78,55 +89,44 @@ export async function POST(request: Request) {
     return Response.json({ received: true, matched: false });
   }
 
-  const existingEntry = await getClubhouseEntryRecordByPayarcCheckoutId(
-    updatedCheckout.id,
-  );
-
-  if (existingEntry) {
-    if (!updatedCheckout.confirmationEmailSentAt) {
-      await sendPaymentConfirmationEmails({
-        checkout: updatedCheckout,
-        entry: existingEntry,
-        request,
+  const entry = await findOrCreateCheckoutEntry({
+    findExisting: async () =>
+      await getClubhouseEntryRecordByPayarcCheckoutId(updatedCheckout.id),
+    createEntry: async () => {
+      const createdEntry = await createClubhouseEntryRecord({
+        challengeSlug: updatedCheckout.challengeSlug,
+        playerName: updatedCheckout.playerName,
+        playerEmail: updatedCheckout.playerEmail,
+        phoneNumber: updatedCheckout.phoneNumber,
+        e6DisplayName: updatedCheckout.e6DisplayName,
+        payarcCheckoutId: updatedCheckout.id,
+        payarcOrderId: updatedCheckout.payarcOrderId,
+        venueBookingReference: `Payarc order ${updatedCheckout.payarcOrderId}`,
+        locationSlug: updatedCheckout.locationSlug,
+        locationName: updatedCheckout.locationName,
+        bayName: updatedCheckout.bayName,
       });
+
       await updatePayarcCheckoutRecord(updatedCheckout.id, {
-        confirmationEmailSentAt: new Date().toISOString(),
+        entryId: createdEntry.id,
       });
-    }
 
-    return Response.json({
-      received: true,
-      matched: true,
-      entryId: existingEntry.id,
+      return createdEntry;
+    },
+    recoverExisting: async () =>
+      await getClubhouseEntryRecordByPayarcCheckoutId(updatedCheckout.id),
+  });
+
+  if (!updatedCheckout.confirmationEmailSentAt) {
+    await sendPaymentConfirmationEmails({
+      checkout: updatedCheckout,
+      entry,
+      request,
+    });
+    await updatePayarcCheckoutRecord(updatedCheckout.id, {
+      confirmationEmailSentAt: new Date().toISOString(),
     });
   }
-
-  const entry = await createClubhouseEntryRecord({
-    challengeSlug: updatedCheckout.challengeSlug,
-    playerName: updatedCheckout.playerName,
-    playerEmail: updatedCheckout.playerEmail,
-    phoneNumber: updatedCheckout.phoneNumber,
-    e6DisplayName: updatedCheckout.e6DisplayName,
-    payarcCheckoutId: updatedCheckout.id,
-    payarcOrderId: updatedCheckout.payarcOrderId,
-    venueBookingReference: `Payarc order ${updatedCheckout.payarcOrderId}`,
-    locationSlug: updatedCheckout.locationSlug,
-    locationName: updatedCheckout.locationName,
-    bayName: updatedCheckout.bayName,
-  });
-
-  await updatePayarcCheckoutRecord(updatedCheckout.id, {
-    entryId: entry.id,
-  });
-
-  await sendPaymentConfirmationEmails({
-    checkout: updatedCheckout,
-    entry,
-    request,
-  });
-  await updatePayarcCheckoutRecord(updatedCheckout.id, {
-    confirmationEmailSentAt: new Date().toISOString(),
-  });
 
   return Response.json({
     received: true,

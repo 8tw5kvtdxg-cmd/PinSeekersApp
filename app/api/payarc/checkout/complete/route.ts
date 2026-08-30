@@ -2,6 +2,8 @@ import {
   createClubhouseEntryRecord,
   getClubhouseEntryRecordByPayarcCheckoutId,
 } from "@/lib/clubhouse-entry-store";
+import { findOrCreateCheckoutEntry } from "@/lib/payment-idempotency";
+import { isLegacyPayarcEnabled } from "@/lib/payment-provider";
 import {
   getPayarcCheckoutRecord,
   updatePayarcCheckoutRecord,
@@ -13,6 +15,14 @@ import { getCurrentVerifiedPlayer, normalizeEmail } from "@/lib/player-auth";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  if (!isLegacyPayarcEnabled()) {
+    return Response.json(
+      {
+        error: "Payarc checkout completion is disabled for this deployment.",
+      },
+      { status: 410 },
+    );
+  }
   const { player, error, status } = await getCurrentVerifiedPlayer();
 
   if (error || !player) {
@@ -93,32 +103,44 @@ export async function POST(request: Request) {
       throw new Error("Checkout could not be updated.");
     }
 
-    const entry = await createClubhouseEntryRecord({
-      challengeSlug: updatedCheckout.challengeSlug,
-      playerName: updatedCheckout.playerName,
-      playerEmail: updatedCheckout.playerEmail,
-      phoneNumber: updatedCheckout.phoneNumber,
-      e6DisplayName: updatedCheckout.e6DisplayName,
-      payarcCheckoutId: updatedCheckout.id,
-      payarcOrderId: updatedCheckout.payarcOrderId,
-      venueBookingReference: `Payarc order ${updatedCheckout.payarcOrderId}`,
-      locationSlug: updatedCheckout.locationSlug,
-      locationName: updatedCheckout.locationName,
-      bayName: updatedCheckout.bayName,
+    const entry = await findOrCreateCheckoutEntry({
+      findExisting: async () =>
+        await getClubhouseEntryRecordByPayarcCheckoutId(updatedCheckout.id),
+      createEntry: async () => {
+        const createdEntry = await createClubhouseEntryRecord({
+          challengeSlug: updatedCheckout.challengeSlug,
+          playerName: updatedCheckout.playerName,
+          playerEmail: updatedCheckout.playerEmail,
+          phoneNumber: updatedCheckout.phoneNumber,
+          e6DisplayName: updatedCheckout.e6DisplayName,
+          payarcCheckoutId: updatedCheckout.id,
+          payarcOrderId: updatedCheckout.payarcOrderId,
+          venueBookingReference: `Payarc order ${updatedCheckout.payarcOrderId}`,
+          locationSlug: updatedCheckout.locationSlug,
+          locationName: updatedCheckout.locationName,
+          bayName: updatedCheckout.bayName,
+        });
+
+        await updatePayarcCheckoutRecord(updatedCheckout.id, {
+          entryId: createdEntry.id,
+        });
+
+        return createdEntry;
+      },
+      recoverExisting: async () =>
+        await getClubhouseEntryRecordByPayarcCheckoutId(updatedCheckout.id),
     });
 
-    await updatePayarcCheckoutRecord(updatedCheckout.id, {
-      entryId: entry.id,
-    });
-
-    await sendPaymentConfirmationEmails({
-      checkout: updatedCheckout,
-      entry,
-      request,
-    });
-    await updatePayarcCheckoutRecord(updatedCheckout.id, {
-      confirmationEmailSentAt: new Date().toISOString(),
-    });
+    if (!updatedCheckout.confirmationEmailSentAt) {
+      await sendPaymentConfirmationEmails({
+        checkout: updatedCheckout,
+        entry,
+        request,
+      });
+      await updatePayarcCheckoutRecord(updatedCheckout.id, {
+        confirmationEmailSentAt: new Date().toISOString(),
+      });
+    }
 
     return Response.json({ entry }, { status: 201 });
   } catch (caughtError) {

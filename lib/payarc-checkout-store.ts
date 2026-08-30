@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { canTransitionCheckoutStatus } from "@/lib/checkout-status";
 
 export type PayarcCheckoutStatus = "Pending" | "Succeeded" | "Failed";
 
@@ -112,6 +113,12 @@ export async function updatePayarcCheckoutRecord(
 
   if (!checkout) {
     return null;
+  }
+
+  const nextStatus = patch.status as PayarcCheckoutStatus | undefined;
+
+  if (nextStatus && !canTransitionCheckoutStatus(checkout.status, nextStatus)) {
+    return checkout;
   }
 
   const updatedCheckout: PayarcCheckoutRecord = {
