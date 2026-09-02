@@ -24,6 +24,7 @@ export default async function QrAccountPage({
   const nextPath = `/play/${challenge.slug}?${new URLSearchParams({
     ...(location ? { location } : {}),
     ...(bay ? { bay } : {}),
+    autoCheckout: "1",
   }).toString()}`;
   const player = await getCurrentPlayer();
 

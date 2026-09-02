@@ -20,6 +20,7 @@ const alamoBookingUrl = "https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5x
 
 type EntryFlowProps = {
   challenge: ClubhouseChallenge;
+  autoCheckout?: boolean;
   squareReturn?: {
     checkoutId?: string;
     orderId?: string;
@@ -98,6 +99,7 @@ function formatEntryFee(cents: number) {
 
 export function EntryFlow({
   challenge,
+  autoCheckout = false,
   squareReturn,
 }: EntryFlowProps) {
   const storageKey = `pin2win-entry-draft-${challenge.slug}`;
@@ -119,6 +121,7 @@ export function EntryFlow({
     useState(false);
   const [isCompletingSquareCheckout, setIsCompletingSquareCheckout] =
     useState(Boolean(squareReturn?.checkoutId));
+  const autoCheckoutStartedRef = useRef(false);
 
   useEffect(() => {
     async function loadPlayerAccount() {
@@ -203,6 +206,32 @@ export function EntryFlow({
 
     void completeReturnedSquareCheckout();
   }, [squareReturn?.checkoutId, squareReturn?.orderId, squareReturn?.paymentId]);
+
+  useEffect(() => {
+    if (
+      !autoCheckout ||
+      isLoadingAccount ||
+      !playerAccount ||
+      !playerName.trim() ||
+      !phoneNumber.trim() ||
+      !e6DisplayName.trim() ||
+      isStartingSquareCheckout ||
+      autoCheckoutStartedRef.current
+    ) {
+      return;
+    }
+
+    autoCheckoutStartedRef.current = true;
+    void startSquareCheckout();
+  }, [
+    autoCheckout,
+    e6DisplayName,
+    isLoadingAccount,
+    isStartingSquareCheckout,
+    phoneNumber,
+    playerAccount,
+    playerName,
+  ]);
   const hasPlayerAccount = Boolean(playerAccount);
   const hasEntryDetails = Boolean(
     playerName.trim() && phoneNumber.trim() && e6DisplayName.trim(),

@@ -14,6 +14,7 @@ export default async function ClubhouseChallengePage({
   params: Promise<{ challengeId: string }>;
   searchParams: Promise<{
     bay?: string;
+    autoCheckout?: string;
     checkoutId?: string;
     location?: string;
     orderId?: string;
@@ -25,6 +26,7 @@ export default async function ClubhouseChallengePage({
   const { challengeId } = await params;
   const {
     bay,
+    autoCheckout,
     checkoutId,
     location,
     orderId,
@@ -91,6 +93,7 @@ export default async function ClubhouseChallengePage({
         <div className="mt-10">
           <EntryFlow
             challenge={challenge}
+            autoCheckout={autoCheckout === "1"}
             squareReturn={{
               checkoutId: squareCheckoutId ?? checkoutId ?? referenceId ?? "",
               orderId: orderId ?? "",
