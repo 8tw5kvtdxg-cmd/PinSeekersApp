@@ -184,39 +184,30 @@ function PreviousBookingsTable({
 }: {
   bookings: BookingVerificationRecord[];
 }) {
-  const now = new Date();
-  const previousBookings = bookings
-    .filter((booking) => {
-      const reservationStartsAt = asDate(booking.reservationStartsAt);
+  const capturedBookings = [...bookings].sort((left, right) => {
+    const leftTime = asDate(left.createdAt)?.getTime() ?? 0;
+    const rightTime = asDate(right.createdAt)?.getTime() ?? 0;
 
-      return reservationStartsAt
-        ? reservationStartsAt.getTime() < now.getTime()
-        : false;
-    })
-    .sort((left, right) => {
-      const leftTime = asDate(left.reservationStartsAt)?.getTime() ?? 0;
-      const rightTime = asDate(right.reservationStartsAt)?.getTime() ?? 0;
-
-      return rightTime - leftTime;
-    });
+    return rightTime - leftTime;
+  });
 
   return (
     <div className="mt-8 border-t border-[#ece5d8] pt-6">
       <div className="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
         <div>
-          <h3 className="text-xl font-black">Previous bookings</h3>
+          <h3 className="text-xl font-black">Captured booking emails</h3>
           <p className="mt-1 text-sm font-bold text-[#59655f]">
-            Completed reservation times captured from booking emails.
+            All booking confirmations received by Pin2Win, including upcoming reservations.
           </p>
         </div>
         <p className="text-sm font-black text-[#87908a]">
-          {previousBookings.length} total
+          {capturedBookings.length} total
         </p>
       </div>
 
-      {previousBookings.length === 0 ? (
+      {capturedBookings.length === 0 ? (
         <div className="rounded-md bg-[#fbf8f1] p-4 text-sm font-bold text-[#59655f]">
-          No previous bookings have been captured yet.
+          No booking emails have been captured yet.
         </div>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-[#ece5d8]">
@@ -231,7 +222,7 @@ function PreviousBookingsTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-[#ece5d8] bg-white">
-              {previousBookings.map((booking) => (
+              {capturedBookings.map((booking) => (
                 <tr key={booking.id}>
                   <td className="px-4 py-4">
                     <p className="font-black text-[#18211f]">

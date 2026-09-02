@@ -84,14 +84,15 @@ function overlaySvg(iconData) {
 
       ${text("HOW TO PLAY", center, 800, { size: 196, weight: 900, fill: "url(#goldText)" })}
       ${text("HOLE-IN-ONE CHALLENGE", center, 985, { size: 84, weight: 900, fill: "#ffe7a2" })}
-      ${text("Follow these six steps to enter and play.", center, 1140, { size: 68, weight: 700, fill: "#eeeeee" })}
+      ${text("Follow these seven steps to enter and play.", center, 1140, { size: 68, weight: 700, fill: "#eeeeee" })}
 
-      ${step(1, "SCAN THE QR CODE", "Start from the QR code at the venue.", 1450)}
-      ${step(2, "CREATE ACCOUNT / LOGIN", "Use the same username in E6 Golf to verify your results.", 2050)}
-      ${step(3, "PAY THROUGH SQUARE", "Complete the secure payment for your five-shot entry.", 2650)}
-      ${step(4, "GET YOUR EVENT CODE", "Payment confirmed: your code is revealed.", 3250, "Open the Events tab in E6 Golf.")}
-      ${step(5, "ENTER THE EVENT CODE", "Bottom left: select Enter Event Code, then type in the code.", 3850)}
-      ${step(6, "SWING AWAY!", "You are ready to take your shots. Good luck!", 4450, "", false)}
+      ${step(1, "SCAN THE QR CODE", "Start from the QR code at the venue.", 1400)}
+      ${step(2, "CREATE ACCOUNT / LOGIN", "Use the same username in E6 Golf to verify your results.", 1900)}
+      ${step(3, "PAY THROUGH SQUARE", "Complete the secure payment for your five-shot entry.", 2400)}
+      ${step(4, "GET YOUR EVENT CODE", "Payment confirmed: your code is revealed.", 2900, "Open the Events tab in E6 Golf.")}
+      ${step(5, "ENTER THE EVENT CODE", "Bottom left: select Enter Event Code, then type in the code.", 3400)}
+      ${step(6, "SWING AWAY!", "You are ready to take your shots. Good luck!", 3900)}
+      ${step(7, "ENTER YOUR RESULT", "Enter your result on the Pin2Win platform.", 4400, "Would you like to try again?", false)}
     </svg>
   `);
 }
