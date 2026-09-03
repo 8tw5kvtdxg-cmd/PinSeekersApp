@@ -2,6 +2,40 @@
 
 Use this workflow to automatically add partner booking confirmation emails to the Admin Booking Queue.
 
+## Preferred workflow: Resend inbound email
+
+Pin2Win accepts Resend `email.received` events at:
+
+`POST https://pin2wingolf.com/api/resend/inbound`
+
+Required Vercel production environment variables:
+
+```text
+RESEND_API_KEY=re_...
+RESEND_WEBHOOK_SECRET=whsec_...
+```
+
+In Resend:
+
+1. Open **Emails -> Receiving** and copy the account's Resend-managed receiving address.
+2. Open **Webhooks** and create or verify a webhook for
+   `https://pin2wingolf.com/api/resend/inbound` with the `email.received` event.
+3. Copy that webhook's signing secret into Vercel as
+   `RESEND_WEBHOOK_SECRET` for Production.
+4. Redeploy the production application after saving the variable.
+5. Configure the Alamo/Golf918 booking mailbox to redirect or forward booking
+   confirmations to the Resend receiving address.
+6. Send one real booking confirmation and confirm it appears under
+   **Admin Portal -> Booking Queue** with the correct customer email, bay, and
+   reservation time.
+
+Use the Resend-managed receiving domain initially. Enabling receiving on the
+root `pin2wingolf.com` domain requires an MX-record change and can conflict with
+an existing inbox provider. A dedicated receiving subdomain can be configured
+later if a branded inbound address is needed.
+
+## Alternative workflow: HTTP intake automation
+
 ## Endpoint
 
 `POST https://pin2wingolf.com/api/booking-email-intake`
