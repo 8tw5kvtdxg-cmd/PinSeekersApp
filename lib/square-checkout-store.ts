@@ -21,6 +21,7 @@ export type SquareCheckoutRecord = {
   squarePaymentLinkUrl: string;
   squarePaymentId?: string;
   entryId?: string;
+  accessRevealedAt?: string;
   confirmationEmailSentAt?: string;
   createdAt: string;
   updatedAt: string;
@@ -47,6 +48,7 @@ function toSquareCheckoutRecord(checkout: {
   squarePaymentLinkUrl: string;
   squarePaymentId: string | null;
   entryId: string | null;
+  accessRevealedAt: Date | null;
   confirmationEmailSentAt: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -68,6 +70,7 @@ function toSquareCheckoutRecord(checkout: {
     squarePaymentLinkUrl: checkout.squarePaymentLinkUrl,
     squarePaymentId: checkout.squarePaymentId ?? undefined,
     entryId: checkout.entryId ?? undefined,
+    accessRevealedAt: checkout.accessRevealedAt?.toISOString(),
     confirmationEmailSentAt: checkout.confirmationEmailSentAt ?? undefined,
     createdAt: checkout.createdAt.toISOString(),
     updatedAt: checkout.updatedAt.toISOString(),
@@ -132,6 +135,7 @@ export async function updateSquareCheckoutRecord(
       | "status"
       | "squarePaymentId"
       | "entryId"
+      | "accessRevealedAt"
       | "confirmationEmailSentAt"
     >
   >,
@@ -166,4 +170,19 @@ export async function updateSquareCheckoutRecord(
   });
 
   return toSquareCheckoutRecord(checkout);
+}
+
+export async function claimSquareCheckoutAccess(checkoutId: string) {
+  const prisma = getPrismaClient();
+
+  if (!prisma) {
+    throw new Error("Database is required for Square checkout.");
+  }
+
+  const result = await prisma.squareCheckout.updateMany({
+    data: { accessRevealedAt: new Date() },
+    where: { id: checkoutId, accessRevealedAt: null },
+  });
+
+  return result.count === 1;
 }

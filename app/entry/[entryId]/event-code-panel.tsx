@@ -4,12 +4,10 @@ import { useEffect, useState } from "react";
 import { KeyRound } from "lucide-react";
 
 type EventCodePanelProps = {
-  fallbackEventCode: string;
   entryId: string;
 };
 
 export function EventCodePanel({
-  fallbackEventCode,
   entryId,
 }: EventCodePanelProps) {
   const [savedPlayer, setSavedPlayer] = useState<{
@@ -77,12 +75,9 @@ export function EventCodePanel({
         <KeyRound className="text-[#2f6b3f]" size={26} />
         <h2 className="text-xl font-black">Simulator Event Code</h2>
       </div>
-      <p className="mt-4 rounded-md bg-white px-4 py-4 text-2xl font-black tracking-[0.08em]">
-        {fallbackEventCode}
-      </p>
-      <p className="mt-3 text-sm leading-6 text-[#59655f]">
-        Enter this in the simulator software after the challenge event has
-        started.
+      <p className="mt-4 rounded-md bg-white px-4 py-4 text-sm font-bold leading-6 text-[#59655f]">
+        Event code access is available only on the payment-confirmed simulator
+        access page.
       </p>
     </div>
   );

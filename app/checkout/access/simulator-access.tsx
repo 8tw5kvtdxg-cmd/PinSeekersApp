@@ -6,6 +6,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Clock,
+  CreditCard,
   KeyRound,
   MapPin,
   MonitorPlay,
@@ -29,6 +30,7 @@ type Entry = {
   e6DisplayName: string;
   e6EventCode: string;
   locationName?: string;
+  locationSlug?: string;
   bayName?: string;
   validFrom: string;
   validUntil: string;
@@ -55,6 +57,38 @@ export function SimulatorAccess({
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(Boolean(checkoutId));
   const [isEventCodeHidden, setIsEventCodeHidden] = useState(false);
+  const [isCaptureWarningVisible, setIsCaptureWarningVisible] = useState(false);
+
+  useEffect(() => {
+    function handleVisibilityChange() {
+      setIsCaptureWarningVisible(document.hidden);
+    }
+
+    function handleContextMenu(event: MouseEvent) {
+      event.preventDefault();
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (
+        event.key === "PrintScreen" ||
+        (event.metaKey && event.shiftKey && ["3", "4", "5"].includes(event.key)) ||
+        (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "s")
+      ) {
+        event.preventDefault();
+        setIsCaptureWarningVisible(true);
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("contextmenu", handleContextMenu);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener("contextmenu", handleContextMenu);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   useEffect(() => {
     if (!checkoutId) {
@@ -69,7 +103,12 @@ export function SimulatorAccess({
 
       try {
         const response = await fetch("/api/square/checkout/complete", {
-          body: JSON.stringify({ checkoutId, squareOrderId, squarePaymentId }),
+          body: JSON.stringify({
+            checkoutId,
+            revealAccess: true,
+            squareOrderId,
+            squarePaymentId,
+          }),
           headers: { "Content-Type": "application/json" },
           method: "POST",
         });
@@ -173,7 +212,12 @@ export function SimulatorAccess({
   }
 
   return (
-    <div className="mx-auto mt-8 max-w-5xl">
+    <div
+      className={`mx-auto mt-8 max-w-5xl ${
+        isCaptureWarningVisible ? "select-none blur-xl" : ""
+      }`}
+      style={{ WebkitTouchCallout: "none" }}
+    >
       <section className="overflow-hidden rounded-lg border border-[#ded6c8] bg-white shadow-xl shadow-[#18211f]/8">
         <div className="grid gap-0 lg:grid-cols-[0.95fr_1.05fr]">
           <div className="bg-[#18211f] p-6 text-white sm:p-8">
@@ -300,6 +344,16 @@ export function SimulatorAccess({
 
       {entry ? (
         <div className="mt-6 flex flex-wrap gap-3">
+          <Link
+            href={`/play/${entry.challengeSlug}?${new URLSearchParams({
+              ...(entry.locationSlug ? { location: entry.locationSlug } : {}),
+              ...(entry.bayName ? { bay: entry.bayName } : {}),
+              autoCheckout: "1",
+            }).toString()}`}
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-5 text-sm font-black text-white"
+          >
+            <CreditCard size={17} /> Play again
+          </Link>
           <Link
             href={`/entry/${entry.id}?challenge=${entry.challengeSlug}`}
             className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white"

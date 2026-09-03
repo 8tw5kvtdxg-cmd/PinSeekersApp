@@ -217,6 +217,7 @@ model SquareCheckout {
   squarePaymentLinkUrl    String
   squarePaymentId         String?
   entryId                 String?
+  accessRevealedAt        DateTime?
   confirmationEmailSentAt String?
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt

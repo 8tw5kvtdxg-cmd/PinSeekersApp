@@ -4,6 +4,7 @@ import {
 } from "@/lib/clubhouse-entry-store";
 import { findOrCreateCheckoutEntry } from "@/lib/payment-idempotency";
 import {
+  claimSquareCheckoutAccess,
   getSquareCheckoutRecord,
   updateSquareCheckoutRecord,
 } from "@/lib/square-checkout-store";
@@ -20,6 +21,7 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   const body = (await request.json()) as {
     checkoutId?: unknown;
+    revealAccess?: unknown;
     squareOrderId?: unknown;
     squarePaymentId?: unknown;
   };
@@ -29,6 +31,7 @@ export async function POST(request: Request) {
     typeof body.squareOrderId === "string" ? body.squareOrderId.trim() : "";
   const squarePaymentId =
     typeof body.squarePaymentId === "string" ? body.squarePaymentId.trim() : "";
+  const revealAccess = body.revealAccess === true;
 
   if (!checkoutId) {
     return Response.json({ error: "Checkout ID is required." }, { status: 400 });
@@ -46,6 +49,20 @@ export async function POST(request: Request) {
     );
 
     if (existingEntry) {
+      if (revealAccess && checkout.accessRevealedAt) {
+        return Response.json(
+          { error: "This event code has already been revealed. Please pay again to play again." },
+          { status: 409 },
+        );
+      }
+
+      if (revealAccess && !(await claimSquareCheckoutAccess(checkout.id))) {
+        return Response.json(
+          { error: "This event code has already been revealed. Please pay again to play again." },
+          { status: 409 },
+        );
+      }
+
       return Response.json({ entry: existingEntry });
     }
 
@@ -122,6 +139,16 @@ export async function POST(request: Request) {
       await updateSquareCheckoutRecord(updatedCheckout.id, {
         confirmationEmailSentAt: new Date().toISOString(),
       });
+    }
+
+    if (revealAccess && !(await claimSquareCheckoutAccess(checkout.id))) {
+      return Response.json(
+        {
+          error:
+            "This event code has already been revealed. Please pay again to play again.",
+        },
+        { status: 409 },
+      );
     }
 
     return Response.json({ entry }, { status: 201 });
