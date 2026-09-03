@@ -7,6 +7,7 @@ import {
   ArrowRight,
   KeyRound,
   Lock,
+  LoaderCircle,
   UserPlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -38,6 +39,7 @@ export function QrAccountGate({
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRedirectingToCheckout, setIsRedirectingToCheckout] = useState(false);
 
   async function submitAccount(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -93,17 +95,34 @@ export function QrAccountGate({
         throw new Error(data.error ?? "Could not access account.");
       }
 
+      setIsRedirectingToCheckout(true);
       router.replace(nextPath);
-      router.refresh();
     } catch (caughtError) {
+      setIsRedirectingToCheckout(false);
       setError(
         caughtError instanceof Error
           ? caughtError.message
           : "Could not access account.",
       );
     } finally {
-      setIsSubmitting(false);
+      if (!isRedirectingToCheckout) {
+        setIsSubmitting(false);
+      }
     }
+  }
+
+  if (isRedirectingToCheckout) {
+    return (
+      <div className="flex min-h-[calc(100vh-9rem)] items-center justify-center py-8">
+        <section className="w-full max-w-md rounded-lg border border-[#ded6c8] bg-white p-8 text-center shadow-xl shadow-[#18211f]/10">
+          <LoaderCircle className="mx-auto animate-spin text-[#2f6b3f]" size={38} />
+          <h1 className="mt-5 text-2xl font-black">Taking you to secure checkout</h1>
+          <p className="mt-3 text-sm leading-6 text-[#59655f]">
+            Your account is ready. Square checkout will open next.
+          </p>
+        </section>
+      </div>
+    );
   }
 
   return (
