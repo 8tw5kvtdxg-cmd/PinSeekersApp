@@ -1,5 +1,6 @@
 {
   "pin2WinApiBaseUrl": "http://localhost:3000",
+  "apiSecret": "replace-with-the-simulator-api-secret",
   "operatorName": "Operator Name",
   "defaultSession": {
     "provider": "TRUGOLF_APOGEE_E6",

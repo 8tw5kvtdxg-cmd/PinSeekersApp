@@ -3,6 +3,10 @@ import type {
   SimulatorResult,
   SimulatorSession,
 } from "@/lib/simulator/types";
+import {
+  isSimulatorRequestAuthenticated,
+  simulatorUnauthorizedResponse,
+} from "@/lib/simulator-auth";
 
 type ExportRow = {
   pin2WinSessionId: string;
@@ -151,6 +155,10 @@ function filename(format: string, pin2WinSessionId?: string | null) {
 }
 
 export async function GET(request: Request) {
+  if (!(await isSimulatorRequestAuthenticated(request))) {
+    return simulatorUnauthorizedResponse();
+  }
+
   const url = new URL(request.url);
   const format = url.searchParams.get("format") ?? "csv";
   const pin2WinSessionId = url.searchParams.get("sessionId");

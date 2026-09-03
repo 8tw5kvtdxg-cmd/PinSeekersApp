@@ -6,7 +6,15 @@ import {
 } from "@/lib/admin-auth";
 
 function getSafeNextPath(value: FormDataEntryValue | null) {
-  if (typeof value !== "string" || !value.startsWith("/admin")) {
+  if (
+    typeof value !== "string" ||
+    !(
+      value === "/admin" ||
+      value.startsWith("/admin/") ||
+      value === "/testing-portal" ||
+      value.startsWith("/testing-portal/")
+    )
+  ) {
     return "/admin";
   }
 

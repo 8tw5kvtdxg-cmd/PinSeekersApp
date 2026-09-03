@@ -8,7 +8,12 @@ import {
   updateSquareCheckoutRecord,
 } from "@/lib/square-checkout-store";
 import { sendPaymentConfirmationEmails } from "@/lib/payment-confirmation-email";
-import { squareOrderLooksPaid, verifySquareWebhookSignature } from "@/lib/square";
+import {
+  getSquareOrder,
+  squareOrderLooksPaid,
+  verifySquareWebhookSignature,
+} from "@/lib/square";
+import { recordTransactionAuditEvent } from "@/lib/transaction-audit";
 
 export const dynamic = "force-dynamic";
 
@@ -62,7 +67,9 @@ export async function POST(request: Request) {
     return Response.json({ received: true, matched: false });
   }
 
-  if (!squareOrderLooksPaid(payload)) {
+  const squareOrder = await getSquareOrder({ orderId: checkout.squareOrderId });
+
+  if (!squareOrderLooksPaid(squareOrder, checkout.amountCents)) {
     return Response.json({ received: true, matched: true, status: checkout.status });
   }
 
@@ -70,9 +77,21 @@ export async function POST(request: Request) {
     squarePaymentId: findPaymentId(payload) || checkout.squarePaymentId,
     status: "Succeeded",
   });
+  await recordTransactionAuditEvent({
+    checkoutId: updatedCheckout.id,
+    provider: "square",
+    event: "payment_confirmed",
+    status: "Succeeded",
+    meta: {
+      squareOrderId: updatedCheckout.squareOrderId,
+      squarePaymentId: updatedCheckout.squarePaymentId ?? "",
+    },
+  });
+  const existingEntry = await getClubhouseEntryRecordBySquareCheckoutId(
+    updatedCheckout.id,
+  );
   const entry = await findOrCreateCheckoutEntry({
-    findExisting: async () =>
-      await getClubhouseEntryRecordBySquareCheckoutId(updatedCheckout.id),
+    findExisting: async () => existingEntry,
     createEntry: async () => {
       const createdEntry = await createClubhouseEntryRecord({
         challengeSlug: updatedCheckout.challengeSlug,
@@ -99,15 +118,43 @@ export async function POST(request: Request) {
       await getClubhouseEntryRecordBySquareCheckoutId(updatedCheckout.id),
   });
 
+  if (!existingEntry) {
+    await recordTransactionAuditEvent({
+      checkoutId: updatedCheckout.id,
+      provider: "square",
+      event: "entry_created",
+      status: "Succeeded",
+      meta: { entryId: entry.id },
+    });
+  }
+
   if (!updatedCheckout.confirmationEmailSentAt) {
-    await sendPaymentConfirmationEmails({
-      checkout: updatedCheckout,
-      entry,
-      request,
-    });
-    await updateSquareCheckoutRecord(updatedCheckout.id, {
-      confirmationEmailSentAt: new Date().toISOString(),
-    });
+    try {
+      await sendPaymentConfirmationEmails({
+        checkout: updatedCheckout,
+        entry,
+        request,
+      });
+      await updateSquareCheckoutRecord(updatedCheckout.id, {
+        confirmationEmailSentAt: new Date().toISOString(),
+      });
+      await recordTransactionAuditEvent({
+        checkoutId: updatedCheckout.id,
+        provider: "square",
+        event: "confirmation_emails_sent",
+        status: "Succeeded",
+        meta: { entryId: entry.id },
+      });
+    } catch (error) {
+      await recordTransactionAuditEvent({
+        checkoutId: updatedCheckout.id,
+        provider: "square",
+        event: "confirmation_emails_failed",
+        status: "Failed",
+        meta: { entryId: entry.id },
+      });
+      throw error;
+    }
   }
 
   return Response.json({

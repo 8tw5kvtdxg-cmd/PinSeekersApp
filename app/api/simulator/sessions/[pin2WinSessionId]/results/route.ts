@@ -3,12 +3,20 @@ import {
   listSimulatorResults,
 } from "@/lib/simulator/store";
 import type { SimulatorResultInput } from "@/lib/simulator/types";
+import {
+  isSimulatorRequestAuthenticated,
+  simulatorUnauthorizedResponse,
+} from "@/lib/simulator-auth";
 
 type Context = {
   params: Promise<{ pin2WinSessionId: string }>;
 };
 
-export async function GET(_request: Request, context: Context) {
+export async function GET(request: Request, context: Context) {
+  if (!(await isSimulatorRequestAuthenticated(request))) {
+    return simulatorUnauthorizedResponse();
+  }
+
   const { pin2WinSessionId } = await context.params;
 
   return Response.json({
@@ -17,6 +25,10 @@ export async function GET(_request: Request, context: Context) {
 }
 
 export async function POST(request: Request, context: Context) {
+  if (!(await isSimulatorRequestAuthenticated(request))) {
+    return simulatorUnauthorizedResponse();
+  }
+
   const { pin2WinSessionId } = await context.params;
   const input = (await request.json()) as SimulatorResultInput;
 

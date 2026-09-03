@@ -226,6 +226,19 @@ model SquareCheckout {
   @@index([status, createdAt])
 }
 
+model TransactionAuditEventRecord {
+  id         String   @id
+  checkoutId String
+  provider   String
+  event      String
+  status     String
+  meta       Json?
+  createdAt  DateTime @default(now())
+
+  @@index([checkoutId, createdAt])
+  @@index([event, createdAt])
+}
+
 model OperatingCost {
   id            String   @id @default(cuid())
   incurredAt    DateTime

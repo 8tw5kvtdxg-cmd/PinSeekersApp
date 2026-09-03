@@ -11,7 +11,11 @@ export default async function AdminLoginPage({
   const params = await searchParams;
   const isAuthenticated = await isAdminAuthenticated();
   const nextPath =
-    typeof params.next === "string" && params.next.startsWith("/admin")
+    typeof params.next === "string" &&
+    (params.next === "/admin" ||
+      params.next.startsWith("/admin/") ||
+      params.next === "/testing-portal" ||
+      params.next.startsWith("/testing-portal/"))
       ? params.next
       : "/admin";
 

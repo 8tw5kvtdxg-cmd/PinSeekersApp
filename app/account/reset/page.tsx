@@ -1,22 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ArrowRight, CheckCircle2, KeyRound, Lock } from "lucide-react";
 
 export default function AccountResetPage() {
-  const [token, setToken] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    setToken(new URLSearchParams(window.location.search).get("token") ?? "");
-  }, []);
-
   async function submitPasswordReset() {
+    const token = new URLSearchParams(window.location.search).get("token") ?? "";
+
     if (!token) {
       setError("Reset link is missing.");
       return;

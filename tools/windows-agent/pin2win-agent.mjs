@@ -14,10 +14,14 @@ function readConfig() {
 }
 
 async function requestJson(baseUrl, route, options = {}) {
+  const config = readConfig();
   const response = await fetch(`${baseUrl}${route}`, {
     ...options,
     headers: {
       "content-type": "application/json",
+      ...(config.apiSecret
+        ? { authorization: `Bearer ${config.apiSecret}` }
+        : {}),
       ...(options.headers ?? {}),
     },
   });

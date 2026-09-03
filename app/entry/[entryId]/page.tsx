@@ -11,6 +11,7 @@ import { AdminEntryConfirmationPanel } from "@/app/entry/[entryId]/admin-entry-c
 import { EventCodePanel } from "@/app/entry/[entryId]/event-code-panel";
 import { getClubhouseEntryRecord } from "@/lib/clubhouse-entry-store";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
+import { getCurrentPlayer, normalizeEmail } from "@/lib/player-auth";
 import {
   getClubhouseChallenge,
   getClubhouseEntry,
@@ -27,6 +28,7 @@ export default async function EntryConfirmationPage({
   const { entryId } = await params;
   const { challenge: challengeSlug } = await searchParams;
   const isAdmin = await isAdminAuthenticated();
+  const player = isAdmin ? null : await getCurrentPlayer();
   const loggedEntry = await getClubhouseEntryRecord(entryId);
   const savedEntry = getClubhouseEntry(entryId);
   const resolvedChallengeSlug =
@@ -37,6 +39,16 @@ export default async function EntryConfirmationPage({
   const challenge = getClubhouseChallenge(resolvedChallengeSlug);
 
   if (!challenge) {
+    notFound();
+  }
+
+  const isOwner = Boolean(
+    player?.email &&
+      loggedEntry?.playerEmail &&
+      normalizeEmail(player.email) === normalizeEmail(loggedEntry.playerEmail),
+  );
+
+  if (!isAdmin && !isOwner) {
     notFound();
   }
 

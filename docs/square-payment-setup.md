@@ -22,6 +22,7 @@ SQUARE_ENVIRONMENT=sandbox
 SQUARE_ACCESS_TOKEN=your_square_access_token
 SQUARE_LOCATION_ID=your_square_location_id
 SQUARE_VERSION=2026-07-15
+SQUARE_WEBHOOK_SIGNATURE_KEY=your_square_webhook_signature_key
 ```
 
 For production processing, change:

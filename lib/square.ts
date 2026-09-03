@@ -1,5 +1,5 @@
 import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
-import { getAppBaseUrl } from "@/lib/app-url";
+import { getAppBaseUrl } from "./app-url.ts";
 
 export type SquarePaymentLink = {
   id: string;
@@ -65,12 +65,6 @@ function getObject(source: Record<string, unknown>, field: string) {
   return value && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : {};
-}
-
-function getArray(source: Record<string, unknown>, field: string) {
-  const value = source[field];
-
-  return Array.isArray(value) ? value : [];
 }
 
 function safeEqual(left: string, right: string) {
@@ -255,28 +249,10 @@ export async function getSquareOrder(input: { orderId: string }) {
   return (await response.json().catch(() => null)) as Record<string, unknown> | null;
 }
 
-export async function getSquarePayment(input: { paymentId: string }) {
-  const response = await fetch(
-    `${getSquareApiBaseUrl()}/v2/payments/${encodeURIComponent(input.paymentId)}`,
-    {
-      cache: "no-store",
-      headers: {
-        Authorization: `Bearer ${getSquareAccessToken()}`,
-        "Content-Type": "application/json",
-        "Square-Version": getSquareVersion(),
-      },
-      method: "GET",
-    },
-  );
-
-  if (!response.ok) {
-    return null;
-  }
-
-  return (await response.json().catch(() => null)) as Record<string, unknown> | null;
-}
-
-export function squareOrderLooksPaid(payload: unknown) {
+export function squareOrderLooksPaid(
+  payload: unknown,
+  expectedAmountCents?: number,
+) {
   if (!payload || typeof payload !== "object") {
     return false;
   }
@@ -285,35 +261,10 @@ export function squareOrderLooksPaid(payload: unknown) {
   const order = getObject(source, "order");
   const orderSource = Object.keys(order).length > 0 ? order : source;
   const state = getString(orderSource, "state").toUpperCase();
-  const tenders = getArray(orderSource, "tenders");
-  const fulfillments = getArray(orderSource, "fulfillments");
-  const text = JSON.stringify(payload).toLowerCase();
+  const totalMoney = getObject(orderSource, "total_money");
+  const totalAmount = Number(totalMoney.amount);
+  const amountMatches =
+    expectedAmountCents === undefined || totalAmount === expectedAmountCents;
 
-  return (
-    (state === "OPEN" && tenders.length > 0) ||
-    (state === "COMPLETED" && tenders.length > 0) ||
-    fulfillments.some((fulfillment) => {
-      if (!fulfillment || typeof fulfillment !== "object") {
-        return false;
-      }
-
-      return getString(fulfillment as Record<string, unknown>, "state") === "COMPLETED";
-    }) ||
-    text.includes("\"state\":\"completed\"") ||
-    text.includes("\"status\":\"completed\"") ||
-    text.includes("\"status\":\"approved\"")
-  );
-}
-
-export function squarePaymentLooksPaid(payload: unknown) {
-  if (!payload || typeof payload !== "object") {
-    return false;
-  }
-
-  const source = payload as Record<string, unknown>;
-  const payment = getObject(source, "payment");
-  const paymentSource = Object.keys(payment).length > 0 ? payment : source;
-  const status = getString(paymentSource, "status").toUpperCase();
-
-  return status === "COMPLETED" || status === "APPROVED";
+  return state === "COMPLETED" && amountMatches;
 }

@@ -5,6 +5,7 @@ import {
 } from "@/lib/square-checkout-store";
 import { createSquarePaymentLink } from "@/lib/square";
 import { getCurrentVerifiedPlayer } from "@/lib/player-auth";
+import { recordTransactionAuditEvent } from "@/lib/transaction-audit";
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +72,18 @@ export async function POST(request: Request) {
       squareOrderId: paymentLink.orderId,
       squarePaymentLinkId: paymentLink.id,
       squarePaymentLinkUrl: paymentLink.url,
+    });
+
+    await recordTransactionAuditEvent({
+      checkoutId: checkout.id,
+      provider: "square",
+      event: "checkout_created",
+      status: "Pending",
+      meta: {
+        amountCents: checkout.amountCents,
+        locationSlug: checkout.locationSlug ?? "",
+        squareOrderId: checkout.squareOrderId,
+      },
     });
 
     return Response.json(

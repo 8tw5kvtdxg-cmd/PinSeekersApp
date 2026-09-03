@@ -117,6 +117,7 @@ To turn on durable persistence:
 
 ```bash
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+PIN2WIN_SIMULATOR_API_SECRET="replace-with-a-long-random-secret"
 ```
 
 2. Generate the Prisma client:
@@ -133,7 +134,9 @@ npm run db:migrate
 
 4. Restart the Next dev server.
 
-After that, `/testing-portal` and the Windows agent will write to the database-backed simulator tables.
+After that, authenticated admins can use `/testing-portal`, and the Windows agent
+can write to the database-backed simulator tables by sending the configured
+`apiSecret` as a bearer token.
 
 ## What To Do With This Now
 

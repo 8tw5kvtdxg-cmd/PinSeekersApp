@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { Trophy } from "lucide-react";
 import { ResultEntryForm } from "@/app/entry/[entryId]/result/result-entry-form";
 import { getClubhouseEntryRecord } from "@/lib/clubhouse-entry-store";
+import { isAdminAuthenticated } from "@/lib/admin-auth";
+import { getCurrentPlayer, normalizeEmail } from "@/lib/player-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -13,8 +15,20 @@ export default async function EntryResultPage({
 }) {
   const { entryId } = await params;
   const entry = await getClubhouseEntryRecord(entryId);
+  const isAdmin = await isAdminAuthenticated();
+  const player = isAdmin ? null : await getCurrentPlayer();
 
   if (!entry) {
+    notFound();
+  }
+
+  const isOwner = Boolean(
+    player?.email &&
+      entry.playerEmail &&
+      normalizeEmail(player.email) === normalizeEmail(entry.playerEmail),
+  );
+
+  if (!isAdmin && !isOwner) {
     notFound();
   }
 

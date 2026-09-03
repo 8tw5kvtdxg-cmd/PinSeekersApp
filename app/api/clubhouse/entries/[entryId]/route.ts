@@ -7,13 +7,14 @@ import {
   updateClubhouseEntryResult,
 } from "@/lib/clubhouse-entry-store";
 import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
+import { getCurrentPlayer, normalizeEmail } from "@/lib/player-auth";
 import { sendEntryDecisionEmails } from "@/lib/entry-decision-email";
 import { sendZapierWebhook } from "@/lib/zapier";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ entryId: string }> },
 ) {
   const { entryId } = await context.params;
@@ -21,6 +22,18 @@ export async function GET(
 
   if (!entry) {
     return Response.json({ error: "Entry not found." }, { status: 404 });
+  }
+
+  const isAdmin = await isAdminRequestAuthenticated(request);
+  const player = isAdmin ? null : await getCurrentPlayer();
+  const isOwner = Boolean(
+    player?.email &&
+      entry.playerEmail &&
+      normalizeEmail(player.email) === normalizeEmail(entry.playerEmail),
+  );
+
+  if (!isAdmin && !isOwner) {
+    return Response.json({ error: "Entry access denied." }, { status: 403 });
   }
 
   return Response.json({ entry });
