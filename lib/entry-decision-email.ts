@@ -3,9 +3,7 @@ import type { ClubhouseEntryRecord } from "@/lib/clubhouse-entry-store";
 import { getClubhouseChallenge } from "@/lib/clubhouse";
 import { getBookingVerificationRecord } from "@/lib/booking-verification-store";
 import { getPayarcCheckoutRecord } from "@/lib/payarc-checkout-store";
-
-const pin2WinNotificationEmail =
-  process.env.PIN2WIN_PAYMENT_NOTIFICATION_EMAIL ?? "pin2wingolf@outlook.com";
+import { getPin2WinNotificationEmails } from "@/lib/notification-email-recipients";
 
 function formatCurrency(cents: number) {
   return new Intl.NumberFormat("en-US", {
@@ -52,7 +50,7 @@ export async function sendEntryDecisionEmails(input: {
   const entrantEmail =
     input.entrantEmail || (await getEntryDecisionRecipientEmail(input.entry));
   const recipients = Array.from(
-    new Set([entrantEmail, pin2WinNotificationEmail].filter(Boolean)),
+    new Set([entrantEmail, ...getPin2WinNotificationEmails()].filter(Boolean)),
   );
 
   if (!entrantEmail) {

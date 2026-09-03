@@ -1,6 +1,7 @@
 import { getAppBaseUrl } from "./app-url.ts";
 import type { ClubhouseEntryRecord } from "./clubhouse-entry-store.ts";
 import { getClubhouseChallenge } from "./clubhouse.ts";
+import { getPin2WinNotificationEmails } from "./notification-email-recipients.ts";
 import type { PayarcCheckoutRecord } from "./payarc-checkout-store.ts";
 import type { SquareCheckoutRecord } from "./square-checkout-store.ts";
 
@@ -11,13 +12,6 @@ function formatCurrency(cents: number) {
   }).format(cents / 100);
 }
 
-function getPin2WinNotificationEmail() {
-  return (
-    process.env.PIN2WIN_PAYMENT_NOTIFICATION_EMAIL?.trim() ||
-    "pin2wingolf@outlook.com"
-  );
-}
-
 async function sendResendEmail(input: {
   apiKey: string;
   from: string;
@@ -25,7 +19,7 @@ async function sendResendEmail(input: {
   subject: string;
   tags: Array<{ name: string; value: string }>;
   text: string;
-  to: string;
+  to: string[];
 }) {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -36,7 +30,7 @@ async function sendResendEmail(input: {
     },
     body: JSON.stringify({
       from: input.from,
-      to: [input.to],
+      to: input.to,
       subject: input.subject,
       text: input.text,
       tags: input.tags,
@@ -68,7 +62,7 @@ export async function sendPaymentConfirmationEmails(input: {
   const from = process.env.PIN2WIN_EMAIL_FROM;
   const challenge = getClubhouseChallenge(input.entry.challengeSlug);
   const entryUrl = `${getAppBaseUrl(input.request)}/entry/${input.entry.id}`;
-  const notificationEmail = getPin2WinNotificationEmail();
+  const notificationEmails = getPin2WinNotificationEmails();
   const amount = formatCurrency(
     input.entry.amountCents ?? input.checkout.amountCents,
   );
@@ -130,7 +124,7 @@ export async function sendPaymentConfirmationEmails(input: {
         { name: "audience", value: "staff" },
       ],
       text: staffText,
-      to: notificationEmail,
+      to: notificationEmails,
     });
     const playerEmail = await sendResendEmail({
       apiKey: resendApiKey,
@@ -142,7 +136,7 @@ export async function sendPaymentConfirmationEmails(input: {
         { name: "audience", value: "player" },
       ],
       text: playerText,
-      to: input.checkout.playerEmail,
+      to: [input.checkout.playerEmail],
     });
 
     return {
@@ -156,7 +150,7 @@ export async function sendPaymentConfirmationEmails(input: {
   }
 
   console.info(
-    `Pin2Win staff payment notification to ${notificationEmail}:\n${staffText}`,
+    `Pin2Win staff payment notification to ${notificationEmails.join(", ")}:\n${staffText}`,
   );
   console.info(
     `Pin2Win player payment confirmation to ${input.checkout.playerEmail}:\n${playerText}`,

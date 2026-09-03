@@ -1,8 +1,6 @@
 import { getAppBaseUrl } from "@/lib/app-url";
 import type { BookingVerificationRecord } from "@/lib/booking-verification-store";
-
-const pin2WinNotificationEmail =
-  process.env.PIN2WIN_PAYMENT_NOTIFICATION_EMAIL ?? "pin2wingolf@outlook.com";
+import { getPin2WinNotificationEmails } from "@/lib/notification-email-recipients";
 
 export async function sendQrScanNotification(input: {
   bayName?: string;
@@ -14,6 +12,7 @@ export async function sendQrScanNotification(input: {
 }) {
   const resendApiKey = process.env.RESEND_API_KEY;
   const from = process.env.PIN2WIN_EMAIL_FROM;
+  const notificationEmails = getPin2WinNotificationEmails();
   const matched = Boolean(input.booking);
   const subject = matched
     ? `Pin2Win QR scan matched active booking - ${input.locationSlug}`
@@ -52,7 +51,7 @@ export async function sendQrScanNotification(input: {
       },
       body: JSON.stringify({
         from,
-        to: [pin2WinNotificationEmail],
+        to: notificationEmails,
         subject,
         text,
       }),
@@ -69,5 +68,7 @@ export async function sendQrScanNotification(input: {
     throw new Error("QR scan notification email delivery is not configured.");
   }
 
-  console.info(`Pin2Win QR scan notification to ${pin2WinNotificationEmail}:\n${text}`);
+  console.info(
+    `Pin2Win QR scan notification to ${notificationEmails.join(", ")}:\n${text}`,
+  );
 }
