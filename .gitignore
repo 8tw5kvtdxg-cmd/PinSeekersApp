@@ -27,6 +27,7 @@
 .pin2win-clubhouse-event-codes.json
 .pin2win-booking-verifications.json
 .pin2win-payarc-checkouts.json
+.pin2win-transaction-audit-*.json
 
 # debug
 npm-debug.log*

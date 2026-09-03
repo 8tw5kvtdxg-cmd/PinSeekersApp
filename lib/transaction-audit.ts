@@ -12,9 +12,16 @@ export type TransactionAuditEvent = {
   meta?: Record<string, string | number | boolean | null>;
 };
 
-const auditPath = path.join(process.cwd(), '.pin2win-transaction-audit.json');
+export function getTransactionAuditStorePath() {
+  return (
+    process.env.PIN2WIN_TRANSACTION_AUDIT_PATH?.trim() ||
+    path.join(process.cwd(), '.pin2win-transaction-audit.json')
+  );
+}
 
 async function readAuditStore() {
+  const auditPath = getTransactionAuditStorePath();
+
   try {
     const file = await readFile(auditPath, 'utf8');
     const parsed = JSON.parse(file) as unknown;
@@ -30,6 +37,7 @@ async function readAuditStore() {
 }
 
 async function writeAuditStore(store: Record<string, TransactionAuditEvent[]>) {
+  const auditPath = getTransactionAuditStorePath();
   await writeFile(auditPath, `${JSON.stringify(store, null, 2)}\n`);
 }
 

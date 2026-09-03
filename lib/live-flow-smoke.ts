@@ -1,5 +1,5 @@
-import { appendTransactionAuditEvent, getCheckoutAuditTrail } from './transaction-audit';
-import { canTransitionCheckoutStatus } from './checkout-status';
+import { appendTransactionAuditEvent, getCheckoutAuditTrail } from './transaction-audit.ts';
+import { canTransitionCheckoutStatus } from './checkout-status.ts';
 
 export async function runLaunchFlowSmokeTest(input: {
   checkoutId: string;
