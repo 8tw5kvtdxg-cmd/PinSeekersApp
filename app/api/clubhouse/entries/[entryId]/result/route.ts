@@ -3,6 +3,7 @@ import {
   getClubhouseEntryRecord,
   updateClubhouseEntryResult,
 } from "@/lib/clubhouse-entry-store";
+import { withoutEventCode } from "@/lib/event-code-access";
 
 export const dynamic = "force-dynamic";
 
@@ -69,7 +70,9 @@ export async function POST(
       resultValue,
     });
 
-    return Response.json({ entry: updatedEntry });
+    return Response.json({
+      entry: withoutEventCode(updatedEntry),
+    });
   } catch (caughtError) {
     return Response.json(
       {

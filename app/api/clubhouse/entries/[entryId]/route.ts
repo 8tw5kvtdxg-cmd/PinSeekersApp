@@ -10,6 +10,7 @@ import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
 import { getCurrentPlayer, normalizeEmail } from "@/lib/player-auth";
 import { sendEntryDecisionEmails } from "@/lib/entry-decision-email";
 import { sendZapierWebhook } from "@/lib/zapier";
+import { withoutEventCode } from "@/lib/event-code-access";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +37,9 @@ export async function GET(
     return Response.json({ error: "Entry access denied." }, { status: 403 });
   }
 
-  return Response.json({ entry });
+  return Response.json({
+    entry: isAdmin ? entry : withoutEventCode(entry),
+  });
 }
 
 export async function PATCH(

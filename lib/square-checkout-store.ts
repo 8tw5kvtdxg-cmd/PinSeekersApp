@@ -172,17 +172,28 @@ export async function updateSquareCheckoutRecord(
   return toSquareCheckoutRecord(checkout);
 }
 
-export async function claimSquareCheckoutAccess(checkoutId: string) {
+export async function getOrStartSquareCheckoutAccess(checkoutId: string) {
   const prisma = getPrismaClient();
 
   if (!prisma) {
     throw new Error("Database is required for Square checkout.");
   }
 
-  const result = await prisma.squareCheckout.updateMany({
-    data: { accessRevealedAt: new Date() },
+  const now = new Date();
+
+  await prisma.squareCheckout.updateMany({
+    data: { accessRevealedAt: now },
     where: { id: checkoutId, accessRevealedAt: null },
   });
 
-  return result.count === 1;
+  const checkout = await prisma.squareCheckout.findUnique({
+    select: { accessRevealedAt: true },
+    where: { id: checkoutId },
+  });
+
+  if (!checkout?.accessRevealedAt) {
+    throw new Error("Square checkout access could not be started.");
+  }
+
+  return checkout.accessRevealedAt.toISOString();
 }

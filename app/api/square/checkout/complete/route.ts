@@ -4,10 +4,15 @@ import {
 } from "@/lib/clubhouse-entry-store";
 import { findOrCreateCheckoutEntry } from "@/lib/payment-idempotency";
 import {
-  claimSquareCheckoutAccess,
+  getOrStartSquareCheckoutAccess,
   getSquareCheckoutRecord,
   updateSquareCheckoutRecord,
 } from "@/lib/square-checkout-store";
+import {
+  getEventCodeRevealExpiry,
+  isEventCodeRevealExpired,
+  withoutEventCode,
+} from "@/lib/event-code-access";
 import {
   getSquareOrder,
   squareOrderLooksPaid,
@@ -17,6 +22,33 @@ import { getCurrentVerifiedPlayer, normalizeEmail } from "@/lib/player-auth";
 import { recordTransactionAuditEvent } from "@/lib/transaction-audit";
 
 export const dynamic = "force-dynamic";
+
+async function createEntryResponse(input: {
+  checkoutId: string;
+  entry: { e6EventCode: string } & Record<string, unknown>;
+  revealAccess: boolean;
+  status?: number;
+}) {
+  if (!input.revealAccess) {
+    return Response.json(
+      { entry: withoutEventCode(input.entry) },
+      { status: input.status },
+    );
+  }
+
+  const accessRevealedAt = await getOrStartSquareCheckoutAccess(input.checkoutId);
+  const eventCodeExpiresAt = getEventCodeRevealExpiry(accessRevealedAt).toISOString();
+  const eventCodeExpired = isEventCodeRevealExpired(accessRevealedAt);
+
+  return Response.json(
+    {
+      entry: eventCodeExpired ? withoutEventCode(input.entry) : input.entry,
+      eventCodeExpired,
+      eventCodeExpiresAt,
+    },
+    { status: input.status },
+  );
+}
 
 export async function POST(request: Request) {
   const { player, error, status } = await getCurrentVerifiedPlayer();
@@ -89,21 +121,11 @@ export async function POST(request: Request) {
         }
       }
 
-      if (revealAccess && checkout.accessRevealedAt) {
-        return Response.json(
-          { error: "This event code has already been revealed. Please pay again to play again." },
-          { status: 409 },
-        );
-      }
-
-      if (revealAccess && !(await claimSquareCheckoutAccess(checkout.id))) {
-        return Response.json(
-          { error: "This event code has already been revealed. Please pay again to play again." },
-          { status: 409 },
-        );
-      }
-
-      return Response.json({ entry: existingEntry });
+      return createEntryResponse({
+        checkoutId: checkout.id,
+        entry: existingEntry,
+        revealAccess,
+      });
     }
 
     if (squareOrderId && squareOrderId !== checkout.squareOrderId) {
@@ -214,17 +236,12 @@ export async function POST(request: Request) {
       }
     }
 
-    if (revealAccess && !(await claimSquareCheckoutAccess(checkout.id))) {
-      return Response.json(
-        {
-          error:
-            "This event code has already been revealed. Please pay again to play again.",
-        },
-        { status: 409 },
-      );
-    }
-
-    return Response.json({ entry }, { status: 201 });
+    return createEntryResponse({
+      checkoutId: checkout.id,
+      entry,
+      revealAccess,
+      status: 201,
+    });
   } catch (caughtError) {
     return Response.json(
       {

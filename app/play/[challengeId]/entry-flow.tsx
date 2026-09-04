@@ -8,8 +8,6 @@ import {
   CreditCard,
   DollarSign,
   ExternalLink,
-  Eye,
-  KeyRound,
   LockKeyhole,
   ShieldCheck,
   UserRound,
@@ -19,7 +17,15 @@ import type { ClubhouseChallenge } from "@/lib/clubhouse";
 const alamoBookingUrl = "https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml";
 
 type EntryFlowProps = {
-  challenge: ClubhouseChallenge;
+  challenge: Pick<
+    ClubhouseChallenge,
+    | "eligibilityRules"
+    | "entryFeeCents"
+    | "name"
+    | "playWindowMinutes"
+    | "slug"
+    | "venue"
+  >;
   autoCheckout?: boolean;
   squareReturn?: {
     checkoutId?: string;
@@ -104,23 +110,18 @@ export function EntryFlow({
 }: EntryFlowProps) {
   const storageKey = `pin2win-entry-draft-${challenge.slug}`;
   const draft = readEntryDraft(storageKey);
-  const accessSectionRef = useRef<HTMLDivElement>(null);
-  const [paymentReady, setPaymentReady] = useState(false);
-  const [eventCode, setEventCode] = useState(challenge.e6JoinCode);
   const [locationSlug] = useState(() => getInitialQrParam("location"));
   const [bayName] = useState(() => getInitialQrParam("bay"));
   const [playerName, setPlayerName] = useState(draft.playerName);
   const [phoneNumber, setPhoneNumber] = useState(draft.phoneNumber);
   const [e6DisplayName, setE6DisplayName] = useState(draft.e6DisplayName);
-  const [entryId, setEntryId] = useState("");
   const [playerAccount, setPlayerAccount] = useState<PlayerAccount | null>(null);
   const [paymentError, setPaymentError] = useState("");
   const [paymentNotice, setPaymentNotice] = useState("");
   const [isLoadingAccount, setIsLoadingAccount] = useState(true);
   const [isStartingSquareCheckout, setIsStartingSquareCheckout] =
     useState(false);
-  const [isCompletingSquareCheckout, setIsCompletingSquareCheckout] =
-    useState(Boolean(squareReturn?.checkoutId));
+  const isCompletingSquareCheckout = Boolean(squareReturn?.checkoutId);
   const autoCheckoutStartedRef = useRef(false);
 
   useEffect(() => {
@@ -160,51 +161,17 @@ export function EntryFlow({
       return;
     }
 
-    async function completeReturnedSquareCheckout() {
-      setPaymentError("");
-      setPaymentNotice("Confirming Square payment...");
+    const accessParams = new URLSearchParams({ squareCheckoutId: checkoutId });
 
-      try {
-        const response = await fetch("/api/square/checkout/complete", {
-          body: JSON.stringify({
-            checkoutId,
-            squareOrderId: squareReturn?.orderId,
-            squarePaymentId: squareReturn?.paymentId,
-          }),
-          headers: { "Content-Type": "application/json" },
-          method: "POST",
-        });
-        const data = (await response.json()) as {
-          entry?: {
-            id: string;
-            challengeSlug: string;
-            playerName: string;
-            phoneNumber?: string;
-            e6DisplayName: string;
-            e6EventCode: string;
-          };
-          error?: string;
-        };
-
-        if (!response.ok || !data.entry) {
-          throw new Error(data.error ?? "Could not confirm Square checkout.");
-        }
-
-        revealEntryCode(data.entry);
-        setPaymentNotice("Payment confirmed. Your event code is unlocked.");
-      } catch (error) {
-        setPaymentError(
-          error instanceof Error
-            ? error.message
-            : "Could not confirm Square checkout.",
-        );
-        setPaymentNotice("");
-      } finally {
-        setIsCompletingSquareCheckout(false);
-      }
+    if (squareReturn?.orderId) {
+      accessParams.set("orderId", squareReturn.orderId);
     }
 
-    void completeReturnedSquareCheckout();
+    if (squareReturn?.paymentId) {
+      accessParams.set("transactionId", squareReturn.paymentId);
+    }
+
+    window.location.replace(`/checkout/access?${accessParams.toString()}`);
   }, [squareReturn?.checkoutId, squareReturn?.orderId, squareReturn?.paymentId]);
 
   useEffect(() => {
@@ -237,7 +204,7 @@ export function EntryFlow({
     playerName.trim() && phoneNumber.trim() && e6DisplayName.trim(),
   );
 
-  async function savePlayerInfo(nextEntryId = entryId) {
+  async function savePlayerInfo() {
     const trimmedPlayerName = playerName.trim();
     const trimmedPhoneNumber = phoneNumber.trim();
     const trimmedE6DisplayName = e6DisplayName.trim();
@@ -257,18 +224,6 @@ export function EntryFlow({
         e6DisplayName: trimmedE6DisplayName,
       }),
     );
-
-    if (nextEntryId) {
-      window.localStorage.setItem(
-        `pin2win-entry-${nextEntryId}`,
-        JSON.stringify({
-          challengeSlug: challenge.slug,
-          playerName: trimmedPlayerName,
-          phoneNumber: trimmedPhoneNumber,
-          e6DisplayName: trimmedE6DisplayName,
-        }),
-      );
-    }
 
     if (playerAccount) {
       try {
@@ -304,44 +259,6 @@ export function EntryFlow({
     }
 
     return true;
-  }
-
-  function storeEntryDraft(entry: {
-    id: string;
-    challengeSlug: string;
-    playerName: string;
-    phoneNumber?: string;
-    e6DisplayName: string;
-  }) {
-    window.localStorage.setItem(
-      `pin2win-entry-${entry.id}`,
-      JSON.stringify({
-        challengeSlug: entry.challengeSlug,
-        playerName: entry.playerName,
-        phoneNumber: entry.phoneNumber ?? phoneNumber,
-        e6DisplayName: entry.e6DisplayName,
-      }),
-    );
-  }
-
-  function revealEntryCode(entry: {
-    id: string;
-    challengeSlug: string;
-    playerName: string;
-    phoneNumber?: string;
-    e6DisplayName: string;
-    e6EventCode: string;
-  }) {
-    storeEntryDraft(entry);
-    setEventCode(entry.e6EventCode);
-    setEntryId(entry.id);
-    setPaymentReady(true);
-    window.setTimeout(() => {
-      accessSectionRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }, 50);
   }
 
   async function startSquareCheckout() {
@@ -545,8 +462,6 @@ export function EntryFlow({
                 suppressHydrationWarning
                 onChange={(event) => {
                   setPlayerName(event.target.value);
-                  setPaymentReady(false);
-                  setEntryId("");
                   setPaymentError("");
                 }}
                 aria-label="Player name"
@@ -559,8 +474,6 @@ export function EntryFlow({
                 suppressHydrationWarning
                 onChange={(event) => {
                   setPhoneNumber(event.target.value);
-                  setPaymentReady(false);
-                  setEntryId("");
                   setPaymentError("");
                 }}
                 aria-label="Phone number"
@@ -572,8 +485,6 @@ export function EntryFlow({
                 suppressHydrationWarning
                 onChange={(event) => {
                   setE6DisplayName(event.target.value);
-                  setPaymentReady(false);
-                  setEntryId("");
                   setPaymentError("");
                 }}
                 aria-label="Simulator display name"
@@ -597,9 +508,6 @@ export function EntryFlow({
                   </p>
                 </div>
               </div>
-              {paymentReady ? (
-                <CheckCircle2 className="text-[#2f6b3f]" size={22} />
-              ) : null}
             </div>
             <div className="mt-4 rounded-md bg-[#fbf8f1] p-4">
               <p className="text-xs font-black uppercase tracking-[0.12em] text-[#87908a]">
@@ -617,19 +525,16 @@ export function EntryFlow({
               className="mt-4 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-5 text-sm font-black text-white transition hover:bg-[#3f7f4c] disabled:cursor-not-allowed disabled:bg-[#ded6c8] disabled:text-[#6b756f]"
               disabled={
                 isStartingSquareCheckout ||
-                isCompletingSquareCheckout ||
-                paymentReady
+                isCompletingSquareCheckout
               }
               type="button"
               onClick={startSquareCheckout}
             >
-              {paymentReady ? <CheckCircle2 size={17} /> : <CreditCard size={17} />}
+              <CreditCard size={17} />
               {isCompletingSquareCheckout
                 ? "Confirming payment..."
                 : isStartingSquareCheckout
                 ? "Starting checkout..."
-                : paymentReady
-                ? "Entry created"
                 : "Pay and reveal event code"}
             </button>
             {paymentError ? (
@@ -655,13 +560,9 @@ export function EntryFlow({
 
           </div>
 
-          <div ref={accessSectionRef} className="rounded-lg bg-[#fbf8f1] p-5">
+          <div className="rounded-lg bg-[#fbf8f1] p-5">
             <div className="flex items-center gap-3">
-              {paymentReady ? (
-                <KeyRound className="text-[#2f6b3f]" size={26} />
-              ) : (
-                <LockKeyhole className="text-[#87908a]" size={26} />
-              )}
+              <LockKeyhole className="text-[#87908a]" size={26} />
               <h3 className="text-xl font-black">4. Simulator access</h3>
             </div>
             <dl className="mt-5 grid gap-4">
@@ -670,7 +571,7 @@ export function EntryFlow({
                   Pin2Win Entry ID
                 </dt>
                 <dd className="mt-1 rounded-md bg-white px-4 py-3 font-black">
-                  {paymentReady && entryId ? entryId : "Created after registration"}
+                  Created after registration
                 </dd>
               </div>
               <div>
@@ -678,7 +579,7 @@ export function EntryFlow({
                   Simulator Event Code
                 </dt>
                 <dd className="mt-1 rounded-md bg-white px-4 py-3 font-black">
-                  {paymentReady ? eventCode : "Hidden until registration is complete"}
+                  Hidden until payment is confirmed
                 </dd>
               </div>
               <div className="flex gap-3 text-sm leading-6 text-[#59655f]">
@@ -690,14 +591,6 @@ export function EntryFlow({
               </div>
             </dl>
 
-            {paymentReady ? (
-              <Link
-                href={`/entry/${entryId}?challenge=${challenge.slug}`}
-                className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white transition hover:bg-[#2a3935]"
-              >
-                <Eye size={17} /> View confirmation
-              </Link>
-            ) : null}
           </div>
         </div>
       </section>

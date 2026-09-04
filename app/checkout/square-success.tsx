@@ -15,7 +15,6 @@ type Entry = {
   challengeSlug: string;
   playerName: string;
   e6DisplayName: string;
-  e6EventCode: string;
 };
 
 export function SquareSuccess({
@@ -130,15 +129,15 @@ export function SquareSuccess({
             Simulator Event Code
           </dt>
           <dd className="mt-1 rounded-md bg-[#fbf8f1] px-4 py-3 font-black">
-            {entry?.e6EventCode}
+            Available on the simulator access page for 10 minutes
           </dd>
         </div>
       </dl>
       <Link
-        href={`/entry/${entry?.id}?challenge=${entry?.challengeSlug}`}
+        href={`/checkout/access?squareCheckoutId=${encodeURIComponent(checkoutId)}`}
         className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#18211f] px-5 text-sm font-black text-white"
       >
-        <KeyRound size={17} /> View entry
+        <KeyRound size={17} /> Reveal simulator code
       </Link>
     </div>
   );

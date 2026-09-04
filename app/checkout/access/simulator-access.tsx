@@ -28,7 +28,7 @@ type Entry = {
   playerName: string;
   phoneNumber?: string;
   e6DisplayName: string;
-  e6EventCode: string;
+  e6EventCode?: string;
   locationName?: string;
   locationSlug?: string;
   bayName?: string;
@@ -57,6 +57,9 @@ export function SimulatorAccess({
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(Boolean(checkoutId));
   const [isEventCodeHidden, setIsEventCodeHidden] = useState(false);
+  const [isEventCodeExpired, setIsEventCodeExpired] = useState(false);
+  const [eventCodeExpiresAt, setEventCodeExpiresAt] = useState("");
+  const [secondsRemaining, setSecondsRemaining] = useState<number | null>(null);
   const [isCaptureWarningVisible, setIsCaptureWarningVisible] = useState(false);
 
   useEffect(() => {
@@ -115,6 +118,8 @@ export function SimulatorAccess({
         const data = (await response.json()) as {
           entry?: Entry;
           error?: string;
+          eventCodeExpired?: boolean;
+          eventCodeExpiresAt?: string;
         };
 
         if (!response.ok || !data.entry) {
@@ -122,12 +127,32 @@ export function SimulatorAccess({
         }
 
         if (isMounted) {
-          setEntry(data.entry);
-          setIsEventCodeHidden(
+          const wasHiddenForResult =
             window.sessionStorage.getItem(
               `pin2win-event-code-hidden:${data.entry.id}`,
-            ) === "true",
+            ) === "true";
+
+          setEntry(
+            wasHiddenForResult
+              ? { ...data.entry, e6EventCode: undefined }
+              : data.entry,
           );
+          setEventCodeExpiresAt(data.eventCodeExpiresAt ?? "");
+          setIsEventCodeExpired(
+            data.eventCodeExpired === true || !data.entry.e6EventCode,
+          );
+          setSecondsRemaining(
+            data.eventCodeExpiresAt
+              ? Math.max(
+                  0,
+                  Math.ceil(
+                    (new Date(data.eventCodeExpiresAt).getTime() - Date.now()) /
+                      1000,
+                  ),
+                )
+              : null,
+          );
+          setIsEventCodeHidden(wasHiddenForResult);
         }
       } catch (caughtError) {
         if (isMounted) {
@@ -151,12 +176,42 @@ export function SimulatorAccess({
     };
   }, [checkoutId, squareOrderId, squarePaymentId]);
 
+  useEffect(() => {
+    if (!eventCodeExpiresAt || isEventCodeHidden || isEventCodeExpired) {
+      return;
+    }
+
+    function updateCountdown() {
+      const remaining = Math.max(
+        0,
+        Math.ceil((new Date(eventCodeExpiresAt).getTime() - Date.now()) / 1000),
+      );
+
+      setSecondsRemaining(remaining);
+
+      if (remaining === 0) {
+        setIsEventCodeExpired(true);
+        setEntry((currentEntry) =>
+          currentEntry
+            ? { ...currentEntry, e6EventCode: undefined }
+            : currentEntry,
+        );
+      }
+    }
+
+    updateCountdown();
+    const intervalId = window.setInterval(updateCountdown, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [eventCodeExpiresAt, isEventCodeExpired, isEventCodeHidden]);
+
   function handleResultEntryClick() {
     if (!entry) {
       return;
     }
 
     window.sessionStorage.setItem(`pin2win-event-code-hidden:${entry.id}`, "true");
+    setEntry({ ...entry, e6EventCode: undefined });
     setIsEventCodeHidden(true);
   }
 
@@ -237,14 +292,17 @@ export function SimulatorAccess({
               <p className="text-sm font-black uppercase tracking-[0.16em] text-white/62">
                 Entry Code
               </p>
-              {isEventCodeHidden ? (
+              {isEventCodeHidden || isEventCodeExpired ? (
                 <>
                   <p className="mt-3 text-2xl font-black tracking-normal">
-                    Hidden after result entry started
+                    {isEventCodeExpired
+                      ? "10-minute access window ended"
+                      : "Hidden after result entry started"}
                   </p>
                   <p className="mt-4 text-sm leading-6 text-white/72">
-                    Your entry code was hidden to protect your completed
-                    challenge attempt.
+                    {isEventCodeExpired
+                      ? "Pay for another entry to receive a new eligible challenge attempt."
+                      : "Your entry code was hidden to protect your completed challenge attempt."}
                   </p>
                 </>
               ) : (
@@ -256,6 +314,12 @@ export function SimulatorAccess({
                     Enter this code in the simulator software to access the
                     Pin2Win Hole-in-One Challenge.
                   </p>
+                  {secondsRemaining !== null ? (
+                    <p className="mt-3 text-sm font-black text-[#ffe7a2]">
+                      Code hides in {Math.floor(secondsRemaining / 60)}:
+                      {String(secondsRemaining % 60).padStart(2, "0")}
+                    </p>
+                  ) : null}
                 </>
               )}
             </div>

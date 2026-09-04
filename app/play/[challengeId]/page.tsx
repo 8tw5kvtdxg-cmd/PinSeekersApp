@@ -92,7 +92,14 @@ export default async function ClubhouseChallengePage({
         </Link>
         <div className="mt-10">
           <EntryFlow
-            challenge={challenge}
+            challenge={{
+              eligibilityRules: challenge.eligibilityRules,
+              entryFeeCents: challenge.entryFeeCents,
+              name: challenge.name,
+              playWindowMinutes: challenge.playWindowMinutes,
+              slug: challenge.slug,
+              venue: challenge.venue,
+            }}
             autoCheckout={autoCheckout === "1"}
             squareReturn={{
               checkoutId: squareCheckoutId ?? checkoutId ?? referenceId ?? "",

@@ -86,11 +86,10 @@ export async function sendPaymentConfirmationEmails(input: {
     `Payment reference: ${paymentReference}`,
     `Valid until: ${input.entry.validUntil}`,
     "",
-    "Simulator event code:",
-    input.entry.e6EventCode,
-    "",
     "Open your entry:",
     entryUrl,
+    "",
+    "For entry protection, the simulator event code is shown only on the payment-confirmed access page and hides 10 minutes after it is first revealed.",
     "",
     "Thank you for playing Pin2Win.",
   ].join("\n");
