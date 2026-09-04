@@ -28,11 +28,12 @@ function text(value, x, y, options = {}) {
     weight = 800,
     fill = white,
     anchor = "middle",
+    dominantBaseline,
     family = "Arial, Helvetica, sans-serif",
     style = "normal",
   } = options;
 
-  return `<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="${family}" font-style="${style}" font-size="${size}" font-weight="${weight}" fill="${fill}">${esc(value)}</text>`;
+  return `<text x="${x}" y="${y}" text-anchor="${anchor}"${dominantBaseline ? ` dominant-baseline="${dominantBaseline}"` : ""} font-family="${family}" font-style="${style}" font-size="${size}" font-weight="${weight}" fill="${fill}">${esc(value)}</text>`;
 }
 
 function roundedRect(x, y, w, h, options = {}) {
@@ -49,11 +50,12 @@ function roundedRect(x, y, w, h, options = {}) {
 
 function step(number, title, copy, y, secondCopy = "", showDivider = true) {
   const circleX = 870;
+  const circleY = y - 26;
   const titleX = 1140;
 
   return `
-    <circle cx="${circleX}" cy="${y - 26}" r="150" fill="${green}" stroke="${gold}" stroke-width="12"/>
-    ${text(String(number), circleX, y + 16, { size: 164, weight: 900, fill: gold })}
+    <circle cx="${circleX}" cy="${circleY}" r="150" fill="${green}" stroke="${gold}" stroke-width="12"/>
+    ${text(String(number), circleX, circleY, { size: 164, weight: 900, fill: gold, dominantBaseline: "central" })}
     ${text(title, titleX, y - 46, { size: 114, weight: 900, fill: white, anchor: "start" })}
     ${text(copy, titleX, y + 82, { size: 64, weight: 700, fill: "#e6e6e6", anchor: "start" })}
     ${secondCopy ? text(secondCopy, titleX, y + 154, { size: 64, weight: 700, fill: "#e6e6e6", anchor: "start" }) : ""}
