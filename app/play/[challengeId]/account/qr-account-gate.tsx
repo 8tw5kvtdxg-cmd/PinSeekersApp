@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import {
   ArrowRight,
@@ -13,8 +12,15 @@ import {
 import { cn } from "@/lib/utils";
 
 type QrAccountGateProps = {
+  bayName: string;
   challengeName: string;
+  challengeSlug: string;
+  locationSlug: string;
   nextPath: string;
+};
+
+type SquareCheckout = {
+  paymentFormUrl: string;
 };
 
 type PlayerAccount = {
@@ -27,10 +33,12 @@ type PlayerAccount = {
 };
 
 export function QrAccountGate({
+  bayName,
   challengeName,
+  challengeSlug,
+  locationSlug,
   nextPath,
 }: QrAccountGateProps) {
-  const router = useRouter();
   const [mode, setMode] = useState<"create" | "login">("create");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -96,7 +104,42 @@ export function QrAccountGate({
       }
 
       setIsRedirectingToCheckout(true);
-      router.replace(nextPath);
+      const player = data.user;
+      const playerName = player.name.trim();
+      const phoneNumber = player.phone.trim();
+      const e6DisplayName = (
+        player.simulatorDisplayName || player.username
+      ).trim();
+
+      if (!playerName || !phoneNumber || !e6DisplayName) {
+        window.location.replace(nextPath);
+        return;
+      }
+
+      const checkoutResponse = await fetch("/api/square/checkout", {
+        body: JSON.stringify({
+          bayName,
+          challengeSlug,
+          e6DisplayName,
+          locationSlug,
+          phoneNumber,
+          playerName,
+        }),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+      });
+      const checkoutData = (await checkoutResponse.json()) as {
+        checkout?: SquareCheckout;
+        error?: string;
+      };
+
+      if (!checkoutResponse.ok || !checkoutData.checkout?.paymentFormUrl) {
+        throw new Error(
+          checkoutData.error ?? "Could not open Square checkout.",
+        );
+      }
+
+      window.location.replace(checkoutData.checkout.paymentFormUrl);
     } catch (caughtError) {
       setIsRedirectingToCheckout(false);
       setError(
@@ -105,9 +148,7 @@ export function QrAccountGate({
           : "Could not access account.",
       );
     } finally {
-      if (!isRedirectingToCheckout) {
-        setIsSubmitting(false);
-      }
+      setIsSubmitting(false);
     }
   }
 

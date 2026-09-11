@@ -42,7 +42,13 @@ export default async function QrAccountPage({
           Pin2Win
         </Link>
 
-        <QrAccountGate challengeName={challenge.name} nextPath={nextPath} />
+        <QrAccountGate
+          bayName={bay ?? ""}
+          challengeName={challenge.name}
+          challengeSlug={challenge.slug}
+          locationSlug={location ?? ""}
+          nextPath={nextPath}
+        />
       </div>
     </main>
   );
