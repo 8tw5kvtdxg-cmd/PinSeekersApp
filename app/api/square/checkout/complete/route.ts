@@ -14,8 +14,7 @@ import {
   withoutEventCode,
 } from "@/lib/event-code-access";
 import {
-  getSquareOrder,
-  squareOrderLooksPaid,
+  verifySquareOrderPayment,
 } from "@/lib/square";
 import { sendPaymentConfirmationEmails } from "@/lib/payment-confirmation-email";
 import { getCurrentVerifiedPlayer, normalizeEmail } from "@/lib/player-auth";
@@ -135,10 +134,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const squareOrder = await getSquareOrder({ orderId: checkout.squareOrderId });
+    const squareVerification = await verifySquareOrderPayment({
+      amountCents: checkout.amountCents,
+      orderId: checkout.squareOrderId,
+    });
     const isConfirmed =
       checkout.status === "Succeeded" ||
-      squareOrderLooksPaid(squareOrder, checkout.amountCents) ||
+      squareVerification.isPaid ||
       (process.env.NODE_ENV !== "production" &&
         process.env.SQUARE_ALLOW_CLIENT_COMPLETION === "true");
 
@@ -156,6 +158,8 @@ export async function POST(request: Request) {
       checkout.status === "Succeeded"
         ? checkout
         : await updateSquareCheckoutRecord(checkout.id, {
+            squarePaymentId:
+              squareVerification.paymentId || checkout.squarePaymentId,
             status: "Succeeded",
           });
     await recordTransactionAuditEvent({

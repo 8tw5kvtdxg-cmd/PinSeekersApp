@@ -9,9 +9,10 @@ import {
 } from "@/lib/square-checkout-store";
 import { sendPaymentConfirmationEmails } from "@/lib/payment-confirmation-email";
 import {
-  getSquareOrder,
-  squareOrderLooksPaid,
+  getSquarePaymentId,
+  squarePaymentLooksPaid,
   verifySquareWebhookSignature,
+  verifySquareOrderPayment,
 } from "@/lib/square";
 import { recordTransactionAuditEvent } from "@/lib/transaction-audit";
 
@@ -22,16 +23,6 @@ function findOrderId(payload: unknown) {
   const match =
     text.match(/"order_id"\s*:\s*"([^"]+)"/) ||
     text.match(/"orderId"\s*:\s*"([^"]+)"/);
-
-  return match?.[1] ?? "";
-}
-
-function findPaymentId(payload: unknown) {
-  const text = JSON.stringify(payload);
-  const match =
-    text.match(/"payment_id"\s*:\s*"([^"]+)"/) ||
-    text.match(/"paymentId"\s*:\s*"([^"]+)"/) ||
-    text.match(/"id"\s*:\s*"(?:payment:)?([^"]+)"/);
 
   return match?.[1] ?? "";
 }
@@ -67,14 +58,21 @@ export async function POST(request: Request) {
     return Response.json({ received: true, matched: false });
   }
 
-  const squareOrder = await getSquareOrder({ orderId: checkout.squareOrderId });
+  const paymentCheck = {
+    amountCents: checkout.amountCents,
+    orderId: checkout.squareOrderId,
+  };
+  const webhookPaymentIsPaid = squarePaymentLooksPaid(payload, paymentCheck);
+  const squareVerification = webhookPaymentIsPaid
+    ? { isPaid: true, paymentId: getSquarePaymentId(payload) }
+    : await verifySquareOrderPayment(paymentCheck);
 
-  if (!squareOrderLooksPaid(squareOrder, checkout.amountCents)) {
+  if (!squareVerification.isPaid) {
     return Response.json({ received: true, matched: true, status: checkout.status });
   }
 
   const updatedCheckout = await updateSquareCheckoutRecord(checkout.id, {
-    squarePaymentId: findPaymentId(payload) || checkout.squarePaymentId,
+    squarePaymentId: squareVerification.paymentId || checkout.squarePaymentId,
     status: "Succeeded",
   });
   await recordTransactionAuditEvent({

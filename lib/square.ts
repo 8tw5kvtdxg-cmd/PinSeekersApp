@@ -67,6 +67,12 @@ function getObject(source: Record<string, unknown>, field: string) {
     : {};
 }
 
+function getArray(source: Record<string, unknown>, field: string) {
+  const value = source[field];
+
+  return Array.isArray(value) ? value : [];
+}
+
 function safeEqual(left: string, right: string) {
   const leftBuffer = Buffer.from(left);
   const rightBuffer = Buffer.from(right);
@@ -249,6 +255,27 @@ export async function getSquareOrder(input: { orderId: string }) {
   return (await response.json().catch(() => null)) as Record<string, unknown> | null;
 }
 
+export async function getSquarePayment(input: { paymentId: string }) {
+  const response = await fetch(
+    `${getSquareApiBaseUrl()}/v2/payments/${encodeURIComponent(input.paymentId)}`,
+    {
+      cache: "no-store",
+      headers: {
+        Authorization: `Bearer ${getSquareAccessToken()}`,
+        "Content-Type": "application/json",
+        "Square-Version": getSquareVersion(),
+      },
+      method: "GET",
+    },
+  );
+
+  if (!response.ok) {
+    return null;
+  }
+
+  return (await response.json().catch(() => null)) as Record<string, unknown> | null;
+}
+
 export function squareOrderLooksPaid(
   payload: unknown,
   expectedAmountCents?: number,
@@ -263,8 +290,107 @@ export function squareOrderLooksPaid(
   const state = getString(orderSource, "state").toUpperCase();
   const totalMoney = getObject(orderSource, "total_money");
   const totalAmount = Number(totalMoney.amount);
+  const netAmountDueMoney = getObject(orderSource, "net_amount_due_money");
+  const netAmountDue = Number(netAmountDueMoney.amount);
   const amountMatches =
     expectedAmountCents === undefined || totalAmount === expectedAmountCents;
 
-  return state === "COMPLETED" && amountMatches;
+  return (
+    amountMatches &&
+    (state === "COMPLETED" ||
+      (state === "OPEN" &&
+        Object.keys(netAmountDueMoney).length > 0 &&
+        netAmountDue === 0))
+  );
+}
+
+export function getSquareOrderPaymentIds(payload: unknown) {
+  if (!payload || typeof payload !== "object") {
+    return [];
+  }
+
+  const source = payload as Record<string, unknown>;
+  const order = getObject(source, "order");
+  const orderSource = Object.keys(order).length > 0 ? order : source;
+
+  return getArray(orderSource, "tenders")
+    .map((tender) => {
+      if (!tender || typeof tender !== "object") {
+        return "";
+      }
+
+      const tenderSource = tender as Record<string, unknown>;
+
+      return getString(tenderSource, "payment_id") || getString(tenderSource, "id");
+    })
+    .filter((paymentId, index, paymentIds) =>
+      Boolean(paymentId) && paymentIds.indexOf(paymentId) === index,
+    );
+}
+
+export function squarePaymentLooksPaid(
+  payload: unknown,
+  input: { amountCents: number; orderId: string },
+) {
+  if (!payload || typeof payload !== "object") {
+    return false;
+  }
+
+  const source = payload as Record<string, unknown>;
+  const data = getObject(source, "data");
+  const webhookObject = getObject(data, "object");
+  const topLevelPayment = getObject(source, "payment");
+  const payment =
+    Object.keys(topLevelPayment).length > 0
+      ? topLevelPayment
+      : getObject(webhookObject, "payment");
+  const paymentSource = Object.keys(payment).length > 0 ? payment : source;
+  const amountMoney = getObject(paymentSource, "amount_money");
+
+  return (
+    getString(paymentSource, "status").toUpperCase() === "COMPLETED" &&
+    getString(paymentSource, "order_id") === input.orderId &&
+    Number(amountMoney.amount) === input.amountCents &&
+    getString(amountMoney, "currency").toUpperCase() === "USD"
+  );
+}
+
+export function getSquarePaymentId(payload: unknown) {
+  if (!payload || typeof payload !== "object") {
+    return "";
+  }
+
+  const source = payload as Record<string, unknown>;
+  const data = getObject(source, "data");
+  const webhookObject = getObject(data, "object");
+  const payment = getObject(source, "payment");
+  const paymentSource =
+    Object.keys(payment).length > 0
+      ? payment
+      : getObject(webhookObject, "payment");
+
+  return getString(paymentSource, "id");
+}
+
+export async function verifySquareOrderPayment(input: {
+  amountCents: number;
+  orderId: string;
+}) {
+  const order = await getSquareOrder({ orderId: input.orderId });
+
+  for (const paymentId of getSquareOrderPaymentIds(order)) {
+    const payment = await getSquarePayment({ paymentId });
+
+    if (squarePaymentLooksPaid(payment, input)) {
+      return { isPaid: true, paymentId };
+    }
+  }
+
+  // Square Payment Link orders can remain OPEN after a successful payment.
+  // A zero net amount due is Square's order-level signal that nothing remains
+  // to be collected, and is safe here only after also checking the order total.
+  return {
+    isPaid: squareOrderLooksPaid(order, input.amountCents),
+    paymentId: "",
+  };
 }
