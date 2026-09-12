@@ -26,7 +26,13 @@ export type ClubhouseEntry = {
   playerName: string;
   phoneNumber?: string;
   e6DisplayName: string;
-  paymentStatus: "Succeeded" | "Pending" | "Failed";
+  paymentStatus:
+    | "Succeeded"
+    | "Pending"
+    | "Failed"
+    | "Refund Pending"
+    | "Partially Refunded"
+    | "Refunded";
   paidAt: string;
   validFrom: string;
   validUntil: string;

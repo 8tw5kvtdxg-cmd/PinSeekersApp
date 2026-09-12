@@ -27,11 +27,11 @@ export default async function AdminResultsPage() {
               Admin results
             </p>
             <h1 className="mt-4 text-4xl font-black sm:text-5xl">
-              Manual result log
+              Hole-in-one verification
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-[#53605a]">
-              Enter verified simulator results for each registered entry. Public
-              result views use entries marked Verified.
+              Review reported hole-in-ones against their original simulator
+              session, shot identifier, timestamp, and evidence.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">

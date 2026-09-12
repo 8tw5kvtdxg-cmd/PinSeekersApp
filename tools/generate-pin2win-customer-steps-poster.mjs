@@ -48,7 +48,7 @@ function roundedRect(x, y, w, h, options = {}) {
   return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" opacity="${opacity}"/>`;
 }
 
-function step(number, title, copy, y, secondCopy = "", showDivider = true) {
+function step(number, title, copy, y, secondCopy = "", showDivider = true, titleSize = 114) {
   const circleX = 870;
   const circleY = y - 26;
   const titleX = 1140;
@@ -56,7 +56,7 @@ function step(number, title, copy, y, secondCopy = "", showDivider = true) {
   return `
     <circle cx="${circleX}" cy="${circleY}" r="150" fill="${green}" stroke="${gold}" stroke-width="12"/>
     ${text(String(number), circleX, circleY, { size: 164, weight: 900, fill: gold, dominantBaseline: "central" })}
-    ${text(title, titleX, y - 46, { size: 114, weight: 900, fill: white, anchor: "start" })}
+    ${text(title, titleX, y - 46, { size: titleSize, weight: 900, fill: white, anchor: "start" })}
     ${text(copy, titleX, y + 82, { size: 64, weight: 700, fill: "#e6e6e6", anchor: "start" })}
     ${secondCopy ? text(secondCopy, titleX, y + 154, { size: 64, weight: 700, fill: "#e6e6e6", anchor: "start" }) : ""}
     ${showDivider ? `<line x1="1100" y1="${y + (secondCopy ? 250 : 190)}" x2="2950" y2="${y + (secondCopy ? 250 : 190)}" stroke="#6f5122" stroke-width="5"/>` : ""}
@@ -94,7 +94,10 @@ function overlaySvg(iconData) {
       ${step(4, "GET YOUR EVENT CODE", "Payment confirmed: your code is revealed.", 2900, "Open the Events tab in E6 Golf.")}
       ${step(5, "ENTER THE EVENT CODE", "Bottom left: select Enter Event Code, then type in the code.", 3400)}
       ${step(6, "SWING AWAY!", "You are ready to take your shots. Good luck!", 3900)}
-      ${step(7, "ENTER YOUR RESULT", "Enter your result on the Pin2Win platform.", 4400, "Would you like to try again?", false)}
+      ${step(7, "WANNA GIVE IT ANOTHER SHOT?", "Submit your result, then purchase another entry", 4400, "for five more shots.", false, 96)}
+
+      ${text("Questions about the challenge or need help getting started?", center, 4930, { size: 48, weight: 700, fill: "#d8d8d8" })}
+      ${text("Email pin2wingolf@outlook.com", center, 5000, { size: 48, weight: 800, fill: "#ffe7a2" })}
     </svg>
   `);
 }

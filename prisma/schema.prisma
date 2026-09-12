@@ -234,6 +234,12 @@ model SquareCheckout {
   entryId                 String?
   accessRevealedAt        DateTime?
   confirmationEmailSentAt String?
+  refundStatus            String?
+  refundedAmountCents     Int      @default(0)
+  squareRefundId          String?
+  refundReason            String?
+  refundRequestedAt       DateTime?
+  refundedAt              DateTime?
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
@@ -289,6 +295,22 @@ model ClubhouseEntryRecord {
   resultValue                   Float?
   resultUnit                    String?
   evidence                      String?
+  isHoleInOne                   Boolean?
+  simulatorSessionId            String?
+  simulatorShotId               String?
+  resultOccurredAt              DateTime?
+  resultSource                  String?
+  resultSourceMetadata          Json?
+  resultVerifiedAt              DateTime?
+  resultVerifiedBy              String?
+  resultVerificationNote        String?
+  closureRefundEligibleAt       DateTime?
+  closureRefundReason           String?
+  refundStatus                  String?
+  refundedAmountCents           Int      @default(0)
+  squareRefundId                String?
+  refundRequestedAt             DateTime?
+  refundedAt                    DateTime?
   e6EventCode                   String
   stripeCheckoutSessionId       String?  @unique
   payarcCheckoutId              String?  @unique
@@ -317,6 +339,32 @@ model ClubhouseEntryRecord {
   @@index([locationSlug, createdAt])
   @@index([paymentStatus, createdAt])
   @@index([entryDecisionStatus, createdAt])
+  @@index([challengeSlug, isHoleInOne, resultStatus, resultOccurredAt])
+  @@index([closureRefundEligibleAt])
+  @@index([refundStatus, createdAt])
+}
+
+model SquareRefundRecord {
+  id               String   @id @default(cuid())
+  entryId          String   @unique
+  checkoutId       String
+  paymentId        String
+  idempotencyKey   String   @unique
+  amountCents      Int
+  currency         String   @default("USD")
+  reason           String
+  status           String
+  squareRefundId   String?  @unique
+  requestedBy      String
+  failureDetail    String?
+  requestedAt      DateTime @default(now())
+  completedAt      DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([checkoutId, createdAt])
+  @@index([paymentId, createdAt])
+  @@index([status, createdAt])
 }
 
 model Bay {
@@ -358,13 +406,39 @@ model Challenge {
 }
 
 model ClubhouseChallengeSetting {
-  id          String    @id @default(cuid())
-  challengeSlug String  @unique
-  e6EventCode String?
-  startsAt    DateTime?
-  endsAt      DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id                        String    @id @default(cuid())
+  challengeSlug             String    @unique
+  e6EventCode               String?
+  startsAt                  DateTime?
+  endsAt                    DateTime?
+  status                    String    @default("ACTIVE")
+  potentialWinnerReportedAt DateTime?
+  pausedAt                  DateTime?
+  closedAt                  DateTime?
+  winnerEntryIds            Json?
+  winnerSelectedAt          DateTime?
+  closureReason             String?
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+}
+
+model HoleInOneVerificationEvent {
+  id                 String   @id @default(cuid())
+  entryId            String
+  challengeSlug      String
+  action             String
+  actorType          String
+  actorIdentifier    String?
+  isHoleInOne        Boolean?
+  resultOccurredAt   DateTime?
+  evidence           String?
+  sourceMetadata     Json?
+  verificationNote   String?
+  createdAt          DateTime @default(now())
+
+  @@index([entryId, createdAt])
+  @@index([challengeSlug, createdAt])
+  @@index([action, createdAt])
 }
 
 model Entry {

@@ -4,7 +4,6 @@ import { EntryFlow } from "@/app/play/[challengeId]/entry-flow";
 import { getClubhouseChallenge } from "@/lib/clubhouse";
 import { findLikelyBookingMatch } from "@/lib/booking-verification-store";
 import { getCurrentPlayer } from "@/lib/player-auth";
-import { sendQrScanNotification } from "@/lib/qr-scan-notification-email";
 import { recordQrScan } from "@/lib/qr-scan-store";
 
 export default async function ClubhouseChallengePage({
@@ -54,21 +53,6 @@ export default async function ClubhouseChallengePage({
     challengeSlug: challenge.slug,
     locationSlug: location,
   });
-
-  if (location) {
-    await sendQrScanNotification({
-      bayName: bay,
-      booking,
-      challengeName: challenge.name,
-      locationSlug: location,
-      scanUrl: `/play/${challenge.slug}?${new URLSearchParams({
-        ...(location ? { location } : {}),
-        ...(bay ? { bay } : {}),
-      }).toString()}`,
-    }).catch((error) => {
-      console.error("QR scan notification failed", error);
-    });
-  }
 
   const player = await getCurrentPlayer();
 

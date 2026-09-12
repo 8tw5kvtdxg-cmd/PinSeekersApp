@@ -9,6 +9,8 @@ import {
   getPayarcCheckoutScriptUrl,
 } from "@/lib/payarc";
 import { getCurrentVerifiedPlayer } from "@/lib/player-auth";
+import { getClubhouseChallengeSetting } from "@/lib/clubhouse-challenge-settings";
+import { isChallengeCheckoutBlocked } from "@/lib/hole-in-one";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +43,15 @@ export async function POST(request: Request) {
 
   if (!challenge) {
     return Response.json({ error: "Challenge not found." }, { status: 404 });
+  }
+
+  const challengeSetting = await getClubhouseChallengeSetting(challenge.slug);
+
+  if (isChallengeCheckoutBlocked(challengeSetting?.status)) {
+    return Response.json(
+      { error: "Checkout is unavailable while this challenge is paused or closed." },
+      { status: 409 },
+    );
   }
 
   const playerName =

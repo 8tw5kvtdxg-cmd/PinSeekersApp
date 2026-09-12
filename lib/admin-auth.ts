@@ -160,6 +160,21 @@ export async function isAdminRequestAuthenticated(request: Request) {
   return verifyAdminSessionValue(cookieMap.get(adminSessionCookieName));
 }
 
+export function getAdminRequestIdentity(request: Request) {
+  const cookieMap = parseCookieHeader(request.headers.get("cookie"));
+  const sessionValue = cookieMap.get(adminSessionCookieName);
+
+  if (!verifyAdminSessionValue(sessionValue)) {
+    return null;
+  }
+
+  const parts = sessionValue?.split(".") ?? [];
+
+  return parts[0] === "v2"
+    ? decodeSessionIdentity(parts[1] ?? "")
+    : parts[0] || null;
+}
+
 export async function requireAdminSession(nextPath?: string) {
   const isAuthenticated = await isAdminAuthenticated();
 

@@ -22,12 +22,29 @@ In Resend:
    `https://pin2wingolf.com/api/resend/inbound` with the `email.received` event.
 3. Copy that webhook's signing secret into Vercel as
    `RESEND_WEBHOOK_SECRET` for Production.
-4. Redeploy the production application after saving the variable.
-5. Configure the Alamo/Golf918 booking mailbox to redirect or forward booking
+4. Confirm `RESEND_API_KEY` uses a Resend API key with Full access. The inbound
+   handler must retrieve the received email body after the webhook arrives.
+5. Redeploy the production application after saving either variable.
+6. Configure the Alamo/Golf918 booking mailbox to redirect or forward booking
    confirmations to the Resend receiving address.
-6. Send one real booking confirmation and confirm it appears under
+7. Send one real booking confirmation and confirm it appears under
    **Admin Portal -> Booking Queue** with the correct customer email, bay, and
    reservation time.
+
+If a test booking does not appear:
+
+1. Check **Emails -> Receiving** in Resend. If the message is absent, fix the
+   Golf918/Outlook forwarding rule or destination address.
+2. If the message is present, check the matching delivery under **Webhooks**.
+   A `403` response indicates that Vercel's `RESEND_WEBHOOK_SECRET` does not
+   match that webhook's signing secret. A `400` response indicates that email
+   retrieval, parsing, or database storage failed; inspect the response and the
+   Vercel function log for `/api/resend/inbound`.
+3. Confirm the forwarded content includes a bay and a reservation line such as
+   `Bay 1: 08/11/2026 3:00 PM CDT for 90 minutes`. If Golf918 now sends a
+   different format, update the parser using a redacted copy of the real email.
+4. Replay the failed `email.received` event from Resend after correcting the
+   configuration.
 
 Use the Resend-managed receiving domain initially. Enabling receiving on the
 root `pin2wingolf.com` domain requires an MX-record change and can conflict with

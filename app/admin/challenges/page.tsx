@@ -82,6 +82,8 @@ export default async function AdminChallengesPage() {
                   e6EventCode: challenge.e6JoinCode,
                   startsAt: "",
                   endsAt: "",
+                  status: "ACTIVE",
+                  winnerEntryIds: [],
                 }
               }
             />

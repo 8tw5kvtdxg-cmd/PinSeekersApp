@@ -4,9 +4,12 @@ import {
   deleteClubhouseEntryRecord,
   getClubhouseEntryRecord,
   markClubhouseEntryDecisionEmailSent,
-  updateClubhouseEntryResult,
+  reviewPotentialHoleInOne,
 } from "@/lib/clubhouse-entry-store";
-import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
+import {
+  getAdminRequestIdentity,
+  isAdminRequestAuthenticated,
+} from "@/lib/admin-auth";
 import { getCurrentPlayer, normalizeEmail } from "@/lib/player-auth";
 import { sendEntryDecisionEmails } from "@/lib/entry-decision-email";
 import { sendZapierWebhook } from "@/lib/zapier";
@@ -58,6 +61,8 @@ export async function PATCH(
     resultStatus?: unknown;
     evidence?: unknown;
     action?: unknown;
+    verificationNote?: unknown;
+    chronologyUndeterminable?: unknown;
   };
 
   try {
@@ -124,21 +129,29 @@ export async function PATCH(
       return Response.json({ entry: emailedEntry });
     }
 
-    const entry = await updateClubhouseEntryResult({
+    if (
+      body.action !== "verify-hole-in-one" &&
+      body.action !== "reject-hole-in-one"
+    ) {
+      return Response.json(
+        { error: "A hole-in-one verification decision is required." },
+        { status: 400 },
+      );
+    }
+
+    const verifier = getAdminRequestIdentity(request);
+
+    if (!verifier) {
+      return Response.json({ error: "Admin identity is required." }, { status: 401 });
+    }
+
+    const entry = await reviewPotentialHoleInOne({
+      chronologyUndeterminable: body.chronologyUndeterminable === true,
+      decision: body.action === "verify-hole-in-one" ? "Verified" : "Rejected",
       entryId,
-      result: typeof body.result === "string" ? body.result : "",
-      resultValue:
-        typeof body.resultValue === "number"
-          ? body.resultValue
-          : Number(body.resultValue),
-      resultUnit: body.resultUnit === "yards" ? "yards" : "inches",
-      resultStatus:
-        body.resultStatus === "Needs Review" ||
-        body.resultStatus === "Verified" ||
-        body.resultStatus === "Rejected"
-          ? body.resultStatus
-          : "Pending E6 Result",
-      evidence: typeof body.evidence === "string" ? body.evidence : "",
+      verificationNote:
+        typeof body.verificationNote === "string" ? body.verificationNote : "",
+      verifier,
     });
 
     return Response.json({ entry });
@@ -159,6 +172,15 @@ export async function DELETE(
   }
 
   const { entryId } = await context.params;
+  const entry = await getClubhouseEntryRecord(entryId);
+
+  if (entry?.isHoleInOne) {
+    return Response.json(
+      { error: "Hole-in-one claim records must be retained and cannot be deleted." },
+      { status: 409 },
+    );
+  }
+
   const deleted = await deleteClubhouseEntryRecord(entryId);
 
   if (!deleted) {

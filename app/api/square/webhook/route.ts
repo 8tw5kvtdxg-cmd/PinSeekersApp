@@ -10,11 +10,13 @@ import {
 import { sendPaymentConfirmationEmails } from "@/lib/payment-confirmation-email";
 import {
   getSquarePaymentId,
+  parseSquareRefund,
   squarePaymentLooksPaid,
   verifySquareWebhookSignature,
   verifySquareOrderPayment,
 } from "@/lib/square";
 import { recordTransactionAuditEvent } from "@/lib/transaction-audit";
+import { applySquareRefundWebhook } from "@/lib/square-refund-store";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +46,30 @@ export async function POST(request: Request) {
 
   if (!payload) {
     return Response.json({ received: false }, { status: 400 });
+  }
+
+  const eventPayload = payload as Record<string, unknown>;
+  const eventType =
+    typeof eventPayload.type === "string" ? eventPayload.type : "";
+
+  if (eventType === "refund.created" || eventType === "refund.updated") {
+    const refund = parseSquareRefund(payload);
+
+    if (!refund) {
+      return Response.json({ received: false, error: "Invalid refund event." }, { status: 400 });
+    }
+
+    const result = await applySquareRefundWebhook({
+      eventId:
+        typeof eventPayload.event_id === "string" ? eventPayload.event_id : undefined,
+      refund,
+    });
+
+    return Response.json({
+      matched: Boolean(result),
+      received: true,
+      status: result?.status ?? refund.status,
+    });
   }
 
   const orderId = findOrderId(payload);

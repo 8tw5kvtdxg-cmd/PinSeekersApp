@@ -6,7 +6,15 @@ export type ClubhouseChallengeSettingView = {
   e6EventCode: string;
   startsAt: string;
   endsAt: string;
+  status: "ACTIVE" | "PAUSED" | "CLOSED";
+  winnerEntryIds: string[];
 };
+
+function parseWinnerEntryIds(value: unknown) {
+  return Array.isArray(value)
+    ? value.filter((entryId): entryId is string => typeof entryId === "string")
+    : [];
+}
 
 function toInputValue(date: Date | string | null | undefined) {
   if (!date) {
@@ -49,6 +57,8 @@ export async function listClubhouseChallengeSettings() {
       e6EventCode: challenge.e6JoinCode,
       startsAt: toInputValue(challenge.startsAt),
       endsAt: toInputValue(challenge.endsAt),
+      status: "ACTIVE",
+      winnerEntryIds: [],
     }));
   }
 
@@ -65,6 +75,11 @@ export async function listClubhouseChallengeSettings() {
       e6EventCode: setting?.e6EventCode ?? challenge.e6JoinCode,
       startsAt: toInputValue(setting?.startsAt ?? challenge.startsAt),
       endsAt: toInputValue(setting?.endsAt ?? challenge.endsAt),
+      status:
+        setting?.status === "PAUSED" || setting?.status === "CLOSED"
+          ? setting.status
+          : "ACTIVE",
+      winnerEntryIds: parseWinnerEntryIds(setting?.winnerEntryIds),
     };
   });
 }
@@ -142,5 +157,10 @@ export async function updateClubhouseChallengeSetting(input: {
     e6EventCode: setting.e6EventCode ?? challenge.e6JoinCode,
     startsAt: toInputValue(setting.startsAt),
     endsAt: toInputValue(setting.endsAt),
+    status:
+      setting.status === "PAUSED" || setting.status === "CLOSED"
+        ? setting.status
+        : "ACTIVE",
+    winnerEntryIds: parseWinnerEntryIds(setting.winnerEntryIds),
   };
 }

@@ -6,7 +6,7 @@ import { getClubhouseLeaderboardRows } from "@/lib/clubhouse-entry-store";
 const leaderboards = [
   {
     title: "Hole-in-One Challenge",
-    resultLabel: "Distance",
+    resultLabel: "Result",
     slug: clubhouseChallengeSlugs.holeInOne,
   },
 ];
@@ -34,8 +34,8 @@ export default async function LeaderboardPage() {
             </h1>
           </div>
           <p className="max-w-xl text-lg leading-8 text-[#53605a]">
-            Follow verified Hole-in-One challenge entries by player, simulator
-            username, and result.
+            Verified hole-in-one records are ordered by the simulator source
+            timestamp. An approved winner is clearly identified after review.
           </p>
         </div>
 
@@ -60,7 +60,7 @@ export default async function LeaderboardPage() {
               {leaderboardRows[index].length === 0 ? (
                 <div className="border-t border-[#ece5d8] px-5 py-8 text-center">
                   <p className="text-sm font-bold text-[#53605a]">
-                    No verified results have been logged yet.
+                    No verified hole-in-ones have been logged yet.
                   </p>
                 </div>
               ) : (
@@ -73,7 +73,7 @@ export default async function LeaderboardPage() {
                     <span className="font-bold">{row.playerName}</span>
                     <span className="text-[#53605a]">{row.e6DisplayName}</span>
                     <span className="font-black text-[#2f6b3f]">
-                      {row.result}
+                      {row.isWinner ? "Winner — " : ""}{row.result}
                     </span>
                   </div>
                 ))

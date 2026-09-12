@@ -5,13 +5,17 @@ import {
   getClubhouseChallenge,
   normalizeChallengeSlug,
 } from "@/lib/clubhouse";
-import { getClubhouseEventCode } from "@/lib/clubhouse-challenge-settings";
+import {
+  getClubhouseChallengeSetting,
+  getClubhouseEventCode,
+} from "@/lib/clubhouse-challenge-settings";
 import {
   getBookingVerificationRecord,
   updateBookingVerificationStatus,
 } from "@/lib/booking-verification-store";
 import { slugifyLocation } from "@/lib/location-utils";
 import { getPrismaClient } from "@/lib/prisma";
+import { selectHoleInOneWinnerIds } from "@/lib/hole-in-one";
 
 export type ClubhouseEntryRecord = ClubhouseEntry & {
   e6EventCode: string;
@@ -36,6 +40,22 @@ export type ClubhouseEntryRecord = ClubhouseEntry & {
   entryDecisionAt?: string;
   entryDecisionBy?: string;
   entryDecisionEmailSentAt?: string;
+  isHoleInOne?: boolean;
+  simulatorSessionId?: string;
+  simulatorShotId?: string;
+  resultOccurredAt?: string;
+  resultSource?: string;
+  resultSourceMetadata?: Record<string, string>;
+  resultVerifiedAt?: string;
+  resultVerifiedBy?: string;
+  resultVerificationNote?: string;
+  closureRefundEligibleAt?: string;
+  closureRefundReason?: string;
+  refundStatus?: string;
+  refundedAmountCents: number;
+  squareRefundId?: string;
+  refundRequestedAt?: string;
+  refundedAt?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -51,6 +71,8 @@ export type ClubhouseLeaderboardRow = {
   resultUnit: "inches" | "yards";
   paidAt: string;
   resultStatus: ClubhouseEntryRecord["resultStatus"];
+  resultOccurredAt?: string;
+  isWinner: boolean;
 };
 
 const entriesPath = path.join(process.cwd(), ".pin2win-clubhouse-entries.json");
@@ -92,6 +114,22 @@ function toClubhouseEntryRecord(entry: {
   resultValue: number | null;
   resultUnit: string | null;
   evidence: string | null;
+  isHoleInOne: boolean | null;
+  simulatorSessionId: string | null;
+  simulatorShotId: string | null;
+  resultOccurredAt: Date | null;
+  resultSource: string | null;
+  resultSourceMetadata: unknown;
+  resultVerifiedAt: Date | null;
+  resultVerifiedBy: string | null;
+  resultVerificationNote: string | null;
+  closureRefundEligibleAt: Date | null;
+  closureRefundReason: string | null;
+  refundStatus: string | null;
+  refundedAmountCents: number;
+  squareRefundId: string | null;
+  refundRequestedAt: Date | null;
+  refundedAt: Date | null;
   e6EventCode: string;
   stripeCheckoutSessionId: string | null;
   payarcCheckoutId: string | null;
@@ -133,6 +171,25 @@ function toClubhouseEntryRecord(entry: {
     resultValue: entry.resultValue ?? undefined,
     resultUnit: entry.resultUnit as ClubhouseEntryRecord["resultUnit"],
     evidence: entry.evidence ?? undefined,
+    isHoleInOne: entry.isHoleInOne ?? undefined,
+    simulatorSessionId: entry.simulatorSessionId ?? undefined,
+    simulatorShotId: entry.simulatorShotId ?? undefined,
+    resultOccurredAt: entry.resultOccurredAt?.toISOString(),
+    resultSource: entry.resultSource ?? undefined,
+    resultSourceMetadata:
+      entry.resultSourceMetadata && typeof entry.resultSourceMetadata === "object"
+        ? (entry.resultSourceMetadata as Record<string, string>)
+        : undefined,
+    resultVerifiedAt: entry.resultVerifiedAt?.toISOString(),
+    resultVerifiedBy: entry.resultVerifiedBy ?? undefined,
+    resultVerificationNote: entry.resultVerificationNote ?? undefined,
+    closureRefundEligibleAt: entry.closureRefundEligibleAt?.toISOString(),
+    closureRefundReason: entry.closureRefundReason ?? undefined,
+    refundStatus: entry.refundStatus ?? undefined,
+    refundedAmountCents: entry.refundedAmountCents,
+    squareRefundId: entry.squareRefundId ?? undefined,
+    refundRequestedAt: entry.refundRequestedAt?.toISOString(),
+    refundedAt: entry.refundedAt?.toISOString(),
     e6EventCode: entry.e6EventCode,
     stripeCheckoutSessionId: entry.stripeCheckoutSessionId ?? undefined,
     payarcCheckoutId: entry.payarcCheckoutId ?? undefined,
@@ -328,6 +385,302 @@ export async function updateClubhouseEntryResult(input: {
   return updatedEntry;
 }
 
+export async function reportPotentialHoleInOne(input: {
+  entryId: string;
+  simulatorSessionId: string;
+  simulatorShotId: string;
+  resultOccurredAt: Date;
+  evidence: string;
+  sourceMetadata: Record<string, string>;
+}) {
+  const simulatorSessionId = input.simulatorSessionId.trim();
+  const simulatorShotId = input.simulatorShotId.trim();
+  const evidence = input.evidence.trim();
+
+  if (!simulatorSessionId || !simulatorShotId) {
+    throw new Error("Simulator session ID and shot ID are required.");
+  }
+
+  if (Number.isNaN(input.resultOccurredAt.getTime())) {
+    throw new Error("The simulator source timestamp is invalid.");
+  }
+
+  if (input.resultOccurredAt.getTime() > Date.now() + 5 * 60 * 1000) {
+    throw new Error("The simulator source timestamp cannot be in the future.");
+  }
+
+  if (!evidence) {
+    throw new Error("Evidence or an evidence reference is required.");
+  }
+
+  const prisma = getPrismaClient();
+
+  if (!prisma) {
+    throw new Error("Database access is required to safely report a hole-in-one.");
+  }
+
+  return prisma.$transaction(
+    async (transaction) => {
+      const existing = await transaction.clubhouseEntryRecord.findUnique({
+        where: { id: input.entryId },
+      });
+
+      if (!existing) {
+        throw new Error("Entry not found.");
+      }
+
+      if (existing.paymentStatus !== "Succeeded") {
+        throw new Error("Only a paid entry can report a hole-in-one.");
+      }
+
+      if (existing.isHoleInOne !== null) {
+        throw new Error("A result has already been submitted for this entry.");
+      }
+
+      const setting = await transaction.clubhouseChallengeSetting.findUnique({
+        where: { challengeSlug: existing.challengeSlug },
+      });
+
+      if (setting?.status === "CLOSED") {
+        throw new Error("This challenge is already closed.");
+      }
+
+      const now = new Date();
+      const updated = await transaction.clubhouseEntryRecord.update({
+        data: {
+          evidence,
+          isHoleInOne: true,
+          result: "Hole-in-one reported",
+          resultOccurredAt: input.resultOccurredAt,
+          resultSource: "CUSTOMER_SIMULATOR_REPORT",
+          resultSourceMetadata: input.sourceMetadata,
+          resultStatus: "Needs Review",
+          resultUnit: null,
+          resultValue: null,
+          simulatorSessionId,
+          simulatorShotId,
+        },
+        where: { id: input.entryId },
+      });
+
+      await transaction.clubhouseChallengeSetting.upsert({
+        create: {
+          challengeSlug: existing.challengeSlug,
+          pausedAt: now,
+          potentialWinnerReportedAt: now,
+          status: "PAUSED",
+        },
+        update: {
+          pausedAt: setting?.pausedAt ?? now,
+          potentialWinnerReportedAt: setting?.potentialWinnerReportedAt ?? now,
+          status: "PAUSED",
+        },
+        where: { challengeSlug: existing.challengeSlug },
+      });
+
+      await transaction.holeInOneVerificationEvent.create({
+        data: {
+          action: "POTENTIAL_HOLE_IN_ONE_REPORTED",
+          actorIdentifier: existing.playerEmail,
+          actorType: "PLAYER",
+          challengeSlug: existing.challengeSlug,
+          entryId: existing.id,
+          evidence,
+          isHoleInOne: true,
+          resultOccurredAt: input.resultOccurredAt,
+          sourceMetadata: input.sourceMetadata,
+        },
+      });
+
+      return toClubhouseEntryRecord(updated);
+    },
+    { isolationLevel: "Serializable" },
+  );
+}
+
+export async function reviewPotentialHoleInOne(input: {
+  entryId: string;
+  decision: "Verified" | "Rejected";
+  verifier: string;
+  verificationNote: string;
+  chronologyUndeterminable?: boolean;
+}) {
+  const verifier = input.verifier.trim();
+  const verificationNote = input.verificationNote.trim();
+
+  if (!verifier || !verificationNote) {
+    throw new Error("An authorized verifier and verification note are required.");
+  }
+
+  const prisma = getPrismaClient();
+
+  if (!prisma) {
+    throw new Error("Database access is required to safely verify a hole-in-one.");
+  }
+
+  return prisma.$transaction(
+    async (transaction) => {
+      const existing = await transaction.clubhouseEntryRecord.findUnique({
+        where: { id: input.entryId },
+      });
+
+      if (!existing || existing.isHoleInOne !== true) {
+        throw new Error("A pending hole-in-one claim was not found.");
+      }
+
+      if (
+        !existing.simulatorSessionId ||
+        !existing.simulatorShotId ||
+        !existing.resultOccurredAt ||
+        !existing.evidence
+      ) {
+        throw new Error(
+          "Session ID, shot ID, source timestamp, and evidence are required before verification.",
+        );
+      }
+
+      const setting = await transaction.clubhouseChallengeSetting.findUnique({
+        where: { challengeSlug: existing.challengeSlug },
+      });
+
+      if (setting?.status === "CLOSED") {
+        throw new Error("The challenge already has an approved winner decision.");
+      }
+
+      const now = new Date();
+      const updated = await transaction.clubhouseEntryRecord.update({
+        data: {
+          result: input.decision === "Verified" ? "Verified hole-in-one" : "Rejected hole-in-one claim",
+          resultStatus: input.decision,
+          resultVerificationNote: verificationNote,
+          resultVerifiedAt: now,
+          resultVerifiedBy: verifier,
+        },
+        where: { id: input.entryId },
+      });
+
+      await transaction.holeInOneVerificationEvent.create({
+        data: {
+          action:
+            input.decision === "Verified"
+              ? "HOLE_IN_ONE_VERIFIED"
+              : "HOLE_IN_ONE_REJECTED",
+          actorIdentifier: verifier,
+          actorType: "ADMIN",
+          challengeSlug: existing.challengeSlug,
+          entryId: existing.id,
+          evidence: existing.evidence,
+          isHoleInOne: input.decision === "Verified",
+          resultOccurredAt: existing.resultOccurredAt,
+          sourceMetadata: existing.resultSourceMetadata ?? undefined,
+          verificationNote,
+        },
+      });
+
+      const remainingClaims = await transaction.clubhouseEntryRecord.count({
+        where: {
+          challengeSlug: existing.challengeSlug,
+          isHoleInOne: true,
+          resultStatus: "Needs Review",
+        },
+      });
+
+      if (remainingClaims > 0) {
+        return toClubhouseEntryRecord(updated);
+      }
+
+      const verifiedCandidates = await transaction.clubhouseEntryRecord.findMany({
+        where: {
+          challengeSlug: existing.challengeSlug,
+          isHoleInOne: true,
+          resultStatus: "Verified",
+        },
+      });
+
+      if (verifiedCandidates.length === 0) {
+        if (input.decision === "Rejected") {
+          await transaction.clubhouseChallengeSetting.updateMany({
+            data: {
+              pausedAt: null,
+              potentialWinnerReportedAt: null,
+              status: "ACTIVE",
+            },
+            where: {
+              challengeSlug: existing.challengeSlug,
+              status: "PAUSED",
+            },
+          });
+        }
+
+        return toClubhouseEntryRecord(updated);
+      }
+      const winnerEntryIds = selectHoleInOneWinnerIds(
+        verifiedCandidates,
+        input.chronologyUndeterminable === true,
+      );
+
+      await transaction.clubhouseChallengeSetting.upsert({
+        create: {
+          challengeSlug: existing.challengeSlug,
+          closedAt: now,
+          closureReason: "Verified hole-in-one",
+          status: "CLOSED",
+          winnerEntryIds,
+          winnerSelectedAt: now,
+        },
+        update: {
+          closedAt: now,
+          closureReason: "Verified hole-in-one",
+          status: "CLOSED",
+          winnerEntryIds,
+          winnerSelectedAt: now,
+        },
+        where: { challengeSlug: existing.challengeSlug },
+      });
+
+      const challenge = getClubhouseChallenge(existing.challengeSlug);
+      const createdAfter = new Date(
+        now.getTime() - (challenge?.playWindowMinutes ?? 15) * 60 * 1000,
+      );
+
+      await transaction.clubhouseEntryRecord.updateMany({
+        data: {
+          closureRefundEligibleAt: now,
+          closureRefundReason:
+            "Challenge closed before the paid attempt window could be completed. Refund review required.",
+        },
+        where: {
+          challengeSlug: existing.challengeSlug,
+          createdAt: { gt: createdAfter },
+          id: { notIn: winnerEntryIds },
+          paymentStatus: "Succeeded",
+          resultStatus: "Pending E6 Result",
+        },
+      });
+
+      await transaction.holeInOneVerificationEvent.create({
+        data: {
+          action: "WINNER_SELECTED_AND_CHALLENGE_CLOSED",
+          actorIdentifier: verifier,
+          actorType: "ADMIN",
+          challengeSlug: existing.challengeSlug,
+          entryId: existing.id,
+          isHoleInOne: true,
+          resultOccurredAt: existing.resultOccurredAt,
+          sourceMetadata: {
+            chronologyUndeterminable: input.chronologyUndeterminable === true,
+            winnerEntryIds,
+          },
+          verificationNote,
+        },
+      });
+
+      return toClubhouseEntryRecord(updated);
+    },
+    { isolationLevel: "Serializable" },
+  );
+}
+
 export async function confirmClubhouseEntryRecord(input: {
   entryId: string;
   confirmedBy?: string;
@@ -474,17 +827,20 @@ export async function getClubhouseLeaderboardRows(challengeSlug: string) {
   const normalizedSlug = normalizeChallengeSlug(challengeSlug);
   const challenge = getClubhouseChallenge(normalizedSlug);
   const entries = await listClubhouseEntryRecordsForChallenge(normalizedSlug);
+  const setting = await getClubhouseChallengeSetting(normalizedSlug);
+  const winnerIds = new Set(setting?.winnerEntryIds ?? []);
   const eligibleEntries = entries.filter(
     (entry) =>
       entry.paymentStatus === "Succeeded" &&
       entry.resultStatus === "Verified" &&
-      typeof entry.resultValue === "number" &&
-      entry.result &&
-      entry.resultUnit,
+      (challenge?.type !== "HOLE_IN_ONE" || entry.isHoleInOne === true),
   );
   const sortedEntries = eligibleEntries.sort((a, b) => {
     if (challenge?.type === "HOLE_IN_ONE") {
-      return (a.resultValue ?? 0) - (b.resultValue ?? 0);
+      return (
+        new Date(a.resultOccurredAt ?? 0).getTime() -
+        new Date(b.resultOccurredAt ?? 0).getTime()
+      );
     }
 
     return (b.resultValue ?? 0) - (a.resultValue ?? 0);
@@ -501,6 +857,8 @@ export async function getClubhouseLeaderboardRows(challengeSlug: string) {
     resultUnit: entry.resultUnit ?? (challenge?.type === "HOLE_IN_ONE" ? "inches" : "yards"),
     paidAt: entry.paidAt,
     resultStatus: entry.resultStatus,
+    resultOccurredAt: entry.resultOccurredAt,
+    isWinner: winnerIds.has(entry.id),
   }));
 }
 
@@ -750,6 +1108,7 @@ export async function createClubhouseEntryRecord(input: {
     locationName,
     bayName,
     amountCents: challenge.entryFeeCents,
+    refundedAmountCents: 0,
     createdAt: timestamp,
     updatedAt: timestamp,
   };

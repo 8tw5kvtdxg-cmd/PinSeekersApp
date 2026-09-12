@@ -18,6 +18,7 @@ export function ChallengeAdminCard({
   const [eventCode, setEventCode] = useState(setting.e6EventCode);
   const [startsAt, setStartsAt] = useState(setting.startsAt);
   const [endsAt, setEndsAt] = useState(setting.endsAt);
+  const [challengeStatus, setChallengeStatus] = useState(setting.status);
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
     "idle",
@@ -39,6 +40,7 @@ export function ChallengeAdminCard({
         eventCode?: string;
         startsAt?: string;
         endsAt?: string;
+        status?: "ACTIVE" | "PAUSED" | "CLOSED";
       };
 
       if (!isMounted) {
@@ -48,6 +50,7 @@ export function ChallengeAdminCard({
       setEventCode(data.eventCode ?? setting.e6EventCode);
       setStartsAt(data.startsAt ?? setting.startsAt);
       setEndsAt(data.endsAt ?? setting.endsAt);
+      setChallengeStatus(data.status ?? setting.status);
     }
 
     loadSettings();
@@ -55,7 +58,13 @@ export function ChallengeAdminCard({
     return () => {
       isMounted = false;
     };
-  }, [challenge.slug, setting.e6EventCode, setting.endsAt, setting.startsAt]);
+  }, [
+    challenge.slug,
+    setting.e6EventCode,
+    setting.endsAt,
+    setting.startsAt,
+    setting.status,
+  ]);
 
   function markDirty() {
     setStatus("idle");
@@ -107,6 +116,9 @@ export function ChallengeAdminCard({
             </span>
             <span className="rounded-full bg-[#f2eadb] px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-[#53605a]">
               Hole-in-One
+            </span>
+            <span className={`rounded-full px-3 py-1 text-xs font-black uppercase tracking-[0.12em] ${challengeStatus === "ACTIVE" ? "bg-[#e3edd8] text-[#2f6b3f]" : challengeStatus === "PAUSED" ? "bg-[#fff0cf] text-[#79500e]" : "bg-[#fff2ed] text-[#9a3324]"}`}>
+              Sales {challengeStatus.toLowerCase()}
             </span>
           </div>
           <h2 className="mt-4 text-2xl font-black">{challenge.name}</h2>

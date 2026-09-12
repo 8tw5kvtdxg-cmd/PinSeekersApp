@@ -26,6 +26,8 @@ export async function GET(
     eventCode: setting.e6EventCode,
     startsAt: setting.startsAt,
     endsAt: setting.endsAt,
+    status: setting.status,
+    winnerEntryIds: setting.winnerEntryIds,
   });
 }
 
@@ -57,6 +59,8 @@ export async function PATCH(
       eventCode: setting.e6EventCode,
       startsAt: setting.startsAt,
       endsAt: setting.endsAt,
+      status: setting.status,
+      winnerEntryIds: setting.winnerEntryIds,
     });
   } catch (error) {
     return Response.json(

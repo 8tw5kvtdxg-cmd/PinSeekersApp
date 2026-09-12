@@ -53,7 +53,7 @@ Pin2Win is built as a connected platform rather than a single standalone website
 
 ### Email and Communication Tools
 
-- Resend: Transactional email service used by the platform for account verification, entry confirmation/denial, payment/entry notifications where applicable, and QR-scan/admin notifications.
+- Resend: Transactional email service used by the platform for account verification, entry confirmation/denial, and payment/entry notifications where applicable.
 - Outlook: Pin2Win business email inbox at `pin2wingolf@outlook.com`, used for operational communication, admin notifications, and partner/customer follow-up.
 - Domain DNS records: Required to verify email sending and improve deliverability through SPF/DKIM/DMARC records.
 
@@ -227,7 +227,6 @@ Email-supported workflows include:
 - Account email verification
 - Entry confirmation/denial emails
 - Payment/entry confirmation emails where applicable
-- QR scan notifications
 - Admin/customer notification flows
 
 Pin2Win email recipient:

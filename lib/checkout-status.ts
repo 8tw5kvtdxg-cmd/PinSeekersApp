@@ -1,12 +1,18 @@
-export type CheckoutStatus = "Pending" | "Succeeded" | "Failed";
+export type CheckoutStatus =
+  | "Pending"
+  | "Succeeded"
+  | "Failed"
+  | "Refund Pending"
+  | "Partially Refunded"
+  | "Refunded";
 
 export function canTransitionCheckoutStatus(
   currentStatus: CheckoutStatus,
   nextStatus: CheckoutStatus,
 ) {
-  if (currentStatus === "Succeeded" || currentStatus === "Failed") {
-    return false;
-  }
-
-  return true;
+  return (
+    currentStatus === nextStatus ||
+    (currentStatus === "Pending" &&
+      (nextStatus === "Succeeded" || nextStatus === "Failed"))
+  );
 }

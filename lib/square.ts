@@ -7,6 +7,16 @@ export type SquarePaymentLink = {
   url: string;
 };
 
+export type SquareRefund = {
+  id: string;
+  paymentId: string;
+  orderId: string;
+  amountCents: number;
+  currency: string;
+  status: "PENDING" | "COMPLETED" | "REJECTED" | "FAILED";
+  reason: string;
+};
+
 function getSquareApiBaseUrl() {
   return process.env.SQUARE_ENVIRONMENT === "production"
     ? "https://connect.squareup.com"
@@ -274,6 +284,156 @@ export async function getSquarePayment(input: { paymentId: string }) {
   }
 
   return (await response.json().catch(() => null)) as Record<string, unknown> | null;
+}
+
+export function parseSquareRefund(payload: unknown): SquareRefund | null {
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+
+  const source = payload as Record<string, unknown>;
+  const data = getObject(source, "data");
+  const webhookObject = getObject(data, "object");
+  const topLevelRefund = getObject(source, "refund");
+  const webhookRefund = getObject(webhookObject, "refund");
+  const refund =
+    Object.keys(topLevelRefund).length > 0
+      ? topLevelRefund
+      : Object.keys(webhookRefund).length > 0
+        ? webhookRefund
+        : source;
+  const amountMoney = getObject(refund, "amount_money");
+  const status = getString(refund, "status").toUpperCase();
+
+  if (
+    !["PENDING", "COMPLETED", "REJECTED", "FAILED"].includes(status) ||
+    !getString(refund, "id") ||
+    !getString(refund, "payment_id") ||
+    !Number.isInteger(Number(amountMoney.amount))
+  ) {
+    return null;
+  }
+
+  return {
+    amountCents: Number(amountMoney.amount),
+    currency: getString(amountMoney, "currency").toUpperCase(),
+    id: getString(refund, "id"),
+    orderId: getString(refund, "order_id"),
+    paymentId: getString(refund, "payment_id"),
+    reason: getString(refund, "reason"),
+    status: status as SquareRefund["status"],
+  };
+}
+
+export function getSquarePaymentRefundedAmountCents(payload: unknown) {
+  if (!payload || typeof payload !== "object") {
+    return 0;
+  }
+
+  const source = payload as Record<string, unknown>;
+  const payment = getObject(source, "payment");
+  const paymentSource = Object.keys(payment).length > 0 ? payment : source;
+  const refundedMoney = getObject(paymentSource, "refunded_money");
+  const amount = Number(refundedMoney.amount);
+
+  return Number.isInteger(amount) && amount >= 0 ? amount : 0;
+}
+
+export async function refundSquarePayment(input: {
+  paymentId: string;
+  amountCents: number;
+  idempotencyKey: string;
+  reason: string;
+}) {
+  if (!input.paymentId.trim()) {
+    throw new Error("Square payment ID is required.");
+  }
+
+  if (!Number.isInteger(input.amountCents) || input.amountCents <= 0) {
+    throw new Error("Refund amount must be a positive whole number of cents.");
+  }
+
+  if (!input.idempotencyKey || input.idempotencyKey.length > 45) {
+    throw new Error("Square refund idempotency key is invalid.");
+  }
+
+  const reason = input.reason.trim().slice(0, 192);
+
+  if (!reason) {
+    throw new Error("Refund reason is required.");
+  }
+
+  const response = await fetch(`${getSquareApiBaseUrl()}/v2/refunds`, {
+    body: JSON.stringify({
+      amount_money: { amount: input.amountCents, currency: "USD" },
+      idempotency_key: input.idempotencyKey,
+      payment_id: input.paymentId,
+      reason,
+    }),
+    headers: {
+      Authorization: `Bearer ${getSquareAccessToken()}`,
+      "Content-Type": "application/json",
+      "Square-Version": getSquareVersion(),
+    },
+    method: "POST",
+  });
+  const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
+
+  if (!response.ok) {
+    const details = getArray(data, "errors")
+      .map((error) =>
+        error && typeof error === "object"
+          ? getString(error as Record<string, unknown>, "detail")
+          : "",
+      )
+      .filter(Boolean)
+      .join(" ");
+
+    throw new Error(details || "Square could not issue the refund.");
+  }
+
+  const refund = parseSquareRefund(data);
+
+  if (!refund) {
+    throw new Error("Square returned an invalid refund response.");
+  }
+
+  if (
+    refund.paymentId !== input.paymentId ||
+    refund.amountCents !== input.amountCents ||
+    refund.currency !== "USD"
+  ) {
+    throw new Error("Square returned refund details that do not match the request.");
+  }
+
+  return refund;
+}
+
+export async function getSquareRefund(input: { refundId: string }) {
+  const response = await fetch(
+    `${getSquareApiBaseUrl()}/v2/refunds/${encodeURIComponent(input.refundId)}`,
+    {
+      cache: "no-store",
+      headers: {
+        Authorization: `Bearer ${getSquareAccessToken()}`,
+        "Content-Type": "application/json",
+        "Square-Version": getSquareVersion(),
+      },
+      method: "GET",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Square refund status could not be retrieved.");
+  }
+
+  const refund = parseSquareRefund(await response.json().catch(() => null));
+
+  if (!refund) {
+    throw new Error("Square returned an invalid refund status response.");
+  }
+
+  return refund;
 }
 
 export function squareOrderLooksPaid(

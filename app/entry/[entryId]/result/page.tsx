@@ -54,11 +54,11 @@ export default async function EntryResultPage({
               Result entry
             </p>
             <h1 className="mt-2 text-3xl font-black sm:text-4xl">
-              Enter your closest shot
+              Report a hole-in-one
             </h1>
             <p className="mt-4 max-w-2xl leading-7 text-white/72">
-              Submit your closest shot out of 5. Pin2Win will verify your result
-              before it appears on the monthly leaderboard.
+              Use this form only when the simulator records an eligible shot as
+              a hole-in-one. Pin2Win will verify the original simulator record.
             </p>
           </div>
 
@@ -69,6 +69,10 @@ export default async function EntryResultPage({
             existingEvidence={entry.evidence ?? ""}
             existingResult={entry.result ?? ""}
             existingStatus={entry.resultStatus}
+            existingSessionId={entry.simulatorSessionId}
+            existingShotId={entry.simulatorShotId}
+            existingOccurredAt={entry.resultOccurredAt}
+            existingIsHoleInOne={entry.isHoleInOne}
           />
         </section>
       </div>

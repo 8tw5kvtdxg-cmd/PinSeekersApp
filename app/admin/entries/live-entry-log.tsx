@@ -8,6 +8,7 @@ import {
   CreditCard,
   ExternalLink,
   RefreshCw,
+  RotateCcw,
   ShieldCheck,
   UserRound,
 } from "lucide-react";
@@ -40,6 +41,51 @@ export function LiveEntryLog({
   const [lastUpdated, setLastUpdated] = useState("Just now");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState("");
+  const [refundingEntryId, setRefundingEntryId] = useState("");
+  const [refundErrorByEntryId, setRefundErrorByEntryId] = useState<Record<string, string>>({});
+
+  async function issueClosureRefund(entry: ClubhouseEntryRecord) {
+    const confirmed = window.confirm(
+      entry.refundStatus === "PENDING"
+        ? `Check the current Square refund status for ${entry.playerName}?`
+        : `Refund $${(entry.amountCents / 100).toFixed(2)} to the original Square payment for ${entry.playerName}? This financial action cannot be reversed in Pin2Win.`,
+    );
+
+    if (!confirmed) return;
+
+    setRefundingEntryId(entry.id);
+    setRefundErrorByEntryId((current) => ({ ...current, [entry.id]: "" }));
+
+    try {
+      const response = await fetch(`/api/admin/refunds/${entry.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          confirm: true,
+          reason:
+            entry.closureRefundReason ||
+            "Challenge closed before the paid attempt could be completed.",
+        }),
+      });
+      const data = (await response.json()) as { error?: string };
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Square refund could not be issued.");
+      }
+
+      await refreshEntries();
+    } catch (caughtError) {
+      setRefundErrorByEntryId((current) => ({
+        ...current,
+        [entry.id]:
+          caughtError instanceof Error
+            ? caughtError.message
+            : "Square refund could not be issued.",
+      }));
+    } finally {
+      setRefundingEntryId("");
+    }
+  }
 
   async function refreshEntries() {
     setIsRefreshing(true);
@@ -118,7 +164,7 @@ export function LiveEntryLog({
         </button>
       </div>
 
-      <section className="mt-6 grid gap-5 md:grid-cols-4">
+      <section className="mt-6 grid gap-5 md:grid-cols-5">
         {[
           {
             icon: CreditCard,
@@ -149,6 +195,17 @@ export function LiveEntryLog({
             value: String(
               visibleEntries.filter((entry) => entry.resultStatus === "Verified")
                 .length,
+            ),
+          },
+          {
+            icon: RotateCcw,
+            label: "Refund review",
+            value: String(
+              visibleEntries.filter(
+                (entry) =>
+                  entry.closureRefundEligibleAt &&
+                  entry.paymentStatus !== "Refunded",
+              ).length,
             ),
           },
         ].map((stat) => {
@@ -234,8 +291,36 @@ export function LiveEntryLog({
                   {resultStatusLabel(entry.resultStatus)}
                 </span>
                 <p className="mt-3 text-sm font-bold text-[#59655f]">
-                  Payment: {entry.paymentMethod ?? "Venue booking"}
+                  Payment: {entry.paymentMethod ?? "Venue booking"} — {entry.paymentStatus}
                 </p>
+                {entry.refundStatus ? (
+                  <p className="mt-1 text-xs font-black text-[#79500e]">
+                    Square refund: {entry.refundStatus}
+                    {entry.squareRefundId ? ` (${entry.squareRefundId})` : ""}
+                  </p>
+                ) : null}
+                {entry.closureRefundEligibleAt && entry.paymentMethod === "Square" && entry.paymentStatus !== "Refunded" ? (
+                  <button
+                    className="mt-3 inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#8d2f1f] px-3 text-xs font-black text-white disabled:opacity-50"
+                    disabled={refundingEntryId === entry.id}
+                    type="button"
+                    onClick={() => issueClosureRefund(entry)}
+                  >
+                    <RotateCcw size={14} />
+                    {refundingEntryId === entry.id
+                      ? "Sending to Square..."
+                      : entry.refundStatus === "PENDING"
+                        ? "Check refund status"
+                        : entry.refundStatus === "FAILED"
+                        ? "Retry Square refund"
+                        : `Refund $${(entry.amountCents / 100).toFixed(2)}`}
+                  </button>
+                ) : null}
+                {refundErrorByEntryId[entry.id] ? (
+                  <p className="mt-2 text-xs font-bold text-[#9a3324]">
+                    {refundErrorByEntryId[entry.id]}
+                  </p>
+                ) : null}
                 {entry.bookingVerificationId ? (
                   <p className="mt-1 text-xs font-black text-[#2f6b3f]">
                     Match: {entry.bookingVerificationId}

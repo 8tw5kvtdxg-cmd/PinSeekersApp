@@ -1,15 +1,11 @@
 import { getCurrentVerifiedPlayer } from "@/lib/player-auth";
 import {
   getClubhouseEntryRecord,
-  updateClubhouseEntryResult,
+  reportPotentialHoleInOne,
 } from "@/lib/clubhouse-entry-store";
 import { withoutEventCode } from "@/lib/event-code-access";
 
 export const dynamic = "force-dynamic";
-
-function formatNumber(value: number) {
-  return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(2)));
-}
 
 export async function POST(
   request: Request,
@@ -36,50 +32,54 @@ export async function POST(
   }
 
   const body = (await request.json()) as {
-    feet?: unknown;
-    inches?: unknown;
+    isHoleInOne?: unknown;
+    simulatorSessionId?: unknown;
+    simulatorShotId?: unknown;
+    resultOccurredAt?: unknown;
     evidence?: unknown;
   };
-  const feet = Number(body.feet);
-  const inches = Number(body.inches);
-  const evidence = typeof body.evidence === "string" ? body.evidence.trim() : "";
 
-  if (
-    !Number.isFinite(feet) ||
-    !Number.isFinite(inches) ||
-    feet < 0 ||
-    inches < 0
-  ) {
+  if (body.isHoleInOne !== true) {
     return Response.json(
-      { error: "Enter your closest shot distance in feet and inches." },
+      { error: "Only an actual simulator-recorded hole-in-one may be reported." },
       { status: 400 },
     );
   }
 
+  const simulatorSessionId =
+    typeof body.simulatorSessionId === "string"
+      ? body.simulatorSessionId.trim()
+      : "";
+  const simulatorShotId =
+    typeof body.simulatorShotId === "string" ? body.simulatorShotId.trim() : "";
+  const evidence = typeof body.evidence === "string" ? body.evidence.trim() : "";
+  const resultOccurredAt =
+    typeof body.resultOccurredAt === "string"
+      ? new Date(body.resultOccurredAt)
+      : new Date(Number.NaN);
+
   try {
-    const resultValue = feet * 12 + inches;
-    const result = `${formatNumber(feet)} ft ${formatNumber(inches)} in`;
-    const updatedEntry = await updateClubhouseEntryResult({
+    const updatedEntry = await reportPotentialHoleInOne({
       entryId,
-      evidence:
-        evidence ||
-        "Customer submitted result from Pin2Win access page. Pending simulator verification.",
-      result,
-      resultStatus: "Needs Review",
-      resultUnit: "inches",
-      resultValue,
+      evidence,
+      resultOccurredAt,
+      simulatorSessionId,
+      simulatorShotId,
+      sourceMetadata: {
+        forwardedFor: request.headers.get("x-forwarded-for") ?? "",
+        reportedAt: new Date().toISOString(),
+        userAgent: request.headers.get("user-agent") ?? "",
+      },
     });
 
-    return Response.json({
-      entry: withoutEventCode(updatedEntry),
-    });
+    return Response.json({ entry: withoutEventCode(updatedEntry) });
   } catch (caughtError) {
     return Response.json(
       {
         error:
           caughtError instanceof Error
             ? caughtError.message
-            : "Could not submit result.",
+            : "Could not report the hole-in-one.",
       },
       { status: 400 },
     );

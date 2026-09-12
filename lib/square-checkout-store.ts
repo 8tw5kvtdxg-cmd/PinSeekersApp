@@ -1,8 +1,17 @@
 import { randomUUID } from "node:crypto";
-import { canTransitionCheckoutStatus } from "@/lib/checkout-status";
+import {
+  canTransitionCheckoutStatus,
+  type CheckoutStatus,
+} from "@/lib/checkout-status";
 import { getPrismaClient } from "@/lib/prisma";
 
-export type SquareCheckoutStatus = "Pending" | "Succeeded" | "Failed";
+export type SquareCheckoutStatus =
+  | "Pending"
+  | "Succeeded"
+  | "Failed"
+  | "Refund Pending"
+  | "Partially Refunded"
+  | "Refunded";
 
 export type SquareCheckoutRecord = {
   id: string;
@@ -23,6 +32,12 @@ export type SquareCheckoutRecord = {
   entryId?: string;
   accessRevealedAt?: string;
   confirmationEmailSentAt?: string;
+  refundStatus?: string;
+  refundedAmountCents: number;
+  squareRefundId?: string;
+  refundReason?: string;
+  refundRequestedAt?: string;
+  refundedAt?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -50,6 +65,12 @@ function toSquareCheckoutRecord(checkout: {
   entryId: string | null;
   accessRevealedAt: Date | null;
   confirmationEmailSentAt: string | null;
+  refundStatus: string | null;
+  refundedAmountCents: number;
+  squareRefundId: string | null;
+  refundReason: string | null;
+  refundRequestedAt: Date | null;
+  refundedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }): SquareCheckoutRecord {
@@ -72,6 +93,12 @@ function toSquareCheckoutRecord(checkout: {
     entryId: checkout.entryId ?? undefined,
     accessRevealedAt: checkout.accessRevealedAt?.toISOString(),
     confirmationEmailSentAt: checkout.confirmationEmailSentAt ?? undefined,
+    refundStatus: checkout.refundStatus ?? undefined,
+    refundedAmountCents: checkout.refundedAmountCents,
+    squareRefundId: checkout.squareRefundId ?? undefined,
+    refundReason: checkout.refundReason ?? undefined,
+    refundRequestedAt: checkout.refundRequestedAt?.toISOString(),
+    refundedAt: checkout.refundedAt?.toISOString(),
     createdAt: checkout.createdAt.toISOString(),
     updatedAt: checkout.updatedAt.toISOString(),
   };
@@ -106,7 +133,18 @@ export async function getSquareCheckoutRecordByOrderId(squareOrderId: string) {
 }
 
 export async function createSquareCheckoutRecord(
-  input: Omit<SquareCheckoutRecord, "status" | "createdAt" | "updatedAt">,
+  input: Omit<
+    SquareCheckoutRecord,
+    | "status"
+    | "createdAt"
+    | "updatedAt"
+    | "refundedAmountCents"
+    | "refundStatus"
+    | "squareRefundId"
+    | "refundReason"
+    | "refundRequestedAt"
+    | "refundedAt"
+  >,
 ) {
   const prisma = getPrismaClient();
 
@@ -119,6 +157,7 @@ export async function createSquareCheckoutRecord(
     data: {
       ...input,
       status: "Pending",
+      refundedAmountCents: 0,
       createdAt: now,
       updatedAt: now,
     },
@@ -154,8 +193,8 @@ export async function updateSquareCheckoutRecord(
     throw new Error("Square checkout was not found.");
   }
 
-  const currentStatus = existing.status as SquareCheckoutStatus;
-  const nextStatus = patch.status as SquareCheckoutStatus | undefined;
+  const currentStatus = existing.status as CheckoutStatus;
+  const nextStatus = patch.status as CheckoutStatus | undefined;
 
   if (nextStatus && !canTransitionCheckoutStatus(currentStatus, nextStatus)) {
     return toSquareCheckoutRecord(existing);

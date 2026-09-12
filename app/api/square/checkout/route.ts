@@ -6,6 +6,8 @@ import {
 import { createSquarePaymentLink } from "@/lib/square";
 import { getCurrentVerifiedPlayer } from "@/lib/player-auth";
 import { recordTransactionAuditEvent } from "@/lib/transaction-audit";
+import { getClubhouseChallengeSetting } from "@/lib/clubhouse-challenge-settings";
+import { isChallengeCheckoutBlocked } from "@/lib/hole-in-one";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +32,20 @@ export async function POST(request: Request) {
 
   if (!challenge) {
     return Response.json({ error: "Challenge not found." }, { status: 404 });
+  }
+
+  const challengeSetting = await getClubhouseChallengeSetting(challenge.slug);
+
+  if (isChallengeCheckoutBlocked(challengeSetting?.status)) {
+    return Response.json(
+      {
+        error:
+          challengeSetting?.status === "CLOSED"
+            ? "This challenge is closed because a hole-in-one winner has been approved."
+            : "Checkout is temporarily paused while a potential hole-in-one is reviewed.",
+      },
+      { status: 409 },
+    );
   }
 
   const playerName =
