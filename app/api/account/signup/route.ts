@@ -7,10 +7,11 @@ import {
 import { validateEmailForSignup } from "@/lib/email-verification";
 import { getPrismaClient } from "@/lib/prisma";
 import {
-  createPlayerSessionValue,
+  createPlayerSession,
   hashPassword,
   normalizeEmail,
   normalizeUsername,
+  playerSessionDurationSeconds,
   playerSessionCookieName,
   publicPlayer,
 } from "@/lib/player-auth";
@@ -171,15 +172,16 @@ export async function POST(request: Request) {
       },
     });
     const cookieStore = await cookies();
+    const playerSessionToken = await createPlayerSession(user.id);
 
     cookieStore.set({
       name: playerSessionCookieName,
-      value: createPlayerSessionValue(user.id),
+      value: playerSessionToken,
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
       path: "/",
-      maxAge: 60 * 60 * 24 * 30,
+      maxAge: playerSessionDurationSeconds,
     });
 
     cookieStore.set({

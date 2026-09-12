@@ -47,6 +47,7 @@ export default function AccountResetPage() {
         throw new Error(data.error ?? "Password could not be reset.");
       }
 
+      window.dispatchEvent(new Event("pin2win:player-session-started"));
       setPassword("");
       setConfirmPassword("");
       setNotice("Password updated. You are now logged in.");

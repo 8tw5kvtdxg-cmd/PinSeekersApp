@@ -1,26 +1,20 @@
-import { randomBytes, scryptSync, timingSafeEqual, createHmac } from "node:crypto";
+import { createHash, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { getPrismaClient } from "@/lib/prisma";
+import {
+  getPlayerSessionExpiry,
+  isPlayerSessionExpired,
+  shouldTouchPlayerSession,
+} from "./player-session-policy.ts";
+
+export { playerSessionDurationSeconds } from "./player-session-policy.ts";
 
 export const playerSessionCookieName = "pin2win_player_session";
 
-const sessionDurationMs = 1000 * 60 * 60 * 24 * 30;
 const passwordKeyLength = 64;
 
-function getPlayerSessionSecret() {
-  return (
-    process.env.PIN2WIN_PLAYER_SESSION_SECRET ??
-    process.env.PIN2WIN_ADMIN_SESSION_SECRET ??
-    (process.env.NODE_ENV === "production"
-      ? ""
-      : "pin2win-local-player-session-secret")
-  );
-}
-
-function signSession(userId: string, expiresAt: number) {
-  return createHmac("sha256", getPlayerSessionSecret())
-    .update(`${userId}.${expiresAt}`)
-    .digest("hex");
+function hashSessionToken(token: string) {
+  return createHash("sha256").update(token).digest("hex");
 }
 
 function safeEqual(left: string, right: string) {
@@ -61,32 +55,85 @@ export function verifyPassword(password: string, passwordHash: string) {
   return safeEqual(hash, storedHash);
 }
 
-export function createPlayerSessionValue(userId: string) {
-  const expiresAt = Date.now() + sessionDurationMs;
-  const signature = signSession(userId, expiresAt);
+export async function createPlayerSession(userId: string) {
+  const prisma = getPrismaClient();
 
-  return `${userId}.${expiresAt}.${signature}`;
+  if (!prisma) {
+    throw new Error("Database is required for player sessions.");
+  }
+
+  const token = randomBytes(32).toString("base64url");
+  const now = new Date();
+
+  await prisma.playerSession.create({
+    data: {
+      userId,
+      tokenHash: hashSessionToken(token),
+      lastActivityAt: now,
+      expiresAt: getPlayerSessionExpiry(now),
+    },
+  });
+
+  return token;
 }
 
-export function verifyPlayerSessionValue(value: string | undefined) {
-  if (!value || !getPlayerSessionSecret()) {
+export async function getActivePlayerSession(
+  token: string | undefined,
+  options: { touch?: boolean } = {},
+) {
+  const prisma = getPrismaClient();
+
+  if (!prisma || !token) {
     return null;
   }
 
-  const [userId, expiresAtValue, signature] = value.split(".");
-  const expiresAt = Number(expiresAtValue);
+  const session = await prisma.playerSession.findUnique({
+    where: { tokenHash: hashSessionToken(token) },
+  });
+  const now = new Date();
 
-  if (!userId || !Number.isFinite(expiresAt) || !signature) {
+  if (!session || isPlayerSessionExpired(session.expiresAt, now)) {
+    if (session) {
+      await prisma.playerSession.deleteMany({ where: { id: session.id } });
+    }
+
     return null;
   }
 
-  if (expiresAt < Date.now()) {
-    return null;
+  if (
+    options.touch !== false &&
+    shouldTouchPlayerSession(session.lastActivityAt, now)
+  ) {
+    await prisma.playerSession.updateMany({
+      where: { id: session.id, expiresAt: { gt: now } },
+      data: {
+        lastActivityAt: now,
+        expiresAt: getPlayerSessionExpiry(now),
+      },
+    });
   }
 
-  const expectedSignature = signSession(userId, expiresAt);
+  return session;
+}
 
-  return safeEqual(signature, expectedSignature) ? userId : null;
+export async function deletePlayerSession(token: string | undefined) {
+  const prisma = getPrismaClient();
+
+  if (!prisma || !token) {
+    return;
+  }
+
+  await prisma.playerSession.deleteMany({
+    where: { tokenHash: hashSessionToken(token) },
+  });
+}
+
+export async function deletePlayerSessionsForUser(userId: string) {
+  const prisma = getPrismaClient();
+
+  if (prisma) {
+    await prisma.playerSession.deleteMany({ where: { userId } });
+  }
 }
 
 export async function getCurrentPlayer() {
@@ -97,16 +144,16 @@ export async function getCurrentPlayer() {
   }
 
   const cookieStore = await cookies();
-  const userId = verifyPlayerSessionValue(
+  const session = await getActivePlayerSession(
     cookieStore.get(playerSessionCookieName)?.value,
   );
 
-  if (!userId) {
+  if (!session) {
     return null;
   }
 
   return prisma.user.findUnique({
-    where: { id: userId },
+    where: { id: session.userId },
     select: {
       id: true,
       name: true,

@@ -2,8 +2,10 @@ import { cookies } from "next/headers";
 import { getPasswordResetToken } from "@/lib/account-recovery";
 import { getPrismaClient } from "@/lib/prisma";
 import {
-  createPlayerSessionValue,
+  createPlayerSession,
+  deletePlayerSessionsForUser,
   hashPassword,
+  playerSessionDurationSeconds,
   playerSessionCookieName,
   publicPlayer,
 } from "@/lib/player-auth";
@@ -80,15 +82,17 @@ export async function POST(request: Request) {
   });
 
   const cookieStore = await cookies();
+  await deletePlayerSessionsForUser(user.id);
+  const playerSessionToken = await createPlayerSession(user.id);
 
   cookieStore.set({
     name: playerSessionCookieName,
-    value: createPlayerSessionValue(user.id),
+    value: playerSessionToken,
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: playerSessionDurationSeconds,
   });
 
   return Response.json({ user: publicPlayer(user) });

@@ -39,7 +39,7 @@ export function QrAccountGate({
   locationSlug,
   nextPath,
 }: QrAccountGateProps) {
-  const [mode, setMode] = useState<"create" | "login">("create");
+  const [mode, setMode] = useState<"create" | "login">("login");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [e6GolfUsername, setE6GolfUsername] = useState("");
@@ -103,6 +103,7 @@ export function QrAccountGate({
         throw new Error(data.error ?? "Could not access account.");
       }
 
+      window.dispatchEvent(new Event("pin2win:player-session-started"));
       setIsRedirectingToCheckout(true);
       const player = data.user;
       const playerName = player.name.trim();

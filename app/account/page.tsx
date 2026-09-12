@@ -156,6 +156,7 @@ export default function AccountPage() {
         throw new Error(data.error ?? "Could not access account.");
       }
 
+      window.dispatchEvent(new Event("pin2win:player-session-started"));
       setPlayerAccount(data.user);
       setIsLoggedIn(true);
       setAccountNotice(
