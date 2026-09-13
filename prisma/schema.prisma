@@ -247,6 +247,32 @@ model SquareCheckout {
   @@index([status, createdAt])
 }
 
+model LegalAcceptanceRecord {
+  id                         String   @id @default(cuid())
+  checkoutId                 String   @unique
+  userId                     String
+  userEmail                  String
+  challengeSlug              String
+  documentVersion            String
+  acceptanceText             Json
+  documentHashes             Json
+  combinedDocumentHash       String
+  legalDocumentsAccepted     Boolean
+  age18Accepted              Boolean
+  texasResidencyAccepted     Boolean
+  onsitePresenceAccepted     Boolean
+  acceptedAt                 DateTime
+  ipAddress                  String?
+  userAgent                  String?
+  locationSlug               String?
+  bayName                    String?
+  createdAt                  DateTime @default(now())
+
+  @@index([userId, acceptedAt])
+  @@index([challengeSlug, acceptedAt])
+  @@index([documentVersion, acceptedAt])
+}
+
 model TransactionAuditEventRecord {
   id         String   @id
   checkoutId String

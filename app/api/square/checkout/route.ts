@@ -8,6 +8,7 @@ import { getCurrentVerifiedPlayer } from "@/lib/player-auth";
 import { recordTransactionAuditEvent } from "@/lib/transaction-audit";
 import { getClubhouseChallengeSetting } from "@/lib/clubhouse-challenge-settings";
 import { isChallengeCheckoutBlocked } from "@/lib/hole-in-one";
+import { validateLegalAcceptance } from "@/lib/legal-documents";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,11 @@ export async function POST(request: Request) {
     e6DisplayName?: unknown;
     locationSlug?: unknown;
     bayName?: unknown;
+    documentVersion?: unknown;
+    legalDocumentsAccepted?: unknown;
+    age18Accepted?: unknown;
+    texasResidencyAccepted?: unknown;
+    onsitePresenceAccepted?: unknown;
   };
   const challengeSlug =
     typeof body.challengeSlug === "string" ? body.challengeSlug : "";
@@ -63,6 +69,13 @@ export async function POST(request: Request) {
   }
 
   try {
+    const legalSnapshot = validateLegalAcceptance({
+      age18Accepted: body.age18Accepted,
+      documentVersion: body.documentVersion,
+      legalDocumentsAccepted: body.legalDocumentsAccepted,
+      onsitePresenceAccepted: body.onsitePresenceAccepted,
+      texasResidencyAccepted: body.texasResidencyAccepted,
+    });
     const checkoutId = nextSquareCheckoutId();
     const paymentLink = await createSquarePaymentLink({
       amountCents: challenge.entryFeeCents,
@@ -73,22 +86,42 @@ export async function POST(request: Request) {
       redirectPath: "/checkout/access",
       request,
     });
-    const checkout = await createSquareCheckoutRecord({
-      id: checkoutId,
-      playerEmail: player.email,
-      challengeSlug: challenge.slug,
-      playerName,
-      phoneNumber,
-      e6DisplayName,
-      locationSlug:
-        typeof body.locationSlug === "string" ? body.locationSlug : "",
-      locationName: challenge.venue,
-      bayName: typeof body.bayName === "string" ? body.bayName : "",
-      amountCents: challenge.entryFeeCents,
-      squareOrderId: paymentLink.orderId,
-      squarePaymentLinkId: paymentLink.id,
-      squarePaymentLinkUrl: paymentLink.url,
-    });
+    const checkout = await createSquareCheckoutRecord(
+      {
+        id: checkoutId,
+        playerEmail: player.email,
+        challengeSlug: challenge.slug,
+        playerName,
+        phoneNumber,
+        e6DisplayName,
+        locationSlug:
+          typeof body.locationSlug === "string" ? body.locationSlug : "",
+        locationName: challenge.venue,
+        bayName: typeof body.bayName === "string" ? body.bayName : "",
+        amountCents: challenge.entryFeeCents,
+        squareOrderId: paymentLink.orderId,
+        squarePaymentLinkId: paymentLink.id,
+        squarePaymentLinkUrl: paymentLink.url,
+      },
+      {
+        acceptanceText: { ...legalSnapshot.acceptanceText },
+        acceptedAt: new Date(),
+        age18Accepted: true,
+        combinedDocumentHash: legalSnapshot.combinedDocumentHash,
+        documentHashes: legalSnapshot.documentHashes,
+        documentVersion: legalSnapshot.documentVersion,
+        ipAddress:
+          request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+          request.headers.get("x-real-ip")?.trim() ||
+          undefined,
+        legalDocumentsAccepted: true,
+        onsitePresenceAccepted: true,
+        texasResidencyAccepted: true,
+        userAgent: request.headers.get("user-agent")?.trim() || undefined,
+        userEmail: player.email,
+        userId: player.id,
+      },
+    );
 
     await recordTransactionAuditEvent({
       checkoutId: checkout.id,
@@ -99,6 +132,8 @@ export async function POST(request: Request) {
         amountCents: checkout.amountCents,
         locationSlug: checkout.locationSlug ?? "",
         squareOrderId: checkout.squareOrderId,
+        legalDocumentHash: legalSnapshot.combinedDocumentHash,
+        legalDocumentVersion: legalSnapshot.documentVersion,
       },
     });
 

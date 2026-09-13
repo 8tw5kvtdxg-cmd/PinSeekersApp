@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CheckCircle2,
   Clock,
@@ -26,7 +26,7 @@ type EntryFlowProps = {
     | "slug"
     | "venue"
   >;
-  autoCheckout?: boolean;
+  legalDocumentVersion: string;
   squareReturn?: {
     checkoutId?: string;
     orderId?: string;
@@ -105,7 +105,7 @@ function formatEntryFee(cents: number) {
 
 export function EntryFlow({
   challenge,
-  autoCheckout = false,
+  legalDocumentVersion,
   squareReturn,
 }: EntryFlowProps) {
   const storageKey = `pin2win-entry-draft-${challenge.slug}`;
@@ -121,8 +121,11 @@ export function EntryFlow({
   const [isLoadingAccount, setIsLoadingAccount] = useState(true);
   const [isStartingSquareCheckout, setIsStartingSquareCheckout] =
     useState(false);
+  const [legalDocumentsAccepted, setLegalDocumentsAccepted] = useState(false);
+  const [age18Accepted, setAge18Accepted] = useState(false);
+  const [texasResidencyAccepted, setTexasResidencyAccepted] = useState(false);
+  const [onsitePresenceAccepted, setOnsitePresenceAccepted] = useState(false);
   const isCompletingSquareCheckout = Boolean(squareReturn?.checkoutId);
-  const autoCheckoutStartedRef = useRef(false);
 
   useEffect(() => {
     async function loadPlayerAccount() {
@@ -174,35 +177,15 @@ export function EntryFlow({
     window.location.replace(`/checkout/access?${accessParams.toString()}`);
   }, [squareReturn?.checkoutId, squareReturn?.orderId, squareReturn?.paymentId]);
 
-  useEffect(() => {
-    if (
-      !autoCheckout ||
-      isLoadingAccount ||
-      !playerAccount ||
-      !playerName.trim() ||
-      !phoneNumber.trim() ||
-      !e6DisplayName.trim() ||
-      isStartingSquareCheckout ||
-      autoCheckoutStartedRef.current
-    ) {
-      return;
-    }
-
-    autoCheckoutStartedRef.current = true;
-    void startSquareCheckout();
-  }, [
-    autoCheckout,
-    e6DisplayName,
-    isLoadingAccount,
-    isStartingSquareCheckout,
-    phoneNumber,
-    playerAccount,
-    playerName,
-  ]);
   const hasPlayerAccount = Boolean(playerAccount);
   const hasEntryDetails = Boolean(
     playerName.trim() && phoneNumber.trim() && e6DisplayName.trim(),
   );
+  const hasRequiredAcceptances =
+    legalDocumentsAccepted &&
+    age18Accepted &&
+    texasResidencyAccepted &&
+    onsitePresenceAccepted;
 
   async function savePlayerInfo() {
     const trimmedPlayerName = playerName.trim();
@@ -262,6 +245,13 @@ export function EntryFlow({
   }
 
   async function startSquareCheckout() {
+    if (!hasRequiredAcceptances) {
+      setPaymentError(
+        "Review and complete every legal agreement and eligibility attestation before checkout.",
+      );
+      return;
+    }
+
     const wasSaved = await savePlayerInfo();
 
     if (!wasSaved) {
@@ -288,6 +278,11 @@ export function EntryFlow({
           e6DisplayName,
           locationSlug,
           bayName,
+          documentVersion: legalDocumentVersion,
+          legalDocumentsAccepted,
+          age18Accepted,
+          texasResidencyAccepted,
+          onsitePresenceAccepted,
         }),
       });
       const data = (await response.json()) as {
@@ -440,11 +435,117 @@ export function EntryFlow({
           </div>
 
           <div className="rounded-lg border border-[#ece5d8] p-4">
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="text-[#2f6b3f]" size={24} />
+              <div>
+                <h3 className="font-black">2. Required agreements</h3>
+                <p className="text-sm text-[#59655f]">
+                  Each box must be selected personally before payment.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-3">
+              <label className="flex items-start gap-3 rounded-md border border-[#ded6c8] p-3 text-sm font-bold leading-6">
+                <input
+                  className="mt-1 size-4 shrink-0 accent-[#2f6b3f]"
+                  type="checkbox"
+                  checked={legalDocumentsAccepted}
+                  onChange={(event) => {
+                    setLegalDocumentsAccepted(event.target.checked);
+                    setPaymentError("");
+                  }}
+                />
+                <span>
+                  I have reviewed and agree to the{" "}
+                  <Link
+                    className="text-[#2f6b3f] underline"
+                    href="/terms"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Terms of Use
+                  </Link>
+                  ,{" "}
+                  <Link
+                    className="text-[#2f6b3f] underline"
+                    href="/official-rules"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Official Rules
+                  </Link>
+                  ,{" "}
+                  <Link
+                    className="text-[#2f6b3f] underline"
+                    href="/refund-policy"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Refund Policy
+                  </Link>
+                  , and{" "}
+                  <Link
+                    className="text-[#2f6b3f] underline"
+                    href="/privacy"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Privacy Policy
+                  </Link>
+                  .
+                </span>
+              </label>
+              <label className="flex items-start gap-3 rounded-md border border-[#ded6c8] p-3 text-sm font-bold leading-6">
+                <input
+                  className="mt-1 size-4 shrink-0 accent-[#2f6b3f]"
+                  type="checkbox"
+                  checked={age18Accepted}
+                  onChange={(event) => {
+                    setAge18Accepted(event.target.checked);
+                    setPaymentError("");
+                  }}
+                />
+                <span>I certify that I am at least 18 years old.</span>
+              </label>
+              <label className="flex items-start gap-3 rounded-md border border-[#ded6c8] p-3 text-sm font-bold leading-6">
+                <input
+                  className="mt-1 size-4 shrink-0 accent-[#2f6b3f]"
+                  type="checkbox"
+                  checked={texasResidencyAccepted}
+                  onChange={(event) => {
+                    setTexasResidencyAccepted(event.target.checked);
+                    setPaymentError("");
+                  }}
+                />
+                <span>I certify that I am a Texas resident.</span>
+              </label>
+              <label className="flex items-start gap-3 rounded-md border border-[#ded6c8] p-3 text-sm font-bold leading-6">
+                <input
+                  className="mt-1 size-4 shrink-0 accent-[#2f6b3f]"
+                  type="checkbox"
+                  checked={onsitePresenceAccepted}
+                  onChange={(event) => {
+                    setOnsitePresenceAccepted(event.target.checked);
+                    setPaymentError("");
+                  }}
+                />
+                <span>
+                  I certify that I am physically present at the participating
+                  Texas location and bay identified for this entry.
+                </span>
+              </label>
+            </div>
+            <p className="mt-3 text-xs font-bold text-[#6b756f]">
+              Document version: {legalDocumentVersion}
+            </p>
+          </div>
+
+          <div className="rounded-lg border border-[#ece5d8] p-4">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <UserRound className="text-[#2f6b3f]" size={24} />
                 <div>
-                  <h3 className="font-black">2. Entry details</h3>
+                  <h3 className="font-black">3. Entry details</h3>
                   <p className="text-sm text-[#59655f]">
                     Match this entry to the player and simulator display name.
                   </p>
@@ -502,7 +603,7 @@ export function EntryFlow({
               <div className="flex items-center gap-3">
                 <CreditCard className="text-[#2f6b3f]" size={24} />
                 <div>
-                  <h3 className="font-black">3. Secure checkout</h3>
+                  <h3 className="font-black">4. Secure checkout</h3>
                   <p className="text-sm text-[#59655f]">
                     Pay the challenge entry fee to unlock the event code.
                   </p>
@@ -525,7 +626,10 @@ export function EntryFlow({
               className="mt-4 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-5 text-sm font-black text-white transition hover:bg-[#3f7f4c] disabled:cursor-not-allowed disabled:bg-[#ded6c8] disabled:text-[#6b756f]"
               disabled={
                 isStartingSquareCheckout ||
-                isCompletingSquareCheckout
+                isCompletingSquareCheckout ||
+                !hasPlayerAccount ||
+                !hasEntryDetails ||
+                !hasRequiredAcceptances
               }
               type="button"
               onClick={startSquareCheckout}
@@ -563,7 +667,7 @@ export function EntryFlow({
           <div className="rounded-lg bg-[#fbf8f1] p-5">
             <div className="flex items-center gap-3">
               <LockKeyhole className="text-[#87908a]" size={26} />
-              <h3 className="text-xl font-black">4. Simulator access</h3>
+              <h3 className="text-xl font-black">5. Simulator access</h3>
             </div>
             <dl className="mt-5 grid gap-4">
               <div>

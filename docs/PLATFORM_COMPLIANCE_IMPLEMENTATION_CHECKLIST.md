@@ -11,13 +11,13 @@ Status key: `[x]` complete, `[~]` in progress, `[ ]` not started, `[!]` blocked 
 - [x] Add permanent HTML routes for Terms of Use, Official Rules, Refund Policy, and Privacy Policy.
 - [x] Replace placeholder footer links with working internal links.
 - [x] Establish a single current legal-document version in application code.
-- [~] Display the effective date and business mailing address on every applicable document. Mailing address is complete; effective date remains outstanding.
+- [x] Display the effective date and business mailing address on every applicable document.
 - [!] Obtain Texas counsel approval before changing the documents from legal-review draft to effective customer terms.
-- [ ] Add an unchecked pre-checkout acceptance control with links to all four documents.
-- [ ] Require separate age-18, Texas-residency, and onsite-presence attestations.
-- [ ] Record user, challenge, checkout, document versions, acceptance text, UTC timestamp, IP address, user agent, location, and bay.
-- [ ] Reject checkout server-side when current-version acceptance is absent or incomplete.
-- [ ] Preserve an immutable copy or cryptographic hash of each accepted document version.
+- [x] Add an unchecked pre-checkout acceptance control with links to all four documents.
+- [x] Require separate age-18, Texas-residency, and onsite-presence attestations.
+- [x] Record user, challenge, checkout, document versions, acceptance text, UTC timestamp, IP address, user agent, location, and bay.
+- [x] Reject checkout server-side when current-version acceptance is absent or incomplete.
+- [x] Preserve an immutable copy or cryptographic hash of each accepted document version.
 
 ## 2. Challenge Configuration and Sale Controls
 
@@ -115,14 +115,13 @@ Status key: `[x]` complete, `[~]` in progress, `[ ]` not started, `[!]` blocked 
 - [ ] Test privacy and refund request deadlines and audit histories.
 - [ ] Test Square webhook retries, duplicates, delayed delivery, and reconciliation.
 - [ ] Complete accessibility and mobile checkout review.
-- [!] Insert the approved effective date. The business mailing address is complete.
+- [x] Insert the approved effective date and business mailing address.
 - [!] Obtain final Texas counsel and CPA approval.
 - [ ] Remove draft banners and internal launch material only after approval.
 - [ ] Complete a production launch rehearsal before enabling paid entries.
 
 ## Owner/Professional Inputs Still Required
 
-- Approved effective date.
 - Texas attorney approval and any required structural changes.
 - CPA-approved tax collection, withholding, reporting, and payout procedure.
 - Confirmation that the $5,000 prize is reserved or insured.

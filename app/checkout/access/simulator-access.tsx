@@ -412,7 +412,6 @@ export function SimulatorAccess({
             href={`/play/${entry.challengeSlug}?${new URLSearchParams({
               ...(entry.locationSlug ? { location: entry.locationSlug } : {}),
               ...(entry.bayName ? { bay: entry.bayName } : {}),
-              autoCheckout: "1",
             }).toString()}`}
             className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-5 text-sm font-black text-white"
           >

@@ -1,9 +1,20 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { createHash } from "node:crypto";
 
 export const legalDocumentVersion = "2026.09-DRAFT";
 export const legalDocumentStatus = "legal-review-draft" as const;
 export const legalDraftDate = "September 11, 2026";
+export const legalEffectiveDate = "September 1, 2026";
+
+export const legalAcceptanceTexts = {
+  legalDocuments:
+    "I have reviewed and agree to the Terms of Use, Official Rules, Refund Policy, and Privacy Policy.",
+  age18: "I certify that I am at least 18 years old.",
+  texasResidency: "I certify that I am a Texas resident.",
+  onsitePresence:
+    "I certify that I am physically present at the participating Texas location and bay identified for this entry.",
+} as const;
 
 export type LegalDocumentKey =
   | "terms"
@@ -76,3 +87,59 @@ export function getLegalDocumentMarkdown(key: LegalDocumentKey) {
     .trim();
 }
 
+export function getLegalDocumentSnapshot() {
+  const keys: LegalDocumentKey[] = [
+    "terms",
+    "official-rules",
+    "refund-policy",
+    "privacy",
+  ];
+  const documentHashes = Object.fromEntries(
+    keys.map((key) => {
+      const markdown = getLegalDocumentMarkdown(key);
+      const hash = createHash("sha256")
+        .update(`${legalDocumentVersion}\n${key}\n${markdown}`, "utf8")
+        .digest("hex");
+
+      return [key, hash];
+    }),
+  ) as Record<LegalDocumentKey, string>;
+  const combinedDocumentHash = createHash("sha256")
+    .update(
+      keys.map((key) => `${key}:${documentHashes[key]}`).join("\n"),
+      "utf8",
+    )
+    .digest("hex");
+
+  return {
+    acceptanceText: legalAcceptanceTexts,
+    combinedDocumentHash,
+    documentHashes,
+    documentVersion: legalDocumentVersion,
+  };
+}
+
+export function validateLegalAcceptance(input: {
+  documentVersion: unknown;
+  legalDocumentsAccepted: unknown;
+  age18Accepted: unknown;
+  texasResidencyAccepted: unknown;
+  onsitePresenceAccepted: unknown;
+}) {
+  if (input.documentVersion !== legalDocumentVersion) {
+    throw new Error(
+      "The legal documents changed before checkout. Review the current documents and try again.",
+    );
+  }
+
+  if (
+    input.legalDocumentsAccepted !== true ||
+    input.age18Accepted !== true ||
+    input.texasResidencyAccepted !== true ||
+    input.onsitePresenceAccepted !== true
+  ) {
+    throw new Error("All legal agreements and eligibility attestations are required.");
+  }
+
+  return getLegalDocumentSnapshot();
+}

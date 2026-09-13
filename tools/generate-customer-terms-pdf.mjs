@@ -179,9 +179,10 @@ doc.text("PIN2WIN", 62, 705, 12, white, "F2");
 doc.wrapped("Customer Terms and Challenge Rules", 52, 612, 490, 31, white, 37, "F2");
 doc.wrapped("Terms of Use | Official $5,000 Hole-in-One Challenge Rules | Refund Policy | Privacy Policy", 52, 475, 466, 13.5, [0.86, 0.91, 0.79], 20);
 doc.line(52, 383, 200, 383, lime, 4);
-doc.text("LEGAL-REVIEW DRAFT - NOT APPROVED FOR PUBLICATION", 52, 106, 9, lime, "F2");
-doc.text("Draft date: September 11, 2026", 52, 83, 10.5, white);
-doc.text("2300 Nacogdoches Rd Apt 124F, San Antonio, TX 78209, United States", 52, 65, 9.5, [0.75, 0.8, 0.76]);
+doc.text("LEGAL-REVIEW DRAFT - NOT APPROVED FOR PUBLICATION", 52, 112, 9, lime, "F2");
+doc.text("Effective date: September 1, 2026", 52, 89, 10.5, white);
+doc.text("Draft date: September 11, 2026", 52, 72, 9.5, [0.75, 0.8, 0.76]);
+doc.text("2300 Nacogdoches Rd Apt 124F, San Antonio, TX 78209, United States", 52, 55, 9.5, [0.75, 0.8, 0.76]);
 
 doc.addPage();
 

@@ -4,7 +4,7 @@
 
 **Draft date:** September 11, 2026
 
-**Proposed effective date:** [INSERT EFFECTIVE DATE]
+**Effective date:** September 1, 2026
 
 **Document version:** 2026.09-DRAFT
 
@@ -538,7 +538,7 @@ Pin2Win may update this Privacy Policy prospectively. The current version will d
 - Obtain Texas counsel's written confirmation of the contest structure under Texas Penal Code § 47.01.
 - Confirm whether any registration, bonding, insurance, or local venue-specific requirement applies.
 - Have a CPA confirm W-9 collection, Form 1099-MISC reporting, backup withholding, and prize-payment records.
-- Insert the approved effective date.
+- Effective date inserted: September 1, 2026.
 - Confirm the challenge dates, eligible locations, simulator configuration, target distance, and equipment rules.
 - Reserve or insure the full advertised prize before opening entries.
 - Confirm the first-hole-in-one closure and equal-split fallback procedures operationally.

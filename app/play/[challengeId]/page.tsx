@@ -5,6 +5,7 @@ import { getClubhouseChallenge } from "@/lib/clubhouse";
 import { findLikelyBookingMatch } from "@/lib/booking-verification-store";
 import { getCurrentPlayer } from "@/lib/player-auth";
 import { recordQrScan } from "@/lib/qr-scan-store";
+import { legalDocumentVersion } from "@/lib/legal-documents";
 
 export default async function ClubhouseChallengePage({
   params,
@@ -13,7 +14,6 @@ export default async function ClubhouseChallengePage({
   params: Promise<{ challengeId: string }>;
   searchParams: Promise<{
     bay?: string;
-    autoCheckout?: string;
     checkoutId?: string;
     location?: string;
     orderId?: string;
@@ -25,7 +25,6 @@ export default async function ClubhouseChallengePage({
   const { challengeId } = await params;
   const {
     bay,
-    autoCheckout,
     checkoutId,
     location,
     orderId,
@@ -84,7 +83,7 @@ export default async function ClubhouseChallengePage({
               slug: challenge.slug,
               venue: challenge.venue,
             }}
-            autoCheckout={autoCheckout === "1"}
+            legalDocumentVersion={legalDocumentVersion}
             squareReturn={{
               checkoutId: squareCheckoutId ?? checkoutId ?? referenceId ?? "",
               orderId: orderId ?? "",

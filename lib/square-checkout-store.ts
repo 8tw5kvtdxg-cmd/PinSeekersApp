@@ -42,6 +42,22 @@ export type SquareCheckoutRecord = {
   updatedAt: string;
 };
 
+export type LegalAcceptanceCreateInput = {
+  userId: string;
+  userEmail: string;
+  documentVersion: string;
+  acceptanceText: Record<string, string>;
+  documentHashes: Record<string, string>;
+  combinedDocumentHash: string;
+  legalDocumentsAccepted: true;
+  age18Accepted: true;
+  texasResidencyAccepted: true;
+  onsitePresenceAccepted: true;
+  acceptedAt: Date;
+  ipAddress?: string;
+  userAgent?: string;
+};
+
 export function nextSquareCheckoutId() {
   return `P2W-SQUARE-${randomUUID()}`;
 }
@@ -145,6 +161,7 @@ export async function createSquareCheckoutRecord(
     | "refundRequestedAt"
     | "refundedAt"
   >,
+  legalAcceptance: LegalAcceptanceCreateInput,
 ) {
   const prisma = getPrismaClient();
 
@@ -153,14 +170,40 @@ export async function createSquareCheckoutRecord(
   }
 
   const now = new Date();
-  const checkout = await prisma.squareCheckout.create({
-    data: {
-      ...input,
-      status: "Pending",
-      refundedAmountCents: 0,
-      createdAt: now,
-      updatedAt: now,
-    },
+  const checkout = await prisma.$transaction(async (transaction) => {
+    const createdCheckout = await transaction.squareCheckout.create({
+      data: {
+        ...input,
+        status: "Pending",
+        refundedAmountCents: 0,
+        createdAt: now,
+        updatedAt: now,
+      },
+    });
+
+    await transaction.legalAcceptanceRecord.create({
+      data: {
+        acceptanceText: legalAcceptance.acceptanceText,
+        acceptedAt: legalAcceptance.acceptedAt,
+        age18Accepted: legalAcceptance.age18Accepted,
+        bayName: input.bayName,
+        challengeSlug: input.challengeSlug,
+        checkoutId: createdCheckout.id,
+        combinedDocumentHash: legalAcceptance.combinedDocumentHash,
+        documentHashes: legalAcceptance.documentHashes,
+        documentVersion: legalAcceptance.documentVersion,
+        ipAddress: legalAcceptance.ipAddress,
+        legalDocumentsAccepted: legalAcceptance.legalDocumentsAccepted,
+        locationSlug: input.locationSlug,
+        onsitePresenceAccepted: legalAcceptance.onsitePresenceAccepted,
+        texasResidencyAccepted: legalAcceptance.texasResidencyAccepted,
+        userAgent: legalAcceptance.userAgent,
+        userEmail: legalAcceptance.userEmail,
+        userId: legalAcceptance.userId,
+      },
+    });
+
+    return createdCheckout;
   });
 
   return toSquareCheckoutRecord(checkout);

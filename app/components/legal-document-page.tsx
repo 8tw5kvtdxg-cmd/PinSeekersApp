@@ -5,6 +5,7 @@ import {
   legalDocumentStatus,
   legalDocumentVersion,
   legalDraftDate,
+  legalEffectiveDate,
   type LegalDocumentKey,
 } from "@/lib/legal-documents";
 
@@ -114,7 +115,7 @@ export function LegalDocumentPage({ documentKey }: { documentKey: LegalDocumentK
           <h1 className="mt-3 text-4xl font-black leading-tight sm:text-5xl">
             {definition.title}
           </h1>
-          <dl className="mt-6 grid gap-2 text-sm text-[#59655f] sm:grid-cols-2">
+          <dl className="mt-6 grid gap-2 text-sm text-[#59655f] sm:grid-cols-3">
             <div>
               <dt className="font-black">Document version</dt>
               <dd>{legalDocumentVersion}</dd>
@@ -123,13 +124,17 @@ export function LegalDocumentPage({ documentKey }: { documentKey: LegalDocumentK
               <dt className="font-black">Draft date</dt>
               <dd>{legalDraftDate}</dd>
             </div>
+            <div>
+              <dt className="font-black">Effective date</dt>
+              <dd>{legalEffectiveDate}</dd>
+            </div>
           </dl>
         </header>
 
         {legalDocumentStatus === "legal-review-draft" ? (
           <aside className="mt-8 border-l-4 border-[#a15a24] bg-[#fff5ea] px-5 py-4 text-sm font-bold leading-6 text-[#7b441d]">
-            Legal-review draft — not effective and not approved for publication.
-            The effective date and counsel approval are still required.
+            Legal-review draft — not approved for publication. The effective
+            date has been supplied, but counsel approval is still required.
           </aside>
         ) : null}
 
