@@ -105,7 +105,7 @@ export default async function ClubhouseChallengePage({
             }}
             autoCheckout={
               autoCheckout === "1" ||
-              Boolean(player && location && !isReturningFromCheckout)
+              Boolean(player && !isReturningFromCheckout)
             }
             squareReturn={{
               checkoutId: squareCheckoutId ?? checkoutId ?? referenceId ?? "",
