@@ -19,6 +19,10 @@ import {
   UserPlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  AccountConsentFields,
+  emptyAccountConsent,
+} from "@/app/components/account-consent-fields";
 
 const challengeSteps = [
   {
@@ -63,6 +67,7 @@ export default function AccountPage() {
   const [phone, setPhone] = useState("");
   const [emailOrLogin, setEmailOrLogin] = useState("");
   const [password, setPassword] = useState("");
+  const [accountConsent, setAccountConsent] = useState(emptyAccountConsent);
   const [playerAccount, setPlayerAccount] = useState<PlayerAccount | null>(null);
   const [accountError, setAccountError] = useState("");
   const [accountNotice, setAccountNotice] = useState("");
@@ -111,11 +116,17 @@ export default function AccountPage() {
     if (
       !trimmedEmailOrLogin ||
       !password.trim() ||
-      (mode === "create" && (!trimmedUsername || !fullName.trim() || !phone.trim()))
+      (mode === "create" &&
+        (!trimmedUsername ||
+          !fullName.trim() ||
+          !phone.trim() ||
+          !accountConsent.legalDocumentsAccepted ||
+          !accountConsent.age18Accepted ||
+          !accountConsent.texasResidencyAccepted))
     ) {
       setAccountError(
         mode === "create"
-          ? "Name, phone, username, email, and password are required."
+          ? "Complete every field and required agreement to create an account."
           : "Email/username and password are required.",
       );
       return;
@@ -138,6 +149,7 @@ export default function AccountPage() {
                   email: trimmedEmailOrLogin,
                   phone: phone.trim(),
                   password,
+                  ...accountConsent,
                 }
               : {
                   login: trimmedEmailOrLogin,
@@ -337,6 +349,16 @@ export default function AccountPage() {
                 >
                   <KeyRound size={16} /> Forgot password/username?
                 </Link>
+              ) : null}
+
+              {mode === "create" ? (
+                <AccountConsentFields
+                  consent={accountConsent}
+                  onChange={(consent) => {
+                    setAccountConsent(consent);
+                    setAccountError("");
+                  }}
+                />
               ) : null}
 
               <button

@@ -10,6 +10,10 @@ import {
   UserPlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  AccountConsentFields,
+  emptyAccountConsent,
+} from "@/app/components/account-consent-fields";
 
 type QrAccountGateProps = {
   bayName: string;
@@ -45,6 +49,7 @@ export function QrAccountGate({
   const [e6GolfUsername, setE6GolfUsername] = useState("");
   const [emailOrLogin, setEmailOrLogin] = useState("");
   const [password, setPassword] = useState("");
+  const [accountConsent, setAccountConsent] = useState(emptyAccountConsent);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRedirectingToCheckout, setIsRedirectingToCheckout] = useState(false);
@@ -59,11 +64,16 @@ export function QrAccountGate({
       !trimmedEmailOrLogin ||
       !password.trim() ||
       (mode === "create" &&
-        (!fullName.trim() || !phone.trim() || !trimmedE6GolfUsername))
+        (!fullName.trim() ||
+          !phone.trim() ||
+          !trimmedE6GolfUsername ||
+          !accountConsent.legalDocumentsAccepted ||
+          !accountConsent.age18Accepted ||
+          !accountConsent.texasResidencyAccepted))
     ) {
       setError(
         mode === "create"
-          ? "Name, phone, E6 Golf username, email, and password are required."
+          ? "Complete every field and required agreement to create an account."
           : "Email/username and password are required.",
       );
       return;
@@ -84,6 +94,7 @@ export function QrAccountGate({
                   password,
                   phone: phone.trim(),
                   simulatorDisplayName: trimmedE6GolfUsername,
+                  ...accountConsent,
                 }
               : {
                   login: trimmedEmailOrLogin,
@@ -260,6 +271,16 @@ export function QrAccountGate({
             >
               <KeyRound size={16} /> Forgot password/username?
             </Link>
+          ) : null}
+
+          {mode === "create" ? (
+            <AccountConsentFields
+              consent={accountConsent}
+              onChange={(consent) => {
+                setAccountConsent(consent);
+                setError("");
+              }}
+            />
           ) : null}
 
           <button

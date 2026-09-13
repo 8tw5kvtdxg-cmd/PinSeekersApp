@@ -92,6 +92,28 @@ model User {
   emailVerificationTokens EmailVerificationToken[]
   passwordResetTokens     PasswordResetToken[]
   playerSessions          PlayerSession[]
+  accountConsentRecords   AccountConsentRecord[]
+}
+
+model AccountConsentRecord {
+  id                     String   @id @default(cuid())
+  userId                 String
+  documentVersion        String
+  acceptanceText         Json
+  documentHashes         Json
+  combinedDocumentHash   String
+  legalDocumentsAccepted Boolean
+  age18Accepted          Boolean
+  texasResidencyAccepted Boolean
+  acceptedAt             DateTime
+  ipAddress              String?
+  userAgent              String?
+  createdAt              DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, acceptedAt])
+  @@index([documentVersion, acceptedAt])
 }
 
 model PlayerSession {

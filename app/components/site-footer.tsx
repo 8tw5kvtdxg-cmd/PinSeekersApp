@@ -83,15 +83,15 @@ export function SiteFooter() {
       <div className="mx-auto mt-10 flex max-w-7xl flex-col gap-3 border-t border-white/10 pt-6 text-xs font-bold text-white/42 sm:flex-row sm:items-center sm:justify-between">
         <p>© 2026 PIN2WINGOLF LLC. All rights reserved.</p>
         <div className="flex flex-wrap gap-4">
-          <a href="#" className="hover:text-white">
+          <Link href="/terms" className="hover:text-white">
             Terms
-          </a>
-          <a href="#" className="hover:text-white">
+          </Link>
+          <Link href="/privacy" className="hover:text-white">
             Privacy
-          </a>
-          <a href="#" className="hover:text-white">
+          </Link>
+          <Link href="/official-rules" className="hover:text-white">
             Official rules
-          </a>
+          </Link>
         </div>
       </div>
     </footer>

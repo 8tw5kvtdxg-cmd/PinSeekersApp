@@ -5,6 +5,7 @@ import {
   isAdminEmail,
 } from "@/lib/admin-auth";
 import { validateEmailForSignup } from "@/lib/email-verification";
+import { validateAccountCreationConsent } from "@/lib/legal-documents";
 import { getPrismaClient } from "@/lib/prisma";
 import {
   createPlayerSession,
@@ -94,6 +95,9 @@ export async function POST(request: Request) {
     phone?: unknown;
     simulatorDisplayName?: unknown;
     password?: unknown;
+    legalDocumentsAccepted?: unknown;
+    age18Accepted?: unknown;
+    texasResidencyAccepted?: unknown;
   };
   const requestedUsername =
     typeof body.username === "string" ? normalizeUsername(body.username) : "";
@@ -118,6 +122,26 @@ export async function POST(request: Request) {
       {
         error:
           "Name, phone, E6 Golf username, email, and an 8+ character password are required.",
+      },
+      { status: 400 },
+    );
+  }
+
+  let legalSnapshot: ReturnType<typeof validateAccountCreationConsent>;
+
+  try {
+    legalSnapshot = validateAccountCreationConsent({
+      legalDocumentsAccepted: body.legalDocumentsAccepted,
+      age18Accepted: body.age18Accepted,
+      texasResidencyAccepted: body.texasResidencyAccepted,
+    });
+  } catch (error) {
+    return Response.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "The required agreements must be accepted.",
       },
       { status: 400 },
     );
@@ -151,25 +175,53 @@ export async function POST(request: Request) {
       simulatorDisplayName,
     });
 
-    const user = await prisma.user.create({
-      data: {
-        name,
-        username,
-        email,
-        phone,
-        simulatorDisplayName,
-        emailVerifiedAt: new Date(),
-        passwordHash: hashPassword(password),
-      },
-      select: {
-        id: true,
-        name: true,
-        username: true,
-        email: true,
-        phone: true,
-        simulatorDisplayName: true,
-        emailVerifiedAt: true,
-      },
+    const acceptedAt = new Date();
+    const user = await prisma.$transaction(async (transaction) => {
+      const createdUser = await transaction.user.create({
+        data: {
+          name,
+          username,
+          email,
+          phone,
+          simulatorDisplayName,
+          emailVerifiedAt: new Date(),
+          passwordHash: hashPassword(password),
+        },
+        select: {
+          id: true,
+          name: true,
+          username: true,
+          email: true,
+          phone: true,
+          simulatorDisplayName: true,
+          emailVerifiedAt: true,
+        },
+      });
+
+      await transaction.accountConsentRecord.create({
+        data: {
+          userId: createdUser.id,
+          documentVersion: legalSnapshot.documentVersion,
+          acceptanceText: {
+            legalDocuments: legalSnapshot.acceptanceText.legalDocuments,
+            age18: legalSnapshot.acceptanceText.age18,
+            texasResidency: legalSnapshot.acceptanceText.texasResidency,
+          },
+          documentHashes: legalSnapshot.documentHashes,
+          combinedDocumentHash: legalSnapshot.combinedDocumentHash,
+          legalDocumentsAccepted: true,
+          age18Accepted: true,
+          texasResidencyAccepted: true,
+          acceptedAt,
+          ipAddress:
+            request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+            request.headers.get("x-real-ip")?.trim() ||
+            undefined,
+          userAgent: request.headers.get("user-agent")?.trim() || undefined,
+        },
+      });
+
+      return createdUser;
     });
     const cookieStore = await cookies();
     const playerSessionToken = await createPlayerSession(user.id);
