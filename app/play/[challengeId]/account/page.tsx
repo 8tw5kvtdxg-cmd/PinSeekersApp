@@ -42,10 +42,7 @@ export default async function QrAccountPage({
         </Link>
 
         <QrAccountGate
-          bayName={bay ?? ""}
           challengeName={challenge.name}
-          challengeSlug={challenge.slug}
-          locationSlug={location ?? ""}
           nextPath={nextPath}
         />
       </div>

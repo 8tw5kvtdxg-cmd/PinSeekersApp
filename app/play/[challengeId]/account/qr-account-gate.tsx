@@ -12,15 +12,8 @@ import {
 import { cn } from "@/lib/utils";
 
 type QrAccountGateProps = {
-  bayName: string;
   challengeName: string;
-  challengeSlug: string;
-  locationSlug: string;
   nextPath: string;
-};
-
-type SquareCheckout = {
-  paymentFormUrl: string;
 };
 
 type PlayerAccount = {
@@ -33,10 +26,7 @@ type PlayerAccount = {
 };
 
 export function QrAccountGate({
-  bayName,
   challengeName,
-  challengeSlug,
-  locationSlug,
   nextPath,
 }: QrAccountGateProps) {
   const [mode, setMode] = useState<"create" | "login">("login");
@@ -47,7 +37,7 @@ export function QrAccountGate({
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isRedirectingToCheckout, setIsRedirectingToCheckout] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   async function submitAccount(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -104,45 +94,10 @@ export function QrAccountGate({
       }
 
       window.dispatchEvent(new Event("pin2win:player-session-started"));
-      setIsRedirectingToCheckout(true);
-      const player = data.user;
-      const playerName = player.name.trim();
-      const phoneNumber = player.phone.trim();
-      const e6DisplayName = (
-        player.simulatorDisplayName || player.username
-      ).trim();
-
-      if (!playerName || !phoneNumber || !e6DisplayName) {
-        window.location.replace(nextPath);
-        return;
-      }
-
-      const checkoutResponse = await fetch("/api/square/checkout", {
-        body: JSON.stringify({
-          bayName,
-          challengeSlug,
-          e6DisplayName,
-          locationSlug,
-          phoneNumber,
-          playerName,
-        }),
-        headers: { "Content-Type": "application/json" },
-        method: "POST",
-      });
-      const checkoutData = (await checkoutResponse.json()) as {
-        checkout?: SquareCheckout;
-        error?: string;
-      };
-
-      if (!checkoutResponse.ok || !checkoutData.checkout?.paymentFormUrl) {
-        throw new Error(
-          checkoutData.error ?? "Could not open Square checkout.",
-        );
-      }
-
-      window.location.replace(checkoutData.checkout.paymentFormUrl);
+      setIsRedirecting(true);
+      window.location.replace(nextPath);
     } catch (caughtError) {
-      setIsRedirectingToCheckout(false);
+      setIsRedirecting(false);
       setError(
         caughtError instanceof Error
           ? caughtError.message
@@ -153,14 +108,17 @@ export function QrAccountGate({
     }
   }
 
-  if (isRedirectingToCheckout) {
+  if (isRedirecting) {
     return (
       <div className="flex min-h-[calc(100vh-9rem)] items-center justify-center py-8">
         <section className="w-full max-w-md rounded-lg border border-[#ded6c8] bg-white p-8 text-center shadow-xl shadow-[#18211f]/10">
           <LoaderCircle className="mx-auto animate-spin text-[#2f6b3f]" size={38} />
-          <h1 className="mt-5 text-2xl font-black">Taking you to secure checkout</h1>
+          <h1 className="mt-5 text-2xl font-black">
+            Taking you to the challenge
+          </h1>
           <p className="mt-3 text-sm leading-6 text-[#59655f]">
-            Your account is ready. Square checkout will open next.
+            Your account is ready. Review your entry and required agreements
+            before checkout.
           </p>
         </section>
       </div>
