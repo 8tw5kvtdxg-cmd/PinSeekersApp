@@ -71,8 +71,11 @@ export default async function ClubhouseChallengePage({
   }
 
   const player = await getCurrentPlayer();
+  const isReturningFromCheckout = Boolean(
+    squareCheckoutId || checkoutId || referenceId,
+  );
 
-  if (!player && !squareCheckoutId && !checkoutId && !referenceId) {
+  if (!player && !isReturningFromCheckout) {
     redirect(
       `/play/${challenge.slug}/account?${new URLSearchParams({
         ...(location ? { location } : {}),
@@ -100,7 +103,10 @@ export default async function ClubhouseChallengePage({
               slug: challenge.slug,
               venue: challenge.venue,
             }}
-            autoCheckout={autoCheckout === "1"}
+            autoCheckout={
+              autoCheckout === "1" ||
+              Boolean(player && location && !isReturningFromCheckout)
+            }
             squareReturn={{
               checkoutId: squareCheckoutId ?? checkoutId ?? referenceId ?? "",
               orderId: orderId ?? "",
