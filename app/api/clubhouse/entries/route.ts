@@ -5,6 +5,9 @@ import {
 import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
 import { getBookingVerificationRecord } from "@/lib/booking-verification-store";
 import { getCurrentVerifiedPlayer, normalizeEmail } from "@/lib/player-auth";
+import { getClubhouseChallenge } from "@/lib/clubhouse";
+import { getChallengeSalesState } from "@/lib/hole-in-one";
+import { rejectCrossSiteRequest } from "@/lib/request-security";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +22,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const crossSiteResponse = rejectCrossSiteRequest(request);
+  if (crossSiteResponse) return crossSiteResponse;
   const { player, error, status } = await getCurrentVerifiedPlayer();
 
   if (error) {
@@ -35,6 +40,11 @@ export async function POST(request: Request) {
     locationSlug?: unknown;
     bayName?: unknown;
   };
+  const challenge = getClubhouseChallenge(typeof body.challengeSlug === "string" ? body.challengeSlug : "");
+  if (!challenge) return Response.json({ error: "Challenge not found." }, { status: 404 });
+  if (await getChallengeSalesState(challenge.slug) !== "Open") {
+    return Response.json({ error: "This challenge is paused or closed to new entries." }, { status: 409 });
+  }
   const venueBookingReference =
     typeof body.venueBookingReference === "string"
       ? body.venueBookingReference.trim()

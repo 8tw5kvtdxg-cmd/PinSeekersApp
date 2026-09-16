@@ -1,12 +1,15 @@
 import {
   confirmClubhouseEntryRecord,
   decideClubhouseEntryRecord,
-  deleteClubhouseEntryRecord,
+  archiveClubhouseEntryRecord,
   getClubhouseEntryRecord,
   markClubhouseEntryDecisionEmailSent,
   updateClubhouseEntryResult,
 } from "@/lib/clubhouse-entry-store";
-import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
+import {
+  getAdminRequestIdentity,
+  isAdminRequestAuthenticated,
+} from "@/lib/admin-auth";
 import { getCurrentPlayer, normalizeEmail } from "@/lib/player-auth";
 import { sendEntryDecisionEmails } from "@/lib/entry-decision-email";
 import { sendZapierWebhook } from "@/lib/zapier";
@@ -46,11 +49,16 @@ export async function PATCH(
   request: Request,
   context: { params: Promise<{ entryId: string }> },
 ) {
-  if (!(await isAdminRequestAuthenticated(request))) {
+  const admin = await getAdminRequestIdentity(request);
+  if (!admin) {
     return Response.json({ error: "Admin login required." }, { status: 401 });
   }
 
   const { entryId } = await context.params;
+  const currentEntry = await getClubhouseEntryRecord(entryId);
+  if (!currentEntry || currentEntry.archivedAt) {
+    return Response.json({ error: "Active entry not found." }, { status: 404 });
+  }
   const body = (await request.json()) as {
     result?: unknown;
     resultValue?: unknown;
@@ -68,12 +76,12 @@ export async function PATCH(
         decisionStatus === "Confirmed"
           ? await confirmClubhouseEntryRecord({
               entryId,
-              confirmedBy: "Admin",
+              confirmedBy: admin.email,
             })
           : await decideClubhouseEntryRecord({
               entryId,
               decisionStatus,
-              decidedBy: "Admin",
+              decidedBy: admin.email,
             });
 
       try {
@@ -154,16 +162,28 @@ export async function DELETE(
   request: Request,
   context: { params: Promise<{ entryId: string }> },
 ) {
-  if (!(await isAdminRequestAuthenticated(request))) {
+  const admin = await getAdminRequestIdentity(request);
+  if (!admin) {
     return Response.json({ error: "Admin login required." }, { status: 401 });
   }
 
   const { entryId } = await context.params;
-  const deleted = await deleteClubhouseEntryRecord(entryId);
+  const currentEntry = await getClubhouseEntryRecord(entryId);
+  if (!currentEntry || currentEntry.archivedAt) {
+    return Response.json({ error: "Active entry not found." }, { status: 404 });
+  }
+  let archivedEntry;
+  try {
+    archivedEntry = await archiveClubhouseEntryRecord({
+      entryId, archivedBy: admin.email,
+    });
+  } catch (error) {
+    return Response.json({ error: error instanceof Error ? error.message : "Entry cannot be archived." }, { status: 409 });
+  }
 
-  if (!deleted) {
+  if (!archivedEntry) {
     return Response.json({ error: "Entry not found." }, { status: 404 });
   }
 
-  return Response.json({ deleted: true, entryId });
+  return Response.json({ archived: true, entry: archivedEntry, entryId });
 }

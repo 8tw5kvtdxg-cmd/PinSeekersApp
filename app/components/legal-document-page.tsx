@@ -2,9 +2,8 @@ import Link from "next/link";
 import {
   getLegalDocumentDefinition,
   getLegalDocumentMarkdown,
-  legalDocumentStatus,
   legalDocumentVersion,
-  legalDraftDate,
+  legalPublishedDate,
   legalEffectiveDate,
   type LegalDocumentKey,
 } from "@/lib/legal-documents";
@@ -121,8 +120,8 @@ export function LegalDocumentPage({ documentKey }: { documentKey: LegalDocumentK
               <dd>{legalDocumentVersion}</dd>
             </div>
             <div>
-              <dt className="font-black">Draft date</dt>
-              <dd>{legalDraftDate}</dd>
+              <dt className="font-black">Published date</dt>
+              <dd>{legalPublishedDate}</dd>
             </div>
             <div>
               <dt className="font-black">Effective date</dt>
@@ -130,13 +129,6 @@ export function LegalDocumentPage({ documentKey }: { documentKey: LegalDocumentK
             </div>
           </dl>
         </header>
-
-        {legalDocumentStatus === "legal-review-draft" ? (
-          <aside className="mt-8 border-l-4 border-[#a15a24] bg-[#fff5ea] px-5 py-4 text-sm font-bold leading-6 text-[#7b441d]">
-            Legal-review draft — not approved for publication. The effective
-            date has been supplied, but counsel approval is still required.
-          </aside>
-        ) : null}
 
         <div className="mt-10 space-y-6">
           {blocks.map((block, index) => {

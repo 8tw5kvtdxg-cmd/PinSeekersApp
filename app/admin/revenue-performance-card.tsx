@@ -55,7 +55,7 @@ function buildRevenuePerformance(entries: ClubhouseEntryRecord[]) {
   const currentYearMonths = Array.from({ length: 12 }, () => 0);
   const priorYearMonths = Array.from({ length: 12 }, () => 0);
   const paidEntries = entries.filter(
-    (entry) => entry.paymentStatus === "Succeeded",
+    (entry) => ["Succeeded", "Refund Pending"].includes(entry.paymentStatus),
   );
 
   paidEntries.forEach((entry) => {
@@ -66,11 +66,11 @@ function buildRevenuePerformance(entries: ClubhouseEntryRecord[]) {
     }
 
     if (date.getFullYear() === currentYear) {
-      currentYearMonths[date.getMonth()] += entry.amountCents ?? 0;
+      currentYearMonths[date.getMonth()] += Math.max(0, (entry.amountCents ?? 0) - (entry.refundedAmountCents ?? 0));
     }
 
     if (date.getFullYear() === priorYear) {
-      priorYearMonths[date.getMonth()] += entry.amountCents ?? 0;
+      priorYearMonths[date.getMonth()] += Math.max(0, (entry.amountCents ?? 0) - (entry.refundedAmountCents ?? 0));
     }
   });
 
@@ -90,7 +90,7 @@ function buildRevenuePerformance(entries: ClubhouseEntryRecord[]) {
   return {
     currentRangeLabel: `Jan 1 - ${formatShortDate(now)}`,
     currentYear,
-    grossSalesCents: currentYearRevenueCents,
+    netCollectedCents: currentYearRevenueCents,
     priorRangeLabel: `Jan 1 - Dec 31, ${priorYear}`,
     transactions,
     buckets: monthLabels.map<MonthlyRevenueBucket>((label, index) => ({
@@ -160,8 +160,8 @@ export function RevenuePerformanceCard({
       <div className="mt-10 grid gap-8 lg:grid-cols-[220px_1fr] lg:items-end">
         <div className="grid gap-5">
           <Metric
-            label="Gross sales"
-            value={formatMoney(performance.grossSalesCents)}
+            label="Net collected after refunds"
+            value={formatMoney(performance.netCollectedCents)}
           />
           <Metric label="Transactions" value={String(performance.transactions)} />
           <div className="grid gap-3 pt-4 text-sm font-bold text-[#70756f]">

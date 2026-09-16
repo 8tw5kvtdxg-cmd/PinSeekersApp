@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { Prisma } from "@/app/generated/prisma/client";
 import { canTransitionCheckoutStatus } from "@/lib/checkout-status";
 import { getPrismaClient } from "@/lib/prisma";
 
@@ -20,9 +21,17 @@ export type SquareCheckoutRecord = {
   squarePaymentLinkId?: string;
   squarePaymentLinkUrl: string;
   squarePaymentId?: string;
+  squarePaidAt?: string;
+  acceptedConsentRecordId?: string;
+  acceptedDocumentVersion?: string;
+  acceptedPackageHash?: string;
   entryId?: string;
+  refundStatus?: string;
+  refundedAmountCents?: number;
   accessRevealedAt?: string;
   confirmationEmailSentAt?: string;
+  staffEmailSentAt?: string;
+  playerEmailSentAt?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -47,9 +56,17 @@ function toSquareCheckoutRecord(checkout: {
   squarePaymentLinkId: string | null;
   squarePaymentLinkUrl: string;
   squarePaymentId: string | null;
+  squarePaidAt: Date | null;
+  acceptedConsentRecordId: string | null;
+  acceptedDocumentVersion: string | null;
+  acceptedPackageHash: string | null;
   entryId: string | null;
+  refundStatus: string;
+  refundedAmountCents: number;
   accessRevealedAt: Date | null;
   confirmationEmailSentAt: string | null;
+  staffEmailSentAt: Date | null;
+  playerEmailSentAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }): SquareCheckoutRecord {
@@ -69,9 +86,17 @@ function toSquareCheckoutRecord(checkout: {
     squarePaymentLinkId: checkout.squarePaymentLinkId ?? undefined,
     squarePaymentLinkUrl: checkout.squarePaymentLinkUrl,
     squarePaymentId: checkout.squarePaymentId ?? undefined,
+    squarePaidAt: checkout.squarePaidAt?.toISOString(),
+    acceptedConsentRecordId: checkout.acceptedConsentRecordId ?? undefined,
+    acceptedDocumentVersion: checkout.acceptedDocumentVersion ?? undefined,
+    acceptedPackageHash: checkout.acceptedPackageHash ?? undefined,
     entryId: checkout.entryId ?? undefined,
+    refundStatus: checkout.refundStatus,
+    refundedAmountCents: checkout.refundedAmountCents,
     accessRevealedAt: checkout.accessRevealedAt?.toISOString(),
     confirmationEmailSentAt: checkout.confirmationEmailSentAt ?? undefined,
+    staffEmailSentAt: checkout.staffEmailSentAt?.toISOString(),
+    playerEmailSentAt: checkout.playerEmailSentAt?.toISOString(),
     createdAt: checkout.createdAt.toISOString(),
     updatedAt: checkout.updatedAt.toISOString(),
   };
@@ -115,14 +140,22 @@ export async function createSquareCheckoutRecord(
   }
 
   const now = new Date();
-  const checkout = await prisma.squareCheckout.create({
-    data: {
-      ...input,
-      status: "Pending",
-      createdAt: now,
-      updatedAt: now,
-    },
-  });
+  const checkout = await prisma.$transaction(async (tx) => {
+    const setting = await tx.clubhouseChallengeSetting.findUnique({
+      where: { challengeSlug: input.challengeSlug }, select: { salesState: true },
+    });
+    if (setting?.salesState && setting.salesState !== "Open") {
+      throw new Error("This challenge is paused or closed to new entries.");
+    }
+    return tx.squareCheckout.create({
+      data: {
+        ...input,
+        status: "Pending",
+        createdAt: now,
+        updatedAt: now,
+      },
+    });
+  }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
 
   return toSquareCheckoutRecord(checkout);
 }
@@ -134,9 +167,12 @@ export async function updateSquareCheckoutRecord(
       SquareCheckoutRecord,
       | "status"
       | "squarePaymentId"
+      | "squarePaidAt"
       | "entryId"
       | "accessRevealedAt"
       | "confirmationEmailSentAt"
+      | "staffEmailSentAt"
+      | "playerEmailSentAt"
     >
   >,
 ) {
@@ -164,6 +200,7 @@ export async function updateSquareCheckoutRecord(
   const checkout = await prisma.squareCheckout.update({
     data: {
       ...patch,
+      squarePaidAt: patch.squarePaidAt && !existing.squarePaidAt ? new Date(patch.squarePaidAt) : undefined,
       updatedAt: new Date(),
     },
     where: { id: checkoutId },
@@ -183,14 +220,17 @@ export async function getOrStartSquareCheckoutAccess(checkoutId: string) {
 
   await prisma.squareCheckout.updateMany({
     data: { accessRevealedAt: now },
-    where: { id: checkoutId, accessRevealedAt: null },
+    where: { id: checkoutId, accessRevealedAt: null, refundStatus: { notIn: ["Refund Requested", "Refund Pending", "Refunded"] } },
   });
 
   const checkout = await prisma.squareCheckout.findUnique({
-    select: { accessRevealedAt: true },
+    select: { accessRevealedAt: true, refundStatus: true },
     where: { id: checkoutId },
   });
 
+  if (checkout && ["Refund Requested", "Refund Pending", "Refunded"].includes(checkout.refundStatus)) {
+    throw new Error("Event code access is paused while this payment is being refunded.");
+  }
   if (!checkout?.accessRevealedAt) {
     throw new Error("Square checkout access could not be started.");
   }

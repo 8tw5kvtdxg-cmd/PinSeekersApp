@@ -9,6 +9,7 @@ import {
   updatePayarcCheckoutRecord,
 } from "@/lib/payarc-checkout-store";
 import { sendPaymentConfirmationEmails } from "@/lib/payment-confirmation-email";
+import { activeParticipationHoldByEmail } from "@/lib/participation-holds";
 
 export const dynamic = "force-dynamic";
 
@@ -122,6 +123,7 @@ export async function POST(request: Request) {
       checkout: updatedCheckout,
       entry,
       request,
+      eligibilityHeld: await activeParticipationHoldByEmail(updatedCheckout.playerEmail),
     });
     await updatePayarcCheckoutRecord(updatedCheckout.id, {
       confirmationEmailSentAt: new Date().toISOString(),

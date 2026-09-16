@@ -45,7 +45,7 @@ const e6Steps = [
   "At the bottom left of the Event tab, select the button that says Enter event code or similar.",
   "Type in the event code shown on this page to start the Pin2Win Hole-in-One Challenge.",
   "Time to go Pin Hunting.",
-  "When you are finished use the button below to manually enter your result, closest shot out of 5. Pin2Win will verify your results and display on our monthly leaderboard.",
+  "If the simulator records a hole-in-one from the designated tee in one eligible stroke, use the button below to report it for review. A report is not a verified result or prize claim.",
 ];
 
 export function SimulatorAccess({
@@ -262,6 +262,7 @@ export function SimulatorAccess({
         >
           <RefreshCw size={17} /> Try again
         </button>
+        <Link href="/account/payment-issue" className="ml-4 inline-flex h-11 items-center text-sm font-semibold underline">Report a payment issue</Link>
       </section>
     );
   }
@@ -430,6 +431,7 @@ export function SimulatorAccess({
           >
             Pin2Win home
           </Link>
+          <Link href="/account/payment-issue" className="inline-flex h-11 items-center text-sm font-semibold underline">Payment issue or refund claim</Link>
         </div>
       ) : null}
     </div>

@@ -1,87 +1,40 @@
-import { getCurrentVerifiedPlayer } from "@/lib/player-auth";
-import {
-  getClubhouseEntryRecord,
-  updateClubhouseEntryResult,
-} from "@/lib/clubhouse-entry-store";
-import { withoutEventCode } from "@/lib/event-code-access";
+import { getCurrentVerifiedPlayer, normalizeEmail } from "@/lib/player-auth";
+import { getClubhouseEntryRecord } from "@/lib/clubhouse-entry-store";
+import { reportPlayerHoleInOne } from "@/lib/hole-in-one";
+import { consumeRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { rejectCrossSiteRequest } from "@/lib/request-security";
 
 export const dynamic = "force-dynamic";
-
-function formatNumber(value: number) {
-  return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(2)));
-}
 
 export async function POST(
   request: Request,
   context: { params: Promise<{ entryId: string }> },
 ) {
+  const crossSiteResponse = rejectCrossSiteRequest(request);
+  if (crossSiteResponse) return crossSiteResponse;
   const { player, error, status } = await getCurrentVerifiedPlayer();
-
-  if (error || !player) {
-    return Response.json({ error }, { status });
-  }
-
+  if (error || !player) return Response.json({ error }, { status });
   const { entryId } = await context.params;
   const entry = await getClubhouseEntryRecord(entryId);
-
-  if (!entry) {
-    return Response.json({ error: "Entry not found." }, { status: 404 });
+  if (!entry || entry.archivedAt) return Response.json({ error: "Entry not found." }, { status: 404 });
+  if (!entry.playerEmail || normalizeEmail(entry.playerEmail) !== normalizeEmail(player.email)) {
+    return Response.json({ error: "This entry is not linked to your player account." }, { status: 403 });
   }
-
-  if (entry.playerEmail && entry.playerEmail !== player.email) {
-    return Response.json(
-      { error: "This entry is not linked to your player account." },
-      { status: 403 },
-    );
+  const limit = await consumeRateLimit({
+    namespace: "hole-in-one-player-report", identifier: `${player.id}:${entryId}`,
+    limit: 3, windowMs: 60 * 60_000,
+  });
+  if (!limit.allowed) return rateLimitResponse(limit);
+  const body = (await request.json()) as { firstStrokeHoled?: unknown; statement?: unknown };
+  if (body.firstStrokeHoled !== true) {
+    return Response.json({ error: "Confirm that the simulator recorded the ball holed in one eligible stroke." }, { status: 400 });
   }
-
-  const body = (await request.json()) as {
-    feet?: unknown;
-    inches?: unknown;
-    evidence?: unknown;
-  };
-  const feet = Number(body.feet);
-  const inches = Number(body.inches);
-  const evidence = typeof body.evidence === "string" ? body.evidence.trim() : "";
-
-  if (
-    !Number.isFinite(feet) ||
-    !Number.isFinite(inches) ||
-    feet < 0 ||
-    inches < 0
-  ) {
-    return Response.json(
-      { error: "Enter your closest shot distance in feet and inches." },
-      { status: 400 },
-    );
-  }
-
   try {
-    const resultValue = feet * 12 + inches;
-    const result = `${formatNumber(feet)} ft ${formatNumber(inches)} in`;
-    const updatedEntry = await updateClubhouseEntryResult({
-      entryId,
-      evidence:
-        evidence ||
-        "Customer submitted result from Pin2Win access page. Pending simulator verification.",
-      result,
-      resultStatus: "Needs Review",
-      resultUnit: "inches",
-      resultValue,
+    const report = await reportPlayerHoleInOne({
+      entryId, playerId: player.id, statement: body.statement,
     });
-
-    return Response.json({
-      entry: withoutEventCode(updatedEntry),
-    });
+    return Response.json({ report: { id: report.id, status: report.status } }, { status: 201 });
   } catch (caughtError) {
-    return Response.json(
-      {
-        error:
-          caughtError instanceof Error
-            ? caughtError.message
-            : "Could not submit result.",
-      },
-      { status: 400 },
-    );
+    return Response.json({ error: caughtError instanceof Error ? caughtError.message : "Could not report result." }, { status: 400 });
   }
 }

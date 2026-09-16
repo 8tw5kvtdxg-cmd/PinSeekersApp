@@ -10,11 +10,15 @@ import {
 import { sendPaymentConfirmationEmails } from "@/lib/payment-confirmation-email";
 import {
   getSquarePaymentId,
+  getSquarePaymentCreatedAt,
   squarePaymentLooksPaid,
   verifySquareWebhookSignature,
   verifySquareOrderPayment,
 } from "@/lib/square";
 import { recordTransactionAuditEvent } from "@/lib/transaction-audit";
+import { reconcileSquareRefundById } from "@/lib/refund-claims";
+import { deliverPaymentIssueCommunications } from "@/lib/refund-claim-email";
+import { activeParticipationHoldByEmail } from "@/lib/participation-holds";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +50,24 @@ export async function POST(request: Request) {
     return Response.json({ received: false }, { status: 400 });
   }
 
+  const eventType = typeof payload === "object" && payload && "type" in payload
+    ? String((payload as { type?: unknown }).type ?? "") : "";
+  if (eventType.startsWith("refund.")) {
+    // The signed webhook is only a trigger; fetch authoritative refund state from Square.
+    const data = typeof payload === "object" && payload && "data" in payload
+      ? (payload as { data?: unknown }).data : null;
+    const refundId = data && typeof data === "object" && "id" in data && typeof data.id === "string" ? data.id : "";
+    if (!refundId) return Response.json({ received: true, matched: false });
+    try {
+      const matched = await reconcileSquareRefundById(refundId);
+      if (matched) await deliverPaymentIssueCommunications(10).catch((error) => console.error("Refund update email pending retry.", error));
+      return Response.json({ received: true, matched, refundReconciled: matched });
+    } catch (error) {
+      console.error("Square refund webhook reconciliation failed.", refundId, error);
+      return Response.json({ error: "Refund reconciliation failed." }, { status: 500 });
+    }
+  }
+
   const orderId = findOrderId(payload);
 
   if (!orderId) {
@@ -64,7 +86,7 @@ export async function POST(request: Request) {
   };
   const webhookPaymentIsPaid = squarePaymentLooksPaid(payload, paymentCheck);
   const squareVerification = webhookPaymentIsPaid
-    ? { isPaid: true, paymentId: getSquarePaymentId(payload) }
+    ? { isPaid: true, paymentId: getSquarePaymentId(payload), paymentCreatedAt: getSquarePaymentCreatedAt(payload) }
     : await verifySquareOrderPayment(paymentCheck);
 
   if (!squareVerification.isPaid) {
@@ -73,6 +95,7 @@ export async function POST(request: Request) {
 
   const updatedCheckout = await updateSquareCheckoutRecord(checkout.id, {
     squarePaymentId: squareVerification.paymentId || checkout.squarePaymentId,
+    squarePaidAt: squareVerification.paymentCreatedAt || checkout.squarePaidAt,
     status: "Succeeded",
   });
   await recordTransactionAuditEvent({
@@ -100,6 +123,9 @@ export async function POST(request: Request) {
         squareCheckoutId: updatedCheckout.id,
         squareOrderId: updatedCheckout.squareOrderId,
         squarePaymentId: updatedCheckout.squarePaymentId,
+        acceptedConsentRecordId: updatedCheckout.acceptedConsentRecordId,
+        acceptedDocumentVersion: updatedCheckout.acceptedDocumentVersion,
+        acceptedPackageHash: updatedCheckout.acceptedPackageHash,
         venueBookingReference: `Square order ${updatedCheckout.squareOrderId}`,
         locationSlug: updatedCheckout.locationSlug,
         locationName: updatedCheckout.locationName,
@@ -132,6 +158,12 @@ export async function POST(request: Request) {
         checkout: updatedCheckout,
         entry,
         request,
+        eligibilityHeld: await activeParticipationHoldByEmail(updatedCheckout.playerEmail),
+        onAudienceSent: async (audience) => {
+          await updateSquareCheckoutRecord(updatedCheckout.id, {
+            [audience === "staff" ? "staffEmailSentAt" : "playerEmailSentAt"]: new Date().toISOString(),
+          });
+        },
       });
       await updateSquareCheckoutRecord(updatedCheckout.id, {
         confirmationEmailSentAt: new Date().toISOString(),

@@ -1,36 +1,26 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { getPrismaClient } from "@/lib/prisma";
+import { isSameOriginRequest } from "@/lib/request-security";
 
 export const adminSessionCookieName = "pin2win_admin_session";
+export const adminSessionIdleSeconds = 60 * 60;
 
-const sessionDurationMs = 1000 * 60 * 60 * 8;
+const adminSessionAbsoluteDurationMs = 1000 * 60 * 60 * 8;
+const adminSessionTouchIntervalMs = 1000 * 60 * 5;
 const builtInAdminEmails = ["sanchez.pete07@gmail.com"];
 
 function normalizeEmail(value: string) {
   return value.trim().toLowerCase();
 }
 
-function getAdminUsername() {
-  return process.env.PIN2WIN_ADMIN_USERNAME ?? (
-    process.env.NODE_ENV === "production" ? "" : "Pin2Win_Admin"
-  );
-}
+function safeEqual(left: string, right: string) {
+  const leftBuffer = Buffer.from(left);
+  const rightBuffer = Buffer.from(right);
 
-function getAdminPassword() {
-  return process.env.PIN2WIN_ADMIN_PASSWORD ?? (
-    process.env.NODE_ENV === "production" ? "" : "pin2win-admin"
-  );
-}
-
-function getAdminSessionSecret() {
-  return (
-    process.env.PIN2WIN_ADMIN_SESSION_SECRET ??
-    process.env.PIN2WIN_ADMIN_PASSWORD ??
-    (process.env.NODE_ENV === "production"
-      ? ""
-      : "pin2win-local-admin-session-secret")
-  );
+  if (leftBuffer.length !== rightBuffer.length) return false;
+  return timingSafeEqual(leftBuffer, rightBuffer);
 }
 
 function getAdditionalAdminEmails() {
@@ -51,113 +41,140 @@ export function isAdminEmail(email: string) {
   );
 }
 
-function safeEqual(left: string, right: string) {
-  const leftBuffer = Buffer.from(left);
-  const rightBuffer = Buffer.from(right);
-
-  if (leftBuffer.length !== rightBuffer.length) {
-    return false;
-  }
-
-  return timingSafeEqual(leftBuffer, rightBuffer);
-}
-
-function signSession(username: string, expiresAt: number) {
-  return createHmac("sha256", getAdminSessionSecret())
-    .update(`${username}.${expiresAt}`)
-    .digest("hex");
-}
-
-function encodeSessionIdentity(identity: string) {
-  return Buffer.from(identity, "utf8").toString("base64url");
-}
-
-function decodeSessionIdentity(value: string) {
-  try {
-    return Buffer.from(value, "base64url").toString("utf8");
-  } catch {
-    return "";
-  }
+function hashSessionToken(token: string) {
+  return createHash("sha256").update(token).digest("hex");
 }
 
 function parseCookieHeader(cookieHeader: string | null) {
-  if (!cookieHeader) {
-    return new Map<string, string>();
-  }
+  if (!cookieHeader) return new Map<string, string>();
 
   return new Map(
     cookieHeader.split(";").map((cookie) => {
       const [name, ...valueParts] = cookie.trim().split("=");
-
       return [name, decodeURIComponent(valueParts.join("="))];
     }),
   );
 }
 
-export function validateAdminCredentials(username: string, password: string) {
-  const adminUsername = getAdminUsername();
-  const adminPassword = getAdminPassword();
+export async function createAdminSession(userId: string) {
+  const prisma = getPrismaClient();
+  if (!prisma) throw new Error("Database is required for admin sessions.");
 
-  if (!adminUsername || !adminPassword) {
-    return false;
-  }
-
-  return (
-    safeEqual(username, adminUsername) &&
-    safeEqual(password, adminPassword)
+  const token = randomBytes(32).toString("base64url");
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + adminSessionIdleSeconds * 1000);
+  const absoluteExpiresAt = new Date(
+    now.getTime() + adminSessionAbsoluteDurationMs,
   );
+
+  await prisma.$transaction([
+    prisma.adminSession.deleteMany({
+      where: {
+        userId,
+        OR: [{ expiresAt: { lte: now } }, { absoluteExpiresAt: { lte: now } }],
+      },
+    }),
+    prisma.adminSession.create({
+      data: {
+        userId,
+        tokenHash: hashSessionToken(token),
+        lastActivityAt: now,
+        expiresAt,
+        absoluteExpiresAt,
+      },
+    }),
+  ]);
+
+  return token;
 }
 
-export function createAdminSessionValue(identity = getAdminUsername()) {
-  const expiresAt = Date.now() + sessionDurationMs;
-  const sessionIdentity = identity.trim();
-  const signature = signSession(sessionIdentity, expiresAt);
+async function getAdminSession(token: string | undefined, touch = true) {
+  const prisma = getPrismaClient();
+  if (!prisma || !token) return null;
 
-  return `v2.${encodeSessionIdentity(sessionIdentity)}.${expiresAt}.${signature}`;
+  const session = await prisma.adminSession.findUnique({
+    where: { tokenHash: hashSessionToken(token) },
+    include: { user: { select: { id: true, email: true, name: true } } },
+  });
+  const now = new Date();
+
+  if (
+    !session ||
+    session.expiresAt <= now ||
+    session.absoluteExpiresAt <= now ||
+    !isAdminEmail(session.user.email)
+  ) {
+    if (session) {
+      await prisma.adminSession.deleteMany({ where: { id: session.id } });
+    }
+    return null;
+  }
+
+  if (
+    touch &&
+    now.getTime() - session.lastActivityAt.getTime() >=
+      adminSessionTouchIntervalMs
+  ) {
+    const rollingExpiry = new Date(
+      Math.min(
+        now.getTime() + adminSessionIdleSeconds * 1000,
+        session.absoluteExpiresAt.getTime(),
+      ),
+    );
+
+    await prisma.adminSession.updateMany({
+      where: {
+        id: session.id,
+        expiresAt: { gt: now },
+        absoluteExpiresAt: { gt: now },
+      },
+      data: { lastActivityAt: now, expiresAt: rollingExpiry },
+    });
+  }
+
+  return session;
 }
 
-export function verifyAdminSessionValue(value: string | undefined) {
-  if (!value) {
-    return false;
-  }
+export async function deleteAdminSession(token: string | undefined) {
+  const prisma = getPrismaClient();
+  if (!prisma || !token) return;
 
-  const parts = value.split(".");
-  const isV2Session = parts[0] === "v2";
-  const username = isV2Session ? decodeSessionIdentity(parts[1] ?? "") : parts[0];
-  const expiresAtValue = isV2Session ? parts[2] : parts[1];
-  const signature = isV2Session ? parts[3] : parts[2];
-  const expiresAt = Number(expiresAtValue);
+  await prisma.adminSession.deleteMany({
+    where: { tokenHash: hashSessionToken(token) },
+  });
+}
 
-  if (!username || !Number.isFinite(expiresAt) || !signature) {
-    return false;
-  }
+export async function deleteAdminSessionsForUser(userId: string) {
+  const prisma = getPrismaClient();
+  if (!prisma) return;
 
-  if (expiresAt < Date.now()) {
-    return false;
-  }
-
-  const expectedSignature = signSession(username, expiresAt);
-  const adminUsername = getAdminUsername();
-
-  return (
-    Boolean(getAdminSessionSecret()) &&
-    ((Boolean(adminUsername) && safeEqual(username, adminUsername)) ||
-      isAdminEmail(username)) &&
-    safeEqual(signature, expectedSignature)
-  );
+  await prisma.adminSession.deleteMany({ where: { userId } });
 }
 
 export async function isAdminAuthenticated() {
   const cookieStore = await cookies();
-  return verifyAdminSessionValue(
-    cookieStore.get(adminSessionCookieName)?.value,
+  return Boolean(
+    await getAdminSession(cookieStore.get(adminSessionCookieName)?.value),
   );
 }
 
-export async function isAdminRequestAuthenticated(request: Request) {
-  const cookieMap = parseCookieHeader(request.headers.get("cookie"));
+export async function getAdminRequestIdentity(request: Request) {
+  if (!isSameOriginRequest(request)) return null;
 
-  return verifyAdminSessionValue(cookieMap.get(adminSessionCookieName));
+  const cookieMap = parseCookieHeader(request.headers.get("cookie"));
+  const session = await getAdminSession(cookieMap.get(adminSessionCookieName));
+
+  return session
+    ? {
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.name,
+      }
+    : null;
+}
+
+export async function isAdminRequestAuthenticated(request: Request) {
+  return Boolean(await getAdminRequestIdentity(request));
 }
 
 export async function requireAdminSession(nextPath?: string) {

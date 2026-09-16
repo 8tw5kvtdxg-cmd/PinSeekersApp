@@ -3,10 +3,23 @@ import {
   sendEmailVerification,
 } from "@/lib/email-verification";
 import { getCurrentPlayer } from "@/lib/player-auth";
+import { consumeRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+import { rejectCrossSiteRequest } from "@/lib/request-security";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const crossSiteResponse = rejectCrossSiteRequest(request);
+  if (crossSiteResponse) return crossSiteResponse;
+
+  const rateLimit = await consumeRateLimit({
+    namespace: "verification-resend",
+    identifier: getClientIp(request),
+    limit: 5,
+    windowMs: 60 * 60 * 1000,
+  });
+  if (!rateLimit.allowed) return rateLimitResponse(rateLimit);
+
   const user = await getCurrentPlayer();
 
   if (!user) {

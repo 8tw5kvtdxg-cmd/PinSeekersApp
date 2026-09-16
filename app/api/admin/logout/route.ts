@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server";
-import { adminSessionCookieName } from "@/lib/admin-auth";
+import { cookies } from "next/headers";
+import {
+  adminSessionCookieName,
+  deleteAdminSession,
+} from "@/lib/admin-auth";
+import { rejectCrossSiteRequest } from "@/lib/request-security";
 
 export async function POST(request: Request) {
+  const crossSiteResponse = rejectCrossSiteRequest(request);
+  if (crossSiteResponse) return crossSiteResponse;
+
+  const cookieStore = await cookies();
+  await deleteAdminSession(cookieStore.get(adminSessionCookieName)?.value);
   const response = NextResponse.redirect(new URL("/admin/login", request.url), {
     status: 303,
   });
@@ -10,7 +20,7 @@ export async function POST(request: Request) {
     name: adminSessionCookieName,
     value: "",
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: "strict",
     secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: 0,
@@ -18,4 +28,3 @@ export async function POST(request: Request) {
 
   return response;
 }
-

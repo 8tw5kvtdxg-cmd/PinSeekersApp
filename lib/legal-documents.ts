@@ -2,9 +2,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 
-export const legalDocumentVersion = "2026.09-DRAFT";
-export const legalDocumentStatus = "legal-review-draft" as const;
-export const legalDraftDate = "September 11, 2026";
+export const legalDocumentVersion = "2026.09.15";
+export const legalDocumentStatus = "approved" as const;
+export const legalPublishedDate = "September 15, 2026";
 export const legalEffectiveDate = "September 1, 2026";
 
 export const legalAcceptanceTexts = {

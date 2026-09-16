@@ -1,5 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { Prisma } from "@/app/generated/prisma/client";
 import type { ClubhouseEntry } from "@/lib/clubhouse";
 import {
   getClubhouseChallenge,
@@ -22,6 +23,11 @@ export type ClubhouseEntryRecord = ClubhouseEntry & {
   squareCheckoutId?: string;
   squareOrderId?: string;
   squarePaymentId?: string;
+  acceptedConsentRecordId?: string;
+  acceptedDocumentVersion?: string;
+  acceptedPackageHash?: string;
+  refundStatus?: string;
+  refundedAmountCents?: number;
   venueBookingReference?: string;
   bookingVerificationId?: string;
   bookingVerificationStatus?: "Pending Match" | "Auto Verified" | "Needs Review";
@@ -36,6 +42,9 @@ export type ClubhouseEntryRecord = ClubhouseEntry & {
   entryDecisionAt?: string;
   entryDecisionBy?: string;
   entryDecisionEmailSentAt?: string;
+  archivedAt?: string;
+  archivedBy?: string;
+  archiveReason?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -83,6 +92,8 @@ function toClubhouseEntryRecord(entry: {
   phoneNumber: string | null;
   e6DisplayName: string;
   paymentStatus: string;
+  refundStatus: string;
+  refundedAmountCents: number;
   paidAt: string;
   validFrom: string;
   validUntil: string;
@@ -99,6 +110,9 @@ function toClubhouseEntryRecord(entry: {
   squareCheckoutId: string | null;
   squareOrderId: string | null;
   squarePaymentId: string | null;
+  acceptedConsentRecordId: string | null;
+  acceptedDocumentVersion: string | null;
+  acceptedPackageHash: string | null;
   venueBookingReference: string | null;
   bookingVerificationId: string | null;
   bookingVerificationStatus: string | null;
@@ -113,6 +127,9 @@ function toClubhouseEntryRecord(entry: {
   entryDecisionAt: string | null;
   entryDecisionBy: string | null;
   entryDecisionEmailSentAt: string | null;
+  archivedAt: Date | null;
+  archivedBy: string | null;
+  archiveReason: string | null;
   createdAt: Date;
   updatedAt: Date;
 }): ClubhouseEntryRecord {
@@ -140,6 +157,11 @@ function toClubhouseEntryRecord(entry: {
     squareCheckoutId: entry.squareCheckoutId ?? undefined,
     squareOrderId: entry.squareOrderId ?? undefined,
     squarePaymentId: entry.squarePaymentId ?? undefined,
+    acceptedConsentRecordId: entry.acceptedConsentRecordId ?? undefined,
+    acceptedDocumentVersion: entry.acceptedDocumentVersion ?? undefined,
+    acceptedPackageHash: entry.acceptedPackageHash ?? undefined,
+    refundStatus: entry.refundStatus,
+    refundedAmountCents: entry.refundedAmountCents,
     venueBookingReference: entry.venueBookingReference ?? undefined,
     bookingVerificationId: entry.bookingVerificationId ?? undefined,
     bookingVerificationStatus:
@@ -156,6 +178,9 @@ function toClubhouseEntryRecord(entry: {
     entryDecisionAt: entry.entryDecisionAt ?? undefined,
     entryDecisionBy: entry.entryDecisionBy ?? undefined,
     entryDecisionEmailSentAt: entry.entryDecisionEmailSentAt ?? undefined,
+    archivedAt: entry.archivedAt?.toISOString(),
+    archivedBy: entry.archivedBy ?? undefined,
+    archiveReason: entry.archiveReason ?? undefined,
     createdAt: entry.createdAt.toISOString(),
     updatedAt: entry.updatedAt.toISOString(),
   };
@@ -166,6 +191,7 @@ export async function listClubhouseEntryRecords() {
 
   if (prisma) {
     const entries = await prisma.clubhouseEntryRecord.findMany({
+      where: { archivedAt: null },
       orderBy: { createdAt: "desc" },
     });
 
@@ -176,10 +202,12 @@ export async function listClubhouseEntryRecords() {
     entriesPath,
   );
 
-  return Object.values(entries).sort(
-    (a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+  return Object.values(entries)
+    .filter((entry) => !entry.archivedAt)
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
 }
 
 export async function listClubhouseEntryRecordsForChallenge(challengeSlug: string) {
@@ -195,7 +223,7 @@ export async function getClubhouseLocationRevenueSummaries() {
   const entries = await listClubhouseEntryRecords();
 
   return entries
-    .filter((entry) => entry.paymentStatus === "Succeeded")
+    .filter((entry) => ["Succeeded", "Refund Pending"].includes(entry.paymentStatus))
     .reduce<
       Record<
         string,
@@ -212,7 +240,7 @@ export async function getClubhouseLocationRevenueSummaries() {
       const locationName = entry.locationName || challenge?.venue || "Unknown";
       const locationSlug =
         entry.locationSlug || slugifyLocation(locationName) || "unknown";
-      const amountCents = entry.amountCents ?? challenge?.entryFeeCents ?? 0;
+      const amountCents = Math.max(0, (entry.amountCents ?? challenge?.entryFeeCents ?? 0) - (entry.refundedAmountCents ?? 0));
       const current = summaries[locationSlug];
 
       summaries[locationSlug] = {
@@ -267,6 +295,20 @@ export async function updateClubhouseEntryResult(input: {
   resultStatus: ClubhouseEntryRecord["resultStatus"];
   evidence?: string;
 }) {
+  const resultPrisma = getPrismaClient();
+  if (resultPrisma) {
+    const report = await resultPrisma.holeInOneReport.findUnique({
+      where: { entryId: input.entryId }, select: { id: true },
+    });
+    if (report) throw new Error("A hole-in-one report must be changed through the attributed review workflow.");
+  }
+  // Distance-based manual scoring must never verify a hole-in-one result.
+  if (input.resultStatus === "Verified") {
+    const entry = await getClubhouseEntryRecord(input.entryId);
+    if (entry && getClubhouseChallenge(entry.challengeSlug)?.type === "HOLE_IN_ONE") {
+      throw new Error("Hole-in-one verification requires authenticated simulator evidence and the winner review workflow.");
+    }
+  }
   const result = input.result.trim();
 
   if (!result) {
@@ -347,30 +389,28 @@ export async function decideClubhouseEntryRecord(input: {
   const prisma = getPrismaClient();
 
   if (prisma) {
-    const entry = await prisma.clubhouseEntryRecord.findUnique({
-      where: { id: input.entryId },
-    });
-
-    if (!entry) {
-      throw new Error("Entry not found.");
-    }
-
-    const now = new Date();
-    const decidedBy = input.decidedBy?.trim() || "Admin";
-    const updated = await prisma.clubhouseEntryRecord.update({
-      data: {
-        adminConfirmedAt:
-          input.decisionStatus === "Confirmed" ? formatDisplayDate(now) : null,
-        adminConfirmedBy:
-          input.decisionStatus === "Confirmed" ? decidedBy : null,
-        entryDecisionAt: formatDisplayDate(now),
-        entryDecisionBy: decidedBy,
-        entryDecisionEmailSentAt: null,
-        entryDecisionStatus: input.decisionStatus,
-        updatedAt: now,
-      },
-      where: { id: input.entryId },
-    });
+    const updated = await prisma.$transaction(async (tx) => {
+      const entry = await tx.clubhouseEntryRecord.findUnique({ where: { id: input.entryId } });
+      if (!entry) throw new Error("Entry not found.");
+      if (input.decisionStatus === "Denied") {
+        const report = await tx.holeInOneReport.findUnique({ where: { entryId: input.entryId } });
+        if (report?.status === "Verified") {
+          throw new Error("A verified hole-in-one entry requires a separate attributed disqualification workflow.");
+        }
+      }
+      const now = new Date();
+      const decidedBy = input.decidedBy?.trim() || "Admin";
+      return tx.clubhouseEntryRecord.update({
+        data: {
+          adminConfirmedAt: input.decisionStatus === "Confirmed" ? formatDisplayDate(now) : null,
+          adminConfirmedBy: input.decisionStatus === "Confirmed" ? decidedBy : null,
+          entryDecisionAt: formatDisplayDate(now), entryDecisionBy: decidedBy,
+          entryDecisionEmailSentAt: null, entryDecisionStatus: input.decisionStatus,
+          updatedAt: now,
+        },
+        where: { id: input.entryId },
+      });
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
 
     return toClubhouseEntryRecord(updated);
   }
@@ -441,18 +481,32 @@ export async function markClubhouseEntryDecisionEmailSent(entryId: string) {
   return updatedEntry;
 }
 
-export async function deleteClubhouseEntryRecord(entryId: string) {
+export async function archiveClubhouseEntryRecord(input: {
+  entryId: string;
+  archivedBy: string;
+  reason?: string;
+}) {
   const prisma = getPrismaClient();
+  const archivedAt = new Date();
+  const archivedBy = input.archivedBy.trim();
+  const archiveReason = input.reason?.trim() || "Archived from admin result log";
 
   if (prisma) {
     try {
-      await prisma.clubhouseEntryRecord.delete({
-        where: { id: entryId },
-      });
+      const entry = await prisma.$transaction(async (tx) => {
+        const report = await tx.holeInOneReport.findUnique({ where: { entryId: input.entryId } });
+        if (report && (report.status === "Pending Review" || report.status === "Verified")) {
+          throw new Error("Resolve the hole-in-one report before archiving its entry.");
+        }
+        return tx.clubhouseEntryRecord.update({
+          where: { id: input.entryId }, data: { archivedAt, archivedBy, archiveReason },
+        });
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
 
-      return true;
-    } catch {
-      return false;
+      return toClubhouseEntryRecord(entry);
+    } catch (error) {
+      if (typeof error === "object" && error !== null && "code" in error && error.code === "P2025") return null;
+      throw error;
     }
   }
 
@@ -460,19 +514,48 @@ export async function deleteClubhouseEntryRecord(entryId: string) {
     entriesPath,
   );
 
-  if (!entries[entryId]) {
-    return false;
+  const entry = entries[input.entryId];
+  if (!entry) {
+    return null;
   }
 
-  delete entries[entryId];
+  const archivedEntry: ClubhouseEntryRecord = {
+    ...entry,
+    archivedAt: archivedAt.toISOString(),
+    archivedBy,
+    archiveReason,
+    updatedAt: archivedAt.toISOString(),
+  };
+  entries[input.entryId] = archivedEntry;
   await writeJson(entriesPath, entries);
 
-  return true;
+  return archivedEntry;
 }
 
 export async function getClubhouseLeaderboardRows(challengeSlug: string) {
   const normalizedSlug = normalizeChallengeSlug(challengeSlug);
   const challenge = getClubhouseChallenge(normalizedSlug);
+  if (challenge?.type === "HOLE_IN_ONE") {
+    const prisma = getPrismaClient();
+    if (!prisma) return [];
+    const reports = await prisma.holeInOneReport.findMany({
+      where: { challengeSlug: normalizedSlug, status: "Verified", shotAt: { not: null }, entry: { archivedAt: null, paymentStatus: "Succeeded" } },
+      include: { entry: true },
+      orderBy: [{ shotAt: "asc" }, { id: "asc" }],
+    });
+    return reports.map<ClubhouseLeaderboardRow>((report) => ({
+      rank: reports.findIndex((candidate) => candidate.shotAt?.getTime() === report.shotAt?.getTime()) + 1,
+      entryId: report.entryId,
+      playerName: report.entry.playerName,
+      e6DisplayName: report.entry.e6DisplayName,
+      challengeSlug: normalizedSlug,
+      result: "Hole-in-one · provisional",
+      resultValue: 0,
+      resultUnit: "inches",
+      paidAt: report.entry.paidAt,
+      resultStatus: "Verified",
+    }));
+  }
   const entries = await listClubhouseEntryRecordsForChallenge(normalizedSlug);
   const eligibleEntries = entries.filter(
     (entry) =>
@@ -623,6 +706,9 @@ export async function createClubhouseEntryRecord(input: {
   squareCheckoutId?: string;
   squareOrderId?: string;
   squarePaymentId?: string;
+  acceptedConsentRecordId?: string;
+  acceptedDocumentVersion?: string;
+  acceptedPackageHash?: string;
   venueBookingReference?: string;
   bookingVerificationId?: string;
   locationSlug?: string;
@@ -736,6 +822,9 @@ export async function createClubhouseEntryRecord(input: {
     squareCheckoutId: input.squareCheckoutId,
     squareOrderId: input.squareOrderId,
     squarePaymentId: input.squarePaymentId,
+    acceptedConsentRecordId: input.acceptedConsentRecordId,
+    acceptedDocumentVersion: input.acceptedDocumentVersion,
+    acceptedPackageHash: input.acceptedPackageHash,
     venueBookingReference: input.venueBookingReference?.trim() || undefined,
     bookingVerificationId: bookingVerification?.id,
     bookingVerificationStatus: bookingVerification ? "Auto Verified" : "Needs Review",

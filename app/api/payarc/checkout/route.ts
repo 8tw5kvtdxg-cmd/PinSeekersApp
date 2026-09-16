@@ -9,10 +9,16 @@ import {
   getPayarcCheckoutScriptUrl,
 } from "@/lib/payarc";
 import { getCurrentVerifiedPlayer } from "@/lib/player-auth";
+import { consumeRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+import { rejectCrossSiteRequest } from "@/lib/request-security";
+import { getChallengeSalesState } from "@/lib/hole-in-one";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const crossSiteResponse = rejectCrossSiteRequest(request);
+  if (crossSiteResponse) return crossSiteResponse;
+
   if (!isLegacyPayarcEnabled()) {
     return Response.json(
       {
@@ -26,6 +32,14 @@ export async function POST(request: Request) {
   if (error || !player) {
     return Response.json({ error }, { status });
   }
+
+  const rateLimit = await consumeRateLimit({
+    namespace: "payarc-checkout",
+    identifier: `${player.id}:${getClientIp(request)}`,
+    limit: 10,
+    windowMs: 15 * 60 * 1000,
+  });
+  if (!rateLimit.allowed) return rateLimitResponse(rateLimit);
 
   const body = (await request.json()) as {
     challengeSlug?: unknown;
@@ -41,6 +55,9 @@ export async function POST(request: Request) {
 
   if (!challenge) {
     return Response.json({ error: "Challenge not found." }, { status: 404 });
+  }
+  if (await getChallengeSalesState(challenge.slug) !== "Open") {
+    return Response.json({ error: "This challenge is paused or closed to new entries." }, { status: 409 });
   }
 
   const playerName =
@@ -63,6 +80,9 @@ export async function POST(request: Request) {
       amountCents: challenge.entryFeeCents,
       orderName: checkoutId,
     });
+    if (await getChallengeSalesState(challenge.slug) !== "Open") {
+      return Response.json({ error: "This challenge was paused before checkout could be issued." }, { status: 409 });
+    }
     const checkout = await createPayarcCheckoutRecord({
       id: checkoutId,
       playerEmail: player.email,

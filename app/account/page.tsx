@@ -600,6 +600,11 @@ export default function AccountPage() {
                 </p>
               </div>
             </div>
+            <div className="mt-5 flex flex-wrap gap-4 text-sm font-bold">
+              <Link href="/account/privacy" className="underline">Privacy requests and appeals</Link>
+              <Link href="/account/payment-issue" className="underline">Payment or refund claims</Link>
+              <Link href="/privacy" className="underline">Current Privacy Policy</Link>
+            </div>
             <button
               className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#2f6b3f] px-6 text-sm font-black text-white transition hover:bg-[#3f7f4c]"
               type="button"

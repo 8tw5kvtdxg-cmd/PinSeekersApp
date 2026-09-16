@@ -65,14 +65,14 @@ export const clubhouseChallenges: ClubhouseChallenge[] = [
     bayLabel: "Any active simulator bay",
     entryFeeCents: 2000,
     status: "Ready",
-    startsAt: "May 22, 2026, 10:00 AM",
-    endsAt: "May 24, 2026, 8:00 PM",
+    startsAt: "",
+    endsAt: "",
     playWindowMinutes: 15,
     e6EventName: "Pin2Win Hole-in-One Challenge",
     e6JoinCode: "E6-P2W-7429",
     e6QueueCode: "QUEUE-118",
     e6ClubhouseUrl: "https://e6golf.com/clubhouse",
-    prizeSummary: "A featured Pin2Win golf entertainment experience for partner simulator locations.",
+    prizeSummary: "$5,000 Hole-in-One prize, subject to the published Official Rules and final challenge details.",
     instructions: [
       "Scan the Pin2Win QR code at the partner location.",
       "Create or load your Pin2Win player account.",
@@ -92,55 +92,9 @@ export const clubhouseChallenges: ClubhouseChallenge[] = [
   },
 ];
 
-export const clubhouseEntries: ClubhouseEntry[] = [
-  {
-    id: "P2W-ENTRY-20260522-0042",
-    challengeSlug: clubhouseChallengeSlugs.holeInOne,
-    playerName: "Jordan Smith",
-    phoneNumber: "(210) 555-0101",
-    e6DisplayName: "JSmith-SA",
-    paymentStatus: "Succeeded",
-    paidAt: "May 22, 2026, 1:55 PM",
-    validFrom: "May 22, 2026, 2:00 PM",
-    validUntil: "May 22, 2026, 2:10 PM",
-    attemptLimit: 1,
-    resultStatus: "Needs Review",
-    result: "4 ft 8 in",
-    evidence: "Simulator result screenshot pending admin review",
-  },
-  {
-    id: "P2W-ENTRY-20260522-0043",
-    challengeSlug: clubhouseChallengeSlugs.holeInOne,
-    playerName: "Maya Chen",
-    phoneNumber: "(210) 555-0102",
-    e6DisplayName: "MayaC",
-    paymentStatus: "Succeeded",
-    paidAt: "May 22, 2026, 2:08 PM",
-    validFrom: "May 22, 2026, 2:10 PM",
-    validUntil: "May 22, 2026, 2:20 PM",
-    attemptLimit: 1,
-    resultStatus: "Verified",
-    result: "3 ft 2 in",
-    evidence: "Verified against simulator result record",
-  },
-];
+export const clubhouseEntries: ClubhouseEntry[] = [];
 
-export const verificationQueue: VerificationRecord[] = [
-  {
-    ...clubhouseEntries[0],
-    rank: 2,
-    e6LeaderboardResult: "4 ft 8 in",
-    reviewNote:
-      "Venue booking was registered before play window. Simulator display name matches Pin2Win entry.",
-  },
-  {
-    ...clubhouseEntries[1],
-    rank: 1,
-    e6LeaderboardResult: "3 ft 2 in",
-    reviewNote:
-      "Verified result candidate. Keep E6 result proof attached before approval.",
-  },
-];
+export const verificationQueue: VerificationRecord[] = [];
 
 export function formatEntryFee(cents: number) {
   return new Intl.NumberFormat("en-US", {

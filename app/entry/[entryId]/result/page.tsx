@@ -5,6 +5,7 @@ import { ResultEntryForm } from "@/app/entry/[entryId]/result/result-entry-form"
 import { getClubhouseEntryRecord } from "@/lib/clubhouse-entry-store";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { getCurrentPlayer, normalizeEmail } from "@/lib/player-auth";
+import { getPrismaClient } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,9 @@ export default async function EntryResultPage({
   if (!isAdmin && !isOwner) {
     notFound();
   }
+  const existingReport = await getPrismaClient()?.holeInOneReport.findUnique({
+    where: { entryId: entry.id }, select: { id: true, status: true },
+  });
 
   return (
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-8 text-[#18211f] sm:px-10">
@@ -51,14 +55,13 @@ export default async function EntryResultPage({
           <div className="bg-[#18211f] p-6 text-white sm:p-8">
             <Trophy className="text-[#a8c878]" size={34} />
             <p className="mt-4 text-sm font-black uppercase tracking-[0.16em] text-white/62">
-              Result entry
+              Result report
             </p>
             <h1 className="mt-2 text-3xl font-black sm:text-4xl">
-              Enter your closest shot
+              Report a potential hole-in-one
             </h1>
             <p className="mt-4 max-w-2xl leading-7 text-white/72">
-              Submit your closest shot out of 5. Pin2Win will verify your result
-              before it appears on the monthly leaderboard.
+              Report only if the simulator recorded the ball holed from the designated tee in one eligible stroke. Your report remains provisional until simulator evidence and eligibility are reviewed.
             </p>
           </div>
 
@@ -66,9 +69,7 @@ export default async function EntryResultPage({
             entryId={entry.id}
             playerName={entry.playerName}
             simulatorUsername={entry.e6DisplayName}
-            existingEvidence={entry.evidence ?? ""}
-            existingResult={entry.result ?? ""}
-            existingStatus={entry.resultStatus}
+            existingReport={existingReport ?? undefined}
           />
         </section>
       </div>

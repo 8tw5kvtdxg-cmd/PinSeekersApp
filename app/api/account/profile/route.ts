@@ -1,5 +1,6 @@
 import { getCurrentPlayer, publicPlayer } from "@/lib/player-auth";
 import { getPrismaClient } from "@/lib/prisma";
+import { rejectCrossSiteRequest } from "@/lib/request-security";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +9,9 @@ function cleanText(value: unknown, maxLength: number) {
 }
 
 export async function PATCH(request: Request) {
+  const crossSiteResponse = rejectCrossSiteRequest(request);
+  if (crossSiteResponse) return crossSiteResponse;
+
   const prisma = getPrismaClient();
 
   if (!prisma) {

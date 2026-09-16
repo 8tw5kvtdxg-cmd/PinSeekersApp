@@ -7,7 +7,6 @@ import {
   ListChecks,
   MailCheck,
   MapPin,
-  PencilLine,
   TrendingUp,
   UsersRound,
 } from "lucide-react";
@@ -19,11 +18,15 @@ const adminNavItems = [
   { href: "/admin/funnel", label: "Analytics", icon: TrendingUp },
   { href: "/admin/costs", label: "Costs", icon: DollarSign },
   { href: "/admin/entries", label: "Entries", icon: ListChecks },
-  { href: "/admin/results", label: "Results", icon: PencilLine },
+  { href: "/admin/refunds", label: "Refunds", icon: DollarSign },
+  { href: "/admin/privacy", label: "Privacy", icon: ClipboardCheck },
+  { href: "/admin/winners", label: "Winner Review", icon: ClipboardCheck },
+  { href: "/admin/prize-claims", label: "Prize Claims", icon: ClipboardCheck },
   { href: "/admin/verification", label: "Review", icon: ClipboardCheck },
   { href: "/admin/challenges", label: "Event Code", icon: KeyRound },
   { href: "/admin/locations", label: "Locations", icon: MapPin },
   { href: "/admin/users", label: "Users", icon: UsersRound },
+  { href: "/admin/eligibility", label: "Eligibility", icon: ClipboardCheck },
 ];
 
 export function AdminPortalNav() {

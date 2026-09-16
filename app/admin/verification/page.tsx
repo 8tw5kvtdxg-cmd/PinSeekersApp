@@ -55,10 +55,10 @@ export default async function AdminVerificationPage() {
               <UsersRound size={18} /> User log
             </Link>
             <Link
-              href="/admin/results"
+              href="/admin/winners"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#18211f] transition hover:bg-[#f5efdf]"
             >
-              <PencilLine size={18} /> Log results
+              <PencilLine size={18} /> Result review
             </Link>
             <Link
               href="/admin/challenges"

@@ -57,10 +57,13 @@ export async function sendPaymentConfirmationEmails(input: {
   checkout: PayarcCheckoutRecord | SquareCheckoutRecord;
   entry: ClubhouseEntryRecord;
   request?: Request;
+  onAudienceSent?: (audience: "staff" | "player") => Promise<void>;
+  eligibilityHeld?: boolean;
 }) {
   const resendApiKey = process.env.RESEND_API_KEY;
   const from = process.env.PIN2WIN_EMAIL_FROM;
   const challenge = getClubhouseChallenge(input.entry.challengeSlug);
+  const eligibilityHeld = input.eligibilityHeld === true;
   const entryUrl = `${getAppBaseUrl(input.request)}/entry/${input.entry.id}`;
   const notificationEmails = getPin2WinNotificationEmails();
   const amount = formatCurrency(
@@ -74,7 +77,9 @@ export async function sendPaymentConfirmationEmails(input: {
   const playerText = [
     `Hi ${input.entry.playerName},`,
     "",
-    "Your Pin2Win payment has been verified and your challenge entry is ready.",
+    eligibilityHeld
+      ? "Your Pin2Win payment has been verified, but simulator-code access is paused while an eligibility review is open. Contact pin2wingolf@outlook.com; do not make another payment."
+      : "Your Pin2Win payment has been verified and your challenge entry is ready.",
     "",
     `Entry ID: ${input.entry.id}`,
     `Challenge: ${challenge?.name ?? input.entry.challengeSlug}`,
@@ -84,12 +89,19 @@ export async function sendPaymentConfirmationEmails(input: {
     `Payment amount: ${amount}`,
     `Payment provider: ${input.entry.paymentMethod}`,
     `Payment reference: ${paymentReference}`,
+    `Accepted document version: ${input.entry.acceptedDocumentVersion || "No historical account acceptance recorded"}`,
+    `Accepted legal package hash: ${input.entry.acceptedPackageHash || "Not recorded"}`,
     `Valid until: ${input.entry.validUntil}`,
     "",
     "Open your entry:",
     entryUrl,
     "",
-    "For entry protection, the simulator event code is shown only on the payment-confirmed access page and hides 10 minutes after it is first revealed.",
+    `Current rules: ${getAppBaseUrl(input.request)}/official-rules`,
+    `Payment or refund help: ${getAppBaseUrl(input.request)}/account/payment-issue`,
+    "",
+    eligibilityHeld
+      ? "The simulator event code will not be shown until the eligibility review is resolved."
+      : "For entry protection, the simulator event code is shown only on the payment-confirmed access page and hides 10 minutes after it is first revealed.",
     "",
     "Thank you for playing Pin2Win.",
   ].join("\n");
@@ -108,35 +120,44 @@ export async function sendPaymentConfirmationEmails(input: {
     `Amount: ${amount}`,
     `Provider: ${input.entry.paymentMethod}`,
     `Payment reference: ${paymentReference}`,
+    `Eligibility hold: ${eligibilityHeld ? "active; code blocked" : "none recorded"}`,
     "",
     `Open entry: ${entryUrl}`,
   ].join("\n");
 
   if (resendApiKey && from) {
-    const staffEmail = await sendResendEmail({
-      apiKey: resendApiKey,
-      from,
-      idempotencyKey: `payment-notification-staff/${input.entry.id}`,
-      subject: staffSubject,
-      tags: [
-        { name: "category", value: "payment-notification" },
-        { name: "audience", value: "staff" },
-      ],
-      text: staffText,
-      to: notificationEmails,
-    });
-    const playerEmail = await sendResendEmail({
-      apiKey: resendApiKey,
-      from,
-      idempotencyKey: `payment-confirmation-player/${input.entry.id}`,
-      subject: playerSubject,
-      tags: [
-        { name: "category", value: "payment-confirmation" },
-        { name: "audience", value: "player" },
-      ],
-      text: playerText,
-      to: [input.checkout.playerEmail],
-    });
+    let staffEmail: { id?: string } | null = null;
+    let playerEmail: { id?: string } | null = null;
+    if (!("staffEmailSentAt" in input.checkout && input.checkout.staffEmailSentAt)) {
+      staffEmail = await sendResendEmail({
+        apiKey: resendApiKey,
+        from,
+        idempotencyKey: `payment-notification-staff/${input.entry.id}`,
+        subject: staffSubject,
+        tags: [
+          { name: "category", value: "payment-notification" },
+          { name: "audience", value: "staff" },
+        ],
+        text: staffText,
+        to: notificationEmails,
+      });
+      await input.onAudienceSent?.("staff");
+    }
+    if (!("playerEmailSentAt" in input.checkout && input.checkout.playerEmailSentAt)) {
+      playerEmail = await sendResendEmail({
+        apiKey: resendApiKey,
+        from,
+        idempotencyKey: `payment-confirmation-player/${input.entry.id}`,
+        subject: playerSubject,
+        tags: [
+          { name: "category", value: "payment-confirmation" },
+          { name: "audience", value: "player" },
+        ],
+        text: playerText,
+        to: [input.checkout.playerEmail],
+      });
+      await input.onAudienceSent?.("player");
+    }
 
     return {
       playerEmailId: playerEmail?.id,

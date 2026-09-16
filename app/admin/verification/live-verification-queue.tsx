@@ -317,10 +317,10 @@ function VerificationEntriesTable({
                                 <Eye size={15} /> Confirmation
                               </Link>
                               <Link
-                                href="/admin/results"
+                                href="/admin/winners"
                                 className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-3 text-xs font-black text-[#18211f] transition hover:bg-[#f5efdf]"
                               >
-                                <ClipboardCheck size={15} /> Log result
+                                <ClipboardCheck size={15} /> Review result
                               </Link>
                             </div>
                           </div>

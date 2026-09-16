@@ -4,6 +4,7 @@ import {
   playerSessionCookieName,
   playerSessionDurationSeconds,
 } from "@/lib/player-auth";
+import { rejectCrossSiteRequest } from "@/lib/request-security";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +21,10 @@ export async function GET() {
   );
 }
 
-export async function POST() {
+export async function POST(request: Request) {
+  const crossSiteResponse = rejectCrossSiteRequest(request);
+  if (crossSiteResponse) return crossSiteResponse;
+
   const cookieStore = await cookies();
   const token = cookieStore.get(playerSessionCookieName)?.value;
   const session = await getActivePlayerSession(token);

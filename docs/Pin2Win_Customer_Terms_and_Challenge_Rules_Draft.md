@@ -1,14 +1,14 @@
 # Pin2Win Customer Terms and Challenge Rules
 
-**Legal-review draft — not approved for publication**
+**Counsel-approved baseline reported by the owner; retain the written approval record.**
 
-**Draft date:** September 11, 2026
+**Published date:** September 15, 2026
 
 **Effective date:** September 1, 2026
 
-**Document version:** 2026.09-DRAFT
+**Document version:** 2026.09.15
 
-> This package is a business draft for review by qualified Texas legal counsel. It should not be published or used to accept paid entries until counsel confirms the contest structure, official rules, consumer terms, privacy disclosures, and implementation.
+> This package uses the current repository text that the owner reported as accepted by counsel on September 15, 2026. The online claim channel below is an operational update; retain counsel's final copy and approval record alongside deployment records.
 
 This package contains four coordinated documents:
 
@@ -393,7 +393,7 @@ When Pin2Win confirms that a Challenge was cancelled and can identify affected u
 
 ## 5. How to Submit a Claim
 
-Until an online claim form is available, email pin2wingolf@outlook.com with the subject **“Payment or Refund Claim.”** Include:
+For a Square checkout linked to your Pin2Win account, sign in and submit a claim at **pin2wingolf.com/account/payment-issue**. If the payment is not listed, you cannot sign in, or the form is unavailable, email pin2wingolf@outlook.com with the subject **“Payment or Refund Claim.”** Include:
 
 - Account holder’s full name and account email.
 - Telephone number associated with the entry.
@@ -401,7 +401,7 @@ Until an online claim form is available, email pin2wingolf@outlook.com with the 
 - Pin2Win entry ID, if available.
 - Challenge, venue, bay, date, and approximate time.
 - Clear description of what occurred.
-- Available proof, such as screenshots, photographs, video, error messages, or venue confirmation.
+- Available proof, such as screenshots, photographs, video, error messages, or venue confirmation. The online form accepts small PNG, JPEG, or PDF attachments; use the support email for other evidence formats and ask how to transfer sensitive documents securely.
 
 Pin2Win may request additional information reasonably necessary to verify the claim. Pin2Win will also review records within its control, including checkout, entry, access, simulator, venue, and system logs. Customers are not expected to produce evidence that exists only within Pin2Win’s control.
 

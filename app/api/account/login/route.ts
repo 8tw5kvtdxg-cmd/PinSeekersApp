@@ -1,10 +1,7 @@
 import { cookies } from "next/headers";
-import {
-  adminSessionCookieName,
-  createAdminSessionValue,
-  isAdminEmail,
-} from "@/lib/admin-auth";
 import { getPrismaClient } from "@/lib/prisma";
+import { consumeRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+import { rejectCrossSiteRequest } from "@/lib/request-security";
 import {
   createPlayerSession,
   normalizeEmail,
@@ -17,6 +14,17 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const crossSiteResponse = rejectCrossSiteRequest(request);
+  if (crossSiteResponse) return crossSiteResponse;
+
+  const rateLimit = await consumeRateLimit({
+    namespace: "account-login",
+    identifier: getClientIp(request),
+    limit: 10,
+    windowMs: 15 * 60 * 1000,
+  });
+  if (!rateLimit.allowed) return rateLimitResponse(rateLimit);
+
   const prisma = getPrismaClient();
 
   if (!prisma) {
@@ -75,16 +83,6 @@ export async function POST(request: Request) {
     secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: playerSessionDurationSeconds,
-  });
-
-  cookieStore.set({
-    name: adminSessionCookieName,
-    value: isAdminEmail(user.email) ? createAdminSessionValue(user.email) : "",
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: isAdminEmail(user.email) ? 60 * 60 * 8 : 0,
   });
 
   return Response.json({ user: publicPlayer(user) });

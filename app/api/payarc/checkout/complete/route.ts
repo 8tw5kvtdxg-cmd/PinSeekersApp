@@ -11,10 +11,16 @@ import {
 import { verifyPayarcOrderSucceeded } from "@/lib/payarc";
 import { sendPaymentConfirmationEmails } from "@/lib/payment-confirmation-email";
 import { getCurrentVerifiedPlayer, normalizeEmail } from "@/lib/player-auth";
+import { rejectCrossSiteRequest } from "@/lib/request-security";
+import { activeParticipationHold } from "@/lib/participation-holds";
+import { withoutEventCode } from "@/lib/event-code-access";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const crossSiteResponse = rejectCrossSiteRequest(request);
+  if (crossSiteResponse) return crossSiteResponse;
+
   if (!isLegacyPayarcEnabled()) {
     return Response.json(
       {
@@ -51,6 +57,7 @@ export async function POST(request: Request) {
       { status: 403 },
     );
   }
+  const hold = await activeParticipationHold(player.id);
 
   try {
     const existingEntry = await getClubhouseEntryRecordByPayarcCheckoutId(
@@ -63,13 +70,16 @@ export async function POST(request: Request) {
           checkout,
           entry: existingEntry,
           request,
+          eligibilityHeld: Boolean(hold),
         });
         await updatePayarcCheckoutRecord(checkout.id, {
           confirmationEmailSentAt: new Date().toISOString(),
         });
       }
 
-      return Response.json({ entry: existingEntry });
+      return hold
+        ? Response.json({ error: "Eligibility review hold; simulator code paused.", entry: withoutEventCode(existingEntry) }, { status: 409 })
+        : Response.json({ entry: existingEntry });
     }
 
     const isConfirmed =
@@ -136,13 +146,16 @@ export async function POST(request: Request) {
         checkout: updatedCheckout,
         entry,
         request,
+        eligibilityHeld: Boolean(hold),
       });
       await updatePayarcCheckoutRecord(updatedCheckout.id, {
         confirmationEmailSentAt: new Date().toISOString(),
       });
     }
 
-    return Response.json({ entry }, { status: 201 });
+    return hold
+      ? Response.json({ error: "Eligibility review hold; simulator code paused.", entry: withoutEventCode(entry) }, { status: 409 })
+      : Response.json({ entry }, { status: 201 });
   } catch (caughtError) {
     return Response.json(
       {

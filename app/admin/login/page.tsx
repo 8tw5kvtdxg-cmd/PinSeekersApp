@@ -6,7 +6,7 @@ import { isAdminAuthenticated } from "@/lib/admin-auth";
 export default async function AdminLoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; next?: string }>;
+  searchParams: Promise<{ challenge?: string; error?: string; next?: string }>;
 }) {
   const params = await searchParams;
   const isAuthenticated = await isAdminAuthenticated();
@@ -47,25 +47,60 @@ export default async function AdminLoginPage({
           </div>
 
           <p className="mt-5 leading-7 text-[#59655f]">
-            Sign in before changing event codes, reviewing registered entries, or
-            opening the verification tools.
+            {params.challenge
+              ? "Enter the six-digit code sent to your authorized administrator email."
+              : "Use your individual Pin2Win account before changing event codes, reviewing entries, or opening verification tools."}
           </p>
 
           {params.error ? (
             <p className="mt-5 rounded-md bg-[#fff7f4] px-4 py-3 text-sm font-bold text-[#9a3324]">
-              Invalid admin username or password.
+              {params.error === "unavailable"
+                ? "Admin login is temporarily unavailable."
+                : params.error === "rate-limit"
+                  ? "Too many login attempts. Wait 15 minutes and try again."
+                  : params.error === "mfa"
+                    ? "That verification code is invalid or expired."
+                  : "Invalid admin email/username or password."}
             </p>
           ) : null}
 
+          {params.challenge ? (
+            <form action="/api/admin/mfa" className="mt-6 grid gap-4" method="post">
+              <input name="next" type="hidden" value={nextPath} />
+              <input name="challenge" type="hidden" value={params.challenge} />
+              <label className="grid gap-2 text-sm font-bold text-[#53605a]">
+                Verification code
+                <input
+                  autoComplete="one-time-code"
+                  className="h-12 rounded-md border border-[#ded6c8] px-4 text-center text-xl font-black tracking-[0.3em] text-[#18211f] outline-none focus:border-[#2f6b3f]"
+                  inputMode="numeric"
+                  maxLength={6}
+                  name="code"
+                  pattern="[0-9]{6}"
+                  placeholder="000000"
+                  required
+                />
+              </label>
+              <button
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#18211f] px-6 text-sm font-black text-white transition hover:bg-[#2a3935]"
+                type="submit"
+              >
+                <KeyRound size={18} /> Verify and login
+              </button>
+              <Link className="text-center text-sm font-black text-[#2f6b3f]" href={`/admin/login?next=${encodeURIComponent(nextPath)}`}>
+                Start over
+              </Link>
+            </form>
+          ) : (
           <form action="/api/admin/login" className="mt-6 grid gap-4" method="post">
             <input name="next" type="hidden" value={nextPath} />
             <label className="grid gap-2 text-sm font-bold text-[#53605a]">
-              Username
+              Admin email or username
               <input
                 autoComplete="username"
                 className="h-12 rounded-md border border-[#ded6c8] px-4 text-base text-[#18211f] outline-none focus:border-[#2f6b3f]"
-                name="username"
-                placeholder="Admin username"
+                name="login"
+                placeholder="Admin email or username"
                 required
               />
             </label>
@@ -87,6 +122,7 @@ export default async function AdminLoginPage({
               <KeyRound size={18} /> Login
             </button>
           </form>
+          )}
         </section>
       </div>
     </main>

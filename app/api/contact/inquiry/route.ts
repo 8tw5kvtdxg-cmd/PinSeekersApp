@@ -1,4 +1,6 @@
 import { sendZapierWebhook } from "@/lib/zapier";
+import { consumeRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+import { rejectCrossSiteRequest } from "@/lib/request-security";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +13,17 @@ function isEmail(value: string) {
 }
 
 export async function POST(request: Request) {
+  const crossSiteResponse = rejectCrossSiteRequest(request);
+  if (crossSiteResponse) return crossSiteResponse;
+
+  const rateLimit = await consumeRateLimit({
+    namespace: "contact-inquiry",
+    identifier: getClientIp(request),
+    limit: 5,
+    windowMs: 60 * 60 * 1000,
+  });
+  if (!rateLimit.allowed) return rateLimitResponse(rateLimit);
+
   const body = (await request.json()) as Record<string, unknown>;
   const name = cleanText(body.name, 180);
   const email = cleanText(body.email, 320).toLowerCase();

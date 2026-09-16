@@ -93,6 +93,137 @@ model User {
   passwordResetTokens     PasswordResetToken[]
   playerSessions          PlayerSession[]
   accountConsentRecords   AccountConsentRecord[]
+  adminSessions           AdminSession[]
+  adminLoginChallenges    AdminLoginChallenge[]
+  privacyRequests         PrivacyRequest[]
+  participationHold       ParticipationHold?
+}
+
+model ParticipationHold {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
+  status          String   @default("Active")
+  reason          String
+  heldById        String
+  heldByEmail     String
+  releasedById    String?
+  releasedByEmail String?
+  releasedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  events          ParticipationHoldEvent[]
+
+  @@index([status, createdAt])
+}
+
+model ParticipationHoldEvent {
+  id         String   @id @default(cuid())
+  holdId     String
+  hold       ParticipationHold @relation(fields: [holdId], references: [id])
+  actorId    String
+  actorEmail String
+  action     String
+  reason     String
+  customerNotifiedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([holdId, createdAt])
+}
+
+model PrivacyRequest {
+  id               String   @id @default(cuid())
+  userId           String?
+  user             User?    @relation(fields: [userId], references: [id])
+  email            String
+  requestType      String
+  relatedRequestId String?
+  detail           String
+  status           String   @default("Received")
+  identityStatus   String   @default("Account Verified")
+  dueAt            DateTime
+  extensionReason  String?
+  extendedAt       DateTime?
+  decision         String?
+  response         String?
+  fulfillmentReference String?
+  handledById      String?
+  handledByEmail   String?
+  resolvedAt       DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  events           PrivacyRequestEvent[]
+
+  @@index([userId, createdAt])
+  @@index([status, dueAt])
+}
+
+model PrivacyRequestEvent {
+  id            String   @id @default(cuid())
+  requestId     String
+  request       PrivacyRequest @relation(fields: [requestId], references: [id])
+  actorId       String
+  actorEmail    String
+  action        String
+  note          String?
+  customerText  String?
+  createdAt     DateTime @default(now())
+  deliveries    PrivacyRequestEmailDelivery[]
+
+  @@index([requestId, createdAt])
+}
+
+model PrivacyRequestEmailDelivery {
+  id        String   @id @default(cuid())
+  eventId   String
+  event     PrivacyRequestEvent @relation(fields: [eventId], references: [id])
+  audience  String
+  sentAt    DateTime @default(now())
+
+  @@unique([eventId, audience])
+}
+
+model AdminLoginChallenge {
+  id        String    @id @default(cuid())
+  userId    String
+  codeHash  String
+  attempts  Int       @default(0)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([expiresAt, usedAt])
+}
+
+model AdminSession {
+  id                String   @id @default(cuid())
+  userId            String
+  tokenHash         String   @unique
+  lastActivityAt    DateTime @default(now())
+  expiresAt         DateTime
+  absoluteExpiresAt DateTime
+  createdAt         DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([absoluteExpiresAt])
+}
+
+model SecurityRateLimitBucket {
+  key             String   @id
+  namespace       String
+  requestCount    Int
+  windowStartedAt DateTime
+  expiresAt       DateTime
+  updatedAt       DateTime @updatedAt
+
+  @@index([namespace, expiresAt])
+  @@index([expiresAt])
 }
 
 model AccountConsentRecord {
@@ -253,14 +384,128 @@ model SquareCheckout {
   squarePaymentLinkId     String?
   squarePaymentLinkUrl    String
   squarePaymentId         String?
+  squarePaidAt             DateTime?
+  acceptedConsentRecordId  String?
+  acceptedDocumentVersion  String?
+  acceptedPackageHash      String?
   entryId                 String?
+  refundStatus            String   @default("None")
+  refundedAmountCents     Int      @default(0)
   accessRevealedAt        DateTime?
   confirmationEmailSentAt String?
+  staffEmailSentAt        DateTime?
+  playerEmailSentAt       DateTime?
+  reconciledAt            DateTime?
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
   @@index([playerEmail, createdAt])
   @@index([status, createdAt])
+  @@index([reconciledAt, createdAt])
+}
+
+model PaymentIssueClaim {
+  id                 String   @id @default(cuid())
+  systemIssueKey     String?  @unique
+  checkoutId         String
+  entryId            String?
+  playerId           String
+  playerEmail        String
+  reason             String
+  venueName          String?
+  incidentAt         DateTime?
+  narrative          String
+  evidenceReference  String?
+  lateSubmissionFlag Boolean  @default(false)
+  status             String   @default("Open")
+  assignedTo         String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  events             PaymentIssueEvent[]
+  evidenceFiles      PaymentIssueEvidence[]
+  refund             SquareRefundAttempt?
+
+  @@index([playerId, createdAt])
+  @@index([status, createdAt])
+  @@index([checkoutId])
+}
+
+model PaymentIssueEvidence {
+  id              String   @id @default(cuid())
+  claimId         String
+  claim           PaymentIssueClaim @relation(fields: [claimId], references: [id])
+  uploadedById    String
+  originalName    String
+  mimeType        String
+  sizeBytes       Int
+  sha256          String
+  content         Bytes
+  createdAt       DateTime @default(now())
+
+  @@index([claimId, createdAt])
+}
+
+model PaymentIssueEvent {
+  id         String   @id @default(cuid())
+  claimId    String
+  claim      PaymentIssueClaim @relation(fields: [claimId], references: [id])
+  actorId    String
+  actorEmail String
+  action     String
+  note       String?
+  customerMessage String?
+  meta       Json?
+  deliveries PaymentIssueEmailDelivery[]
+  createdAt  DateTime @default(now())
+
+  @@index([claimId, createdAt])
+}
+
+model PaymentIssueEmailDelivery {
+  id        String   @id @default(cuid())
+  eventId   String
+  event     PaymentIssueEvent @relation(fields: [eventId], references: [id])
+  audience  String
+  sentAt    DateTime @default(now())
+
+  @@unique([eventId, audience])
+}
+
+model SquareRefundAttempt {
+  id               String   @id @default(cuid())
+  claimId          String   @unique
+  claim            PaymentIssueClaim @relation(fields: [claimId], references: [id])
+  checkoutId       String
+  paymentId        String
+  amountCents      Int
+  idempotencyKey   String   @unique
+  providerRefundId String?  @unique
+  providerStatus   String   @default("Reserved")
+  lastCheckedAt    DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([checkoutId])
+  @@index([providerStatus, createdAt])
+}
+
+model PaymentReconciliationIssue {
+  key           String    @id
+  type          String
+  checkoutId    String?
+  entryId       String?
+  status        String    @default("Open")
+  detail        String
+  customerEmail String?
+  customerNotifiedAt DateTime?
+  lastAlertedAt DateTime?
+  resolvedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([status, createdAt])
+  @@index([checkoutId])
+  @@index([entryId])
 }
 
 model TransactionAuditEventRecord {
@@ -302,6 +547,8 @@ model ClubhouseEntryRecord {
   phoneNumber                   String?
   e6DisplayName                 String
   paymentStatus                 String
+  refundStatus                  String   @default("None")
+  refundedAmountCents           Int      @default(0)
   paidAt                        String
   validFrom                     String
   validUntil                    String
@@ -318,6 +565,11 @@ model ClubhouseEntryRecord {
   squareCheckoutId              String?  @unique
   squareOrderId                 String?
   squarePaymentId               String?
+  acceptedConsentRecordId       String?
+  acceptedDocumentVersion       String?
+  acceptedPackageHash           String?
+  paymentReconciledAt            DateTime?
+  holeInOneReport                HoleInOneReport?
   venueBookingReference         String?
   bookingVerificationId         String?
   bookingVerificationStatus     String?
@@ -332,6 +584,9 @@ model ClubhouseEntryRecord {
   entryDecisionAt               String?
   entryDecisionBy               String?
   entryDecisionEmailSentAt      String?
+  archivedAt                    DateTime?
+  archivedBy                    String?
+  archiveReason                 String?
   createdAt                     DateTime @default(now())
   updatedAt                     DateTime @updatedAt
 
@@ -339,6 +594,8 @@ model ClubhouseEntryRecord {
   @@index([locationSlug, createdAt])
   @@index([paymentStatus, createdAt])
   @@index([entryDecisionStatus, createdAt])
+  @@index([archivedAt, createdAt])
+  @@index([paymentReconciledAt, createdAt])
 }
 
 model Bay {
@@ -383,10 +640,117 @@ model ClubhouseChallengeSetting {
   id          String    @id @default(cuid())
   challengeSlug String  @unique
   e6EventCode String?
+  salesState  String   @default("Open")
+  salesHoldReason String?
+  salesHeldAt DateTime?
   startsAt    DateTime?
   endsAt      DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model HoleInOneReport {
+  id                  String    @id @default(cuid())
+  challengeSlug       String
+  entryId             String    @unique
+  status              String    @default("Pending Review")
+  reportSource        String
+  reportedBy          String
+  playerStatement     String?
+  evidenceReference   String?
+  simulatorProvider   String?
+  simulatorSessionId  String?
+  simulatorShotId     String?
+  simulatorAlias      String?
+  simulatorVenue      String?
+  simulatorBay        String?
+  strokeCount         Int?
+  ballHoled           Boolean?
+  designatedTee       Boolean?
+  shotAt              DateTime?
+  timestampReliable   Boolean?
+  verifiedBy          String?
+  verifiedAt          DateTime?
+  reviewNote          String?
+  reportedAt          DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  entry  ClubhouseEntryRecord @relation(fields: [entryId], references: [id])
+  events HoleInOneReviewEvent[]
+  winnerClaim WinnerClaim?
+
+  @@unique([simulatorProvider, simulatorShotId])
+  @@index([challengeSlug, status, shotAt])
+}
+
+model HoleInOneReviewEvent {
+  id        String   @id @default(cuid())
+  reportId  String
+  actorId   String
+  actorEmail String?
+  action    String
+  note      String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  report HoleInOneReport @relation(fields: [reportId], references: [id])
+
+  @@index([reportId, createdAt])
+}
+
+model WinnerChronology {
+  challengeSlug       String   @id
+  status              String   @default("No Verified Result")
+  provisionalReportId String?
+  decidedAt           DateTime?
+  updatedAt           DateTime @updatedAt
+}
+
+model WinnerClaim {
+  id                 String   @id @default(cuid())
+  reportId           String   @unique
+  report             HoleInOneReport @relation(fields: [reportId], references: [id])
+  challengeSlug      String
+  entryId            String
+  playerEmail        String
+  status             String   @default("Potential Winner")
+  noticeSentAt       DateTime?
+  responseDueAt      DateTime?
+  respondedAt        DateTime?
+  responseStatus     String   @default("Awaiting")
+  eligibilityStatus  String   @default("Pending")
+  identityStatus     String   @default("Not received")
+  residencyStatus    String   @default("Not received")
+  affidavitStatus    String   @default("Not received")
+  w9Status           String   @default("Not received")
+  secureCollectionMethod String?
+  finalizedAt        DateTime?
+  payoutTargetAt     DateTime?
+  payoutApprovedAt   DateTime?
+  payoutApprovedBy   String?
+  payoutAmountCents  Int?
+  paidAt             DateTime?
+  payoutMethod       String?
+  taxFormStatus      String   @default("CPA review pending")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  events             WinnerClaimEvent[]
+
+  @@index([challengeSlug, status])
+  @@index([responseDueAt])
+}
+
+model WinnerClaimEvent {
+  id          String   @id @default(cuid())
+  claimId     String
+  claim       WinnerClaim @relation(fields: [claimId], references: [id])
+  actorId     String
+  actorEmail  String
+  action      String
+  note        String?
+  createdAt   DateTime @default(now())
+
+  @@index([claimId, createdAt])
 }
 
 model Entry {

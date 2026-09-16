@@ -19,6 +19,8 @@ import {
 import { sendPaymentConfirmationEmails } from "@/lib/payment-confirmation-email";
 import { getCurrentVerifiedPlayer, normalizeEmail } from "@/lib/player-auth";
 import { recordTransactionAuditEvent } from "@/lib/transaction-audit";
+import { rejectCrossSiteRequest } from "@/lib/request-security";
+import { activeParticipationHold } from "@/lib/participation-holds";
 
 export const dynamic = "force-dynamic";
 
@@ -26,12 +28,13 @@ async function createEntryResponse(input: {
   checkoutId: string;
   entry: { e6EventCode: string } & Record<string, unknown>;
   revealAccess: boolean;
+  blockedReason?: string;
   status?: number;
 }) {
   if (!input.revealAccess) {
     return Response.json(
-      { entry: withoutEventCode(input.entry) },
-      { status: input.status },
+      { entry: withoutEventCode(input.entry), ...(input.blockedReason ? { error: input.blockedReason } : {}) },
+      { status: input.blockedReason ? 409 : input.status },
     );
   }
 
@@ -50,6 +53,9 @@ async function createEntryResponse(input: {
 }
 
 export async function POST(request: Request) {
+  const crossSiteResponse = rejectCrossSiteRequest(request);
+  if (crossSiteResponse) return crossSiteResponse;
+
   const { player, error, status } = await getCurrentVerifiedPlayer();
 
   if (error || !player) {
@@ -85,6 +91,12 @@ export async function POST(request: Request) {
     );
   }
 
+  if (["Refund Requested", "Refund Pending", "Refunded"].includes(checkout.refundStatus ?? "")) {
+    return Response.json({ error: "This checkout is being refunded. Contact support if you need help." }, { status: 409 });
+  }
+  const hold = await activeParticipationHold(player.id);
+  const blockedReason = hold ? "This entry is under eligibility review. The simulator event code is paused; contact Pin2Win support." : undefined;
+
   try {
     const existingEntry = await getClubhouseEntryRecordBySquareCheckoutId(
       checkout.id,
@@ -97,6 +109,12 @@ export async function POST(request: Request) {
             checkout,
             entry: existingEntry,
             request,
+            eligibilityHeld: Boolean(hold),
+            onAudienceSent: async (audience) => {
+              await updateSquareCheckoutRecord(checkout.id, {
+                [audience === "staff" ? "staffEmailSentAt" : "playerEmailSentAt"]: new Date().toISOString(),
+              });
+            },
           });
           await updateSquareCheckoutRecord(checkout.id, {
             confirmationEmailSentAt: new Date().toISOString(),
@@ -123,7 +141,8 @@ export async function POST(request: Request) {
       return createEntryResponse({
         checkoutId: checkout.id,
         entry: existingEntry,
-        revealAccess,
+        revealAccess: revealAccess && !hold,
+        blockedReason,
       });
     }
 
@@ -155,11 +174,12 @@ export async function POST(request: Request) {
     }
 
     const updatedCheckout =
-      checkout.status === "Succeeded"
+      checkout.status === "Succeeded" && (checkout.squarePaidAt || !squareVerification.paymentCreatedAt)
         ? checkout
         : await updateSquareCheckoutRecord(checkout.id, {
             squarePaymentId:
               squareVerification.paymentId || checkout.squarePaymentId,
+            squarePaidAt: squareVerification.paymentCreatedAt || checkout.squarePaidAt,
             status: "Succeeded",
           });
     await recordTransactionAuditEvent({
@@ -185,6 +205,9 @@ export async function POST(request: Request) {
           squareCheckoutId: updatedCheckout.id,
           squareOrderId: updatedCheckout.squareOrderId,
           squarePaymentId: updatedCheckout.squarePaymentId,
+          acceptedConsentRecordId: updatedCheckout.acceptedConsentRecordId,
+          acceptedDocumentVersion: updatedCheckout.acceptedDocumentVersion,
+          acceptedPackageHash: updatedCheckout.acceptedPackageHash,
           venueBookingReference: `Square order ${updatedCheckout.squareOrderId}`,
           locationSlug: updatedCheckout.locationSlug,
           locationName: updatedCheckout.locationName,
@@ -217,6 +240,12 @@ export async function POST(request: Request) {
           checkout: updatedCheckout,
           entry,
           request,
+          eligibilityHeld: Boolean(hold),
+          onAudienceSent: async (audience) => {
+            await updateSquareCheckoutRecord(updatedCheckout.id, {
+              [audience === "staff" ? "staffEmailSentAt" : "playerEmailSentAt"]: new Date().toISOString(),
+            });
+          },
         });
         await updateSquareCheckoutRecord(updatedCheckout.id, {
           confirmationEmailSentAt: new Date().toISOString(),
@@ -240,11 +269,12 @@ export async function POST(request: Request) {
       }
     }
 
-    return createEntryResponse({
-      checkoutId: checkout.id,
-      entry,
-      revealAccess,
-      status: 201,
+      return createEntryResponse({
+        checkoutId: checkout.id,
+        entry,
+        revealAccess: revealAccess && !hold,
+        blockedReason,
+        status: 201,
     });
   } catch (caughtError) {
     return Response.json(

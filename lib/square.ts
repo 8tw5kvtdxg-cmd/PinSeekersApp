@@ -276,6 +276,61 @@ export async function getSquarePayment(input: { paymentId: string }) {
   return (await response.json().catch(() => null)) as Record<string, unknown> | null;
 }
 
+export async function createSquarePaymentRefund(input: {
+  paymentId: string;
+  amountCents: number;
+  idempotencyKey: string;
+  reason: string;
+}) {
+  const response = await fetch(`${getSquareApiBaseUrl()}/v2/refunds`, {
+    cache: "no-store",
+    headers: {
+      Authorization: `Bearer ${getSquareAccessToken()}`,
+      "Content-Type": "application/json",
+      "Square-Version": getSquareVersion(),
+    },
+    method: "POST",
+    body: JSON.stringify({
+      idempotency_key: input.idempotencyKey,
+      payment_id: input.paymentId,
+      amount_money: { amount: input.amountCents, currency: "USD" },
+      reason: input.reason.slice(0, 192),
+    }),
+  });
+  const payload = (await response.json().catch(() => null)) as Record<string, unknown> | null;
+  if (!response.ok) {
+    throw new Error(`Square refund request failed (${response.status}).`);
+  }
+  const refund = payload && getObject(payload, "refund");
+  const id = refund && getString(refund, "id");
+  const status = refund && getString(refund, "status").toUpperCase();
+  const paymentId = refund && getString(refund, "payment_id");
+  const money = refund ? getObject(refund, "amount_money") : {};
+  if (!id || paymentId !== input.paymentId || Number(money.amount) !== input.amountCents || getString(money, "currency").toUpperCase() !== "USD" || !["PENDING", "COMPLETED", "FAILED", "REJECTED"].includes(status || "")) {
+    throw new Error("Square refund response was not usable; check Square before retrying.");
+  }
+  return { id, status: status! };
+}
+
+export async function getSquarePaymentRefund(input: { refundId: string; paymentId: string; amountCents: number }) {
+  const response = await fetch(`${getSquareApiBaseUrl()}/v2/refunds/${encodeURIComponent(input.refundId)}`, {
+    cache: "no-store",
+    headers: {
+      Authorization: `Bearer ${getSquareAccessToken()}`,
+      "Square-Version": getSquareVersion(),
+    },
+  });
+  if (!response.ok) throw new Error(`Square refund status lookup failed (${response.status}).`);
+  const payload = (await response.json().catch(() => null)) as Record<string, unknown> | null;
+  const refund = payload && getObject(payload, "refund");
+  const status = refund && getString(refund, "status").toUpperCase();
+  const money = refund ? getObject(refund, "amount_money") : {};
+  if (getString(refund || {}, "id") !== input.refundId || getString(refund || {}, "payment_id") !== input.paymentId || Number(money.amount) !== input.amountCents || getString(money, "currency").toUpperCase() !== "USD" || !status || !["PENDING", "COMPLETED", "FAILED", "REJECTED"].includes(status)) {
+    throw new Error("Square refund status was not usable.");
+  }
+  return { id: input.refundId, status };
+}
+
 export function squareOrderLooksPaid(
   payload: unknown,
   expectedAmountCents?: number,
@@ -372,6 +427,20 @@ export function getSquarePaymentId(payload: unknown) {
   return getString(paymentSource, "id");
 }
 
+export function getSquarePaymentCreatedAt(payload: unknown) {
+  if (!payload || typeof payload !== "object") return "";
+  const source = payload as Record<string, unknown>;
+  const webhookObject = getObject(getObject(source, "data"), "object");
+  const topLevelPayment = getObject(source, "payment");
+  const payment = Object.keys(topLevelPayment).length > 0
+    ? topLevelPayment : getObject(webhookObject, "payment");
+  const paymentSource = Object.keys(payment).length > 0 ? payment : source;
+  const raw = getString(paymentSource, "created_at");
+  const date = new Date(raw);
+  return raw && Number.isFinite(date.getTime()) && date.getTime() <= Date.now()
+    ? date.toISOString() : "";
+}
+
 export async function verifySquareOrderPayment(input: {
   amountCents: number;
   orderId: string;
@@ -382,7 +451,7 @@ export async function verifySquareOrderPayment(input: {
     const payment = await getSquarePayment({ paymentId });
 
     if (squarePaymentLooksPaid(payment, input)) {
-      return { isPaid: true, paymentId };
+      return { isPaid: true, paymentId, paymentCreatedAt: getSquarePaymentCreatedAt(payment) };
     }
   }
 
@@ -392,5 +461,6 @@ export async function verifySquareOrderPayment(input: {
   return {
     isPaid: squareOrderLooksPaid(order, input.amountCents),
     paymentId: "",
+    paymentCreatedAt: "",
   };
 }

@@ -1,4 +1,5 @@
 import { clubhouseChallenges, getClubhouseChallenge } from "@/lib/clubhouse";
+import { Prisma } from "@/app/generated/prisma/client";
 import { getPrismaClient } from "@/lib/prisma";
 
 export type ClubhouseChallengeSettingView = {
@@ -122,20 +123,30 @@ export async function updateClubhouseChallengeSetting(input: {
     throw new Error("Event end must be after the start.");
   }
 
-  const setting = await prisma.clubhouseChallengeSetting.upsert({
-    where: { challengeSlug: challenge.slug },
-    update: {
-      e6EventCode,
-      startsAt,
-      endsAt,
-    },
-    create: {
-      challengeSlug: challenge.slug,
-      e6EventCode,
-      startsAt,
-      endsAt,
-    },
-  });
+  const setting = await prisma.$transaction(async (tx) => {
+    const [previous, unresolvedReports] = await Promise.all([
+      tx.clubhouseChallengeSetting.findUnique({ where: { challengeSlug: challenge.slug } }),
+      tx.holeInOneReport.count({
+        where: { challengeSlug: challenge.slug, status: { in: ["Pending Review", "Verified"] } },
+      }),
+    ]);
+    if (unresolvedReports) {
+      if ((previous?.e6EventCode ?? challenge.e6JoinCode) !== e6EventCode) {
+        throw new Error("Event code cannot change while a potential or verified hole-in-one exists.");
+      }
+      if (
+        (previous?.startsAt && previous.startsAt.getTime() !== startsAt?.getTime()) ||
+        (previous?.endsAt && previous.endsAt.getTime() !== endsAt?.getTime())
+      ) {
+        throw new Error("Configured challenge dates cannot change while a potential or verified hole-in-one exists.");
+      }
+    }
+    return tx.clubhouseChallengeSetting.upsert({
+      where: { challengeSlug: challenge.slug },
+      update: { e6EventCode, startsAt, endsAt },
+      create: { challengeSlug: challenge.slug, e6EventCode, startsAt, endsAt },
+    });
+  }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
 
   return {
     challengeSlug: setting.challengeSlug,

@@ -27,6 +27,12 @@ export const dynamic = "force-dynamic";
 
 const quickActions = [
   {
+    href: "/admin/reconciliation",
+    title: "Reconcile payments",
+    text: "Review Square payment mismatches and confirmation retries.",
+    icon: ReceiptText,
+  },
+  {
     href: "/admin/bookings",
     title: "Verify bookings",
     text: "Add or review Alamo bookings that unlock the QR flow.",
@@ -45,9 +51,9 @@ const quickActions = [
     icon: ListChecks,
   },
   {
-    href: "/admin/results",
-    title: "Log results",
-    text: "Enter and review simulator outcomes for operating records.",
+    href: "/admin/winners",
+    title: "Review potential results",
+    text: "Review simulator-backed hole-in-one reports and provisional chronology.",
     icon: PencilLine,
   },
 ];

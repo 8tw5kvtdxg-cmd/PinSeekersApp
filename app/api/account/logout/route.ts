@@ -4,10 +4,14 @@ import {
   deletePlayerSession,
   playerSessionCookieName,
 } from "@/lib/player-auth";
+import { rejectCrossSiteRequest } from "@/lib/request-security";
 
 export const dynamic = "force-dynamic";
 
-export async function POST() {
+export async function POST(request: Request) {
+  const crossSiteResponse = rejectCrossSiteRequest(request);
+  if (crossSiteResponse) return crossSiteResponse;
+
   const cookieStore = await cookies();
   await deletePlayerSession(cookieStore.get(playerSessionCookieName)?.value);
 

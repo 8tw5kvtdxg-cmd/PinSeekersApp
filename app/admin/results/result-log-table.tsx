@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, RefreshCw, Save, Trash2 } from "lucide-react";
+import { Archive, CheckCircle2, RefreshCw, Save } from "lucide-react";
 import type { ClubhouseChallenge } from "@/lib/clubhouse";
 import type { ClubhouseEntryRecord } from "@/lib/clubhouse-entry-store";
 import { normalizeChallengeSlug } from "@/lib/clubhouse";
@@ -329,7 +329,7 @@ export function ResultLogTable({
 
   async function deleteEntry(entryId: string) {
     const confirmed = window.confirm(
-      `Delete entry ${entryId}? This removes it from the result log and verified results.`,
+      `Archive entry ${entryId}? It will leave active result views but remain in the audit record.`,
     );
 
     if (!confirmed) {
@@ -344,12 +344,12 @@ export function ResultLogTable({
         method: "DELETE",
       });
       const data = (await response.json()) as {
-        deleted?: boolean;
+        archived?: boolean;
         error?: string;
       };
 
-      if (!response.ok || !data.deleted) {
-        throw new Error(data.error ?? "Could not delete entry.");
+      if (!response.ok || !data.archived) {
+        throw new Error(data.error ?? "Could not archive entry.");
       }
 
       setEntries((current) => current.filter((entry) => entry.id !== entryId));
@@ -364,7 +364,7 @@ export function ResultLogTable({
       setErrorByEntryId((current) => ({
         ...current,
         [entryId]:
-          error instanceof Error ? error.message : "Could not delete entry.",
+          error instanceof Error ? error.message : "Could not archive entry.",
       }));
     } finally {
       setDeletingEntryId("");
@@ -585,13 +585,13 @@ export function ResultLogTable({
                     </td>
                     <td className="px-4 py-4 align-top">
                       <button
-                        aria-label={`Delete ${entry.id}`}
+                        aria-label={`Archive ${entry.id}`}
                         className="inline-flex size-10 items-center justify-center rounded-md border border-[#f0c9c1] bg-[#fff5f2] text-[#9a3324] transition hover:bg-[#ffe8e1] disabled:cursor-not-allowed disabled:border-[#ded6c8] disabled:bg-[#f5efdf] disabled:text-[#87908a]"
                         disabled={isDeleting}
                         type="button"
                         onClick={() => deleteEntry(entry.id)}
                       >
-                        <Trash2 size={16} />
+                        <Archive size={16} />
                       </button>
                     </td>
                   </tr>

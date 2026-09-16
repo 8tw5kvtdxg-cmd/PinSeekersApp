@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { deleteAdminSessionsForUser } from "@/lib/admin-auth";
 import { getPasswordResetToken } from "@/lib/account-recovery";
 import { getPrismaClient } from "@/lib/prisma";
 import {
@@ -9,10 +10,23 @@ import {
   playerSessionCookieName,
   publicPlayer,
 } from "@/lib/player-auth";
+import { consumeRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+import { rejectCrossSiteRequest } from "@/lib/request-security";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const crossSiteResponse = rejectCrossSiteRequest(request);
+  if (crossSiteResponse) return crossSiteResponse;
+
+  const rateLimit = await consumeRateLimit({
+    namespace: "password-reset",
+    identifier: getClientIp(request),
+    limit: 10,
+    windowMs: 60 * 60 * 1000,
+  });
+  if (!rateLimit.allowed) return rateLimitResponse(rateLimit);
+
   const prisma = getPrismaClient();
 
   if (!prisma) {
@@ -82,6 +96,7 @@ export async function POST(request: Request) {
   });
 
   const cookieStore = await cookies();
+  await deleteAdminSessionsForUser(user.id);
   await deletePlayerSessionsForUser(user.id);
   const playerSessionToken = await createPlayerSession(user.id);
 

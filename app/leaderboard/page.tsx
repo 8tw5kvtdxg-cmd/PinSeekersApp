@@ -6,7 +6,7 @@ import { getClubhouseLeaderboardRows } from "@/lib/clubhouse-entry-store";
 const leaderboards = [
   {
     title: "Hole-in-One Challenge",
-    resultLabel: "Distance",
+    resultLabel: "Result",
     slug: clubhouseChallengeSlugs.holeInOne,
   },
 ];
@@ -30,12 +30,11 @@ export default async function LeaderboardPage() {
           <div>
             <Trophy className="text-[#2f6b3f]" size={34} />
             <h1 className="mt-4 text-4xl font-black sm:text-5xl">
-              Verified results
+              Provisional verified results
             </h1>
           </div>
           <p className="max-w-xl text-lg leading-8 text-[#53605a]">
-            Follow verified Hole-in-One challenge entries by player, simulator
-            username, and result.
+            Follow simulator-backed Hole-in-One results by player and simulator username. Chronology and prize eligibility remain subject to final review.
           </p>
         </div>
 
@@ -52,7 +51,7 @@ export default async function LeaderboardPage() {
                 </p>
               </div>
               <div className="grid grid-cols-[60px_1.1fr_1fr_105px] gap-3 bg-[#f2eadb] px-5 py-4 text-xs font-black uppercase tracking-[0.12em] text-[#53605a] sm:grid-cols-[70px_1.15fr_1fr_120px]">
-                <span>Rank</span>
+                <span>Status</span>
                 <span>Player</span>
                 <span>Simulator Username</span>
                 <span>{leaderboard.resultLabel}</span>
@@ -69,7 +68,7 @@ export default async function LeaderboardPage() {
                     key={`${leaderboard.title}-${row.entryId}`}
                     className="grid grid-cols-[60px_1.1fr_1fr_105px] gap-3 border-t border-[#ece5d8] px-5 py-5 text-sm sm:grid-cols-[70px_1.15fr_1fr_120px] sm:text-base"
                   >
-                    <span className="font-black">#{row.rank}</span>
+                    <span className="font-black">Verified</span>
                     <span className="font-bold">{row.playerName}</span>
                     <span className="text-[#53605a]">{row.e6DisplayName}</span>
                     <span className="font-black text-[#2f6b3f]">

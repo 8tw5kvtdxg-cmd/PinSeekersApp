@@ -77,6 +77,7 @@ export default async function EntryConfirmationPage({
           >
             Back to locations
           </Link>
+          {!isAdmin && loggedEntry?.squareCheckoutId && <Link href="/account/payment-issue" className="ml-5 text-sm font-semibold underline">Payment issue or refund claim</Link>}
 
           <section className="mt-10 overflow-hidden rounded-lg border border-[#ded6c8] bg-white shadow-xl shadow-[#18211f]/8">
             <div className="bg-[#18211f] p-6 text-white">
