@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101816">
+  <title>Pin2Win · San Antonio Simulator Prospects</title>
+  <style>
+    :root { color-scheme: light; --ink:#18211f; --muted:#59645f; --green:#2f6b3f; --cream:#fbf8f1; --line:#ded6c8; --white:#fff; }
+    * { box-sizing: border-box; }
+    html { background:#101816; }
+    body { margin:0; color:var(--ink); background:var(--cream); font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    header { padding:calc(24px + env(safe-area-inset-top)) 18px 25px; color:white; background:#101816; }
+    .eyebrow { margin:0 0 8px; color:#a8c878; font-size:12px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    h1 { max-width:700px; margin:0; font-size:clamp(27px,7vw,44px); line-height:1.05; letter-spacing:-.035em; }
+    .intro { max-width:750px; margin:14px 0 0; color:#c7d0cb; font-size:14px; }
+    .controls { position:sticky; z-index:5; top:0; display:grid; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); background:rgba(251,248,241,.96); backdrop-filter:blur(12px); }
+    input,select { width:100%; min-height:46px; padding:10px 13px; border:1px solid #cfc8bc; border-radius:12px; background:white; color:var(--ink); font:inherit; }
+    main { width:min(100%,850px); margin:auto; padding:16px 14px 42px; }
+    .summary { display:flex; justify-content:space-between; gap:12px; margin:0 3px 12px; color:var(--muted); font-size:13px; }
+    .card { margin:0 0 13px; padding:17px; border:1px solid var(--line); border-radius:17px; background:var(--white); box-shadow:0 5px 18px rgba(28,36,32,.055); }
+    .card-top { display:grid; grid-template-columns:32px minmax(0,1fr) auto; align-items:start; gap:10px; }
+    .number { display:grid; width:32px; height:32px; place-items:center; border-radius:10px; color:white; background:var(--green); font-size:12px; font-weight:800; }
+    h2 { margin:1px 0 2px; font-size:19px; line-height:1.15; letter-spacing:-.02em; }
+    .location { margin:0; color:var(--muted); font-size:12px; text-transform:capitalize; }
+    .badge { max-width:75px; padding:5px 8px; border-radius:999px; background:#edf1ed; color:#46514b; font-size:10px; font-weight:900; text-align:center; text-transform:uppercase; }
+    .badge-high { color:#245633; background:#e4f0e6; }
+    .badge-reference { color:#69480d; background:#f6e8bc; }
+    .badge-watch,.badge-verify { color:#7c441e; background:#f8e7db; }
+    dl { display:grid; gap:8px; margin:15px 0 0; }
+    dl div { display:grid; grid-template-columns:82px minmax(0,1fr); gap:8px; }
+    dt { color:var(--muted); font-size:11px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
+    dd { margin:0; font-size:13px; }
+    .next { margin-top:2px; padding-top:10px; border-top:1px solid #ece7de; }
+    .next dd { font-weight:700; }
+    .actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:15px; }
+    .action { min-width:76px; padding:9px 12px; border:1px solid #c8d3ca; border-radius:10px; color:var(--green); font-size:13px; font-weight:800; text-align:center; text-decoration:none; }
+    .action.primary { color:white; border-color:var(--green); background:var(--green); }
+    .empty { display:none; padding:45px 20px; color:var(--muted); text-align:center; }
+    footer { padding:20px 16px calc(24px + env(safe-area-inset-bottom)); color:#b8c1bc; background:#101816; font-size:12px; text-align:center; }
+    @media (min-width:650px) { .controls { grid-template-columns:2fr 1fr; } main { padding:22px; } .card { padding:21px; } }
+    @media print { .controls { position:static; } .card { break-inside:avoid; box-shadow:none; } .actions { display:none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">Pin2Win field prospecting</p>
+    <h1>San Antonio-area simulator prospects</h1>
+    <p class="intro">32 operating, secondary and watchlist prospects. Tap to call, email or open the venue website. Verify current operations before visiting.</p>
+  </header>
+  <section class="controls" aria-label="Prospect filters">
+    <input id="search" type="search" placeholder="Search business, city, technology…" autocomplete="off">
+    <select id="priority">
+      <option value="all">All prospect types</option>
+      <option value="high">High priority</option>
+      <option value="medium">Medium priority</option>
+      <option value="outer">Outer market</option>
+      <option value="secondary">Secondary</option>
+      <option value="watch">Watchlist</option>
+      <option value="verify">Needs verification</option>
+      <option value="low">Low priority</option>
+      <option value="reference">Current partner</option>
+    </select>
+  </section>
+  <main>
+    <div class="summary"><span id="count">32 prospects shown</span><span>Updated Sep. 16, 2026</span></div>
+    <section id="cards"><article class="card" data-priority="reference" data-search="reference alamo golf den operating san antonio 7001 interstate 10 ste 225, san antonio, tx 24/7 simulator venue unconfirmed   https://alamogolfden.com/ existing pin2win partner document reference implementation 2026-09-16">
+    <div class="card-top">
+      <span class="number">01</span>
+      <div>
+        <h2>Alamo Golf Den</h2>
+        <p class="location">San Antonio · operating</p>
+      </div>
+      <span class="badge badge-reference">reference</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>7001 Interstate 10 Ste 225, San Antonio, TX</dd></div>
+      <div><dt>Model</dt><dd>24/7 simulator venue</dd></div>
+      <div><dt>Technology</dt><dd>Unconfirmed</dd></div>
+      <div><dt>Partner fit</dt><dd>Existing Pin2Win partner</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Document reference implementation</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Alamo Golf Den"><a class="action primary" href="https://alamogolfden.com/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="high" data-search="high fore! swing lounge operating san antonio 18720 stone oak pkwy ste 123, san antonio, tx 78258 staffed social lounge trackman 210-842-9617  https://foreswinglounge.com/ high request owner meeting and result-export walkthrough 2026-09-16">
+    <div class="card-top">
+      <span class="number">02</span>
+      <div>
+        <h2>Fore! Swing Lounge</h2>
+        <p class="location">San Antonio · operating</p>
+      </div>
+      <span class="badge badge-high">high</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>18720 Stone Oak Pkwy Ste 123, San Antonio, TX 78258</dd></div>
+      <div><dt>Model</dt><dd>Staffed social lounge</dd></div>
+      <div><dt>Technology</dt><dd>TrackMan</dd></div>
+      <div><dt>Partner fit</dt><dd>High</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Request owner meeting and result-export walkthrough</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Fore! Swing Lounge"><a class="action" href="tel:2108429617">Call</a><a class="action primary" href="https://foreswinglounge.com/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="medium" data-search="medium fairway golf simulation operating san antonio 4553 n loop 1604 w ste 1117, san antonio, tx 78249 public plus 24/7 member access trackman 210-233-9026 support@fairwaygolfsimulation.com https://www.fairwaygolfsimulation.com/ medium confirm supervised pilot hours and evidence export 2026-09-16">
+    <div class="card-top">
+      <span class="number">03</span>
+      <div>
+        <h2>Fairway Golf Simulation</h2>
+        <p class="location">San Antonio · operating</p>
+      </div>
+      <span class="badge badge-medium">medium</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>4553 N Loop 1604 W Ste 1117, San Antonio, TX 78249</dd></div>
+      <div><dt>Model</dt><dd>Public plus 24/7 member access</dd></div>
+      <div><dt>Technology</dt><dd>TrackMan</dd></div>
+      <div><dt>Partner fit</dt><dd>Medium</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Confirm supervised pilot hours and evidence export</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Fairway Golf Simulation"><a class="action" href="tel:2102339026">Call</a><a class="action" href="mailto:support%40fairwaygolfsimulation.com">Email</a><a class="action primary" href="https://www.fairwaygolfsimulation.com/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="high" data-search="high mavn golf operating san antonio 16120 college oak ste 109, san antonio, tx 78249 performance coaching and hourly bays trackman io 650-395-2784 info@mavn.golf https://www.mavn.golf/ high pitch measurable practice challenge and venue marketing 2026-09-16">
+    <div class="card-top">
+      <span class="number">04</span>
+      <div>
+        <h2>MAVN Golf</h2>
+        <p class="location">San Antonio · operating</p>
+      </div>
+      <span class="badge badge-high">high</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>16120 College Oak Ste 109, San Antonio, TX 78249</dd></div>
+      <div><dt>Model</dt><dd>Performance coaching and hourly bays</dd></div>
+      <div><dt>Technology</dt><dd>TrackMan iO</dd></div>
+      <div><dt>Partner fit</dt><dd>High</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Pitch measurable practice challenge and venue marketing</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact MAVN Golf"><a class="action" href="tel:6503952784">Call</a><a class="action" href="mailto:info%40mavn.golf">Email</a><a class="action primary" href="https://www.mavn.golf/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="medium" data-search="medium remo golf canyon springs operating san antonio 24405 wilderness oak, san antonio, tx 78258 private hourly suite trackman io  support@remo.golf https://canyonsprings.remo.golf/ medium confirm club permission capacity and signage 2026-09-16">
+    <div class="card-top">
+      <span class="number">05</span>
+      <div>
+        <h2>Remo Golf Canyon Springs</h2>
+        <p class="location">San Antonio · operating</p>
+      </div>
+      <span class="badge badge-medium">medium</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>24405 Wilderness Oak, San Antonio, TX 78258</dd></div>
+      <div><dt>Model</dt><dd>Private hourly suite</dd></div>
+      <div><dt>Technology</dt><dd>TrackMan iO</dd></div>
+      <div><dt>Partner fit</dt><dd>Medium</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Confirm club permission capacity and signage</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Remo Golf Canyon Springs"><a class="action" href="mailto:support%40remo.golf">Email</a><a class="action primary" href="https://canyonsprings.remo.golf/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="medium" data-search="medium travis golf club operating san antonio 405 n st mary&#039;s st ste 222, san antonio, tx 78205 private membership and corporate club full swing pro 2.0   https://www.travisgolfclub.com/ medium request member-event and building-policy discussion 2026-09-16">
+    <div class="card-top">
+      <span class="number">06</span>
+      <div>
+        <h2>Travis Golf Club</h2>
+        <p class="location">San Antonio · operating</p>
+      </div>
+      <span class="badge badge-medium">medium</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>405 N St Mary&#039;s St Ste 222, San Antonio, TX 78205</dd></div>
+      <div><dt>Model</dt><dd>Private membership and corporate club</dd></div>
+      <div><dt>Technology</dt><dd>Full Swing Pro 2.0</dd></div>
+      <div><dt>Partner fit</dt><dd>Medium</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Request member-event and building-policy discussion</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Travis Golf Club"><a class="action primary" href="https://www.travisgolfclub.com/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="verify" data-search="verify king of golf operating listing san antonio 314 nolan st, san antonio, tx 78202 virtual golf inside king of padel unconfirmed   https://www.teeoff.com/tee-times/facility/20047-king-of-golf/search unknown verify operator status contact and simulator platform 2026-09-16">
+    <div class="card-top">
+      <span class="number">07</span>
+      <div>
+        <h2>King of Golf</h2>
+        <p class="location">San Antonio · operating listing</p>
+      </div>
+      <span class="badge badge-verify">verify</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>314 Nolan St, San Antonio, TX 78202</dd></div>
+      <div><dt>Model</dt><dd>Virtual golf inside King of Padel</dd></div>
+      <div><dt>Technology</dt><dd>Unconfirmed</dd></div>
+      <div><dt>Partner fit</dt><dd>Unknown</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Verify operator status contact and simulator platform</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact King of Golf"><a class="action primary" href="https://www.teeoff.com/tee-times/facility/20047-king-of-golf/search" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="medium" data-search="medium san pedro driving range and par 3 operating san antonio 6102 san pedro ave, san antonio, tx 78216 municipal range with indoor simulator unconfirmed 210-349-5113  https://golfsanpedro.com/simulator/ medium identify municipal decision maker and simulator evidence path 2026-09-16">
+    <div class="card-top">
+      <span class="number">08</span>
+      <div>
+        <h2>San Pedro Driving Range and Par 3</h2>
+        <p class="location">San Antonio · operating</p>
+      </div>
+      <span class="badge badge-medium">medium</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>6102 San Pedro Ave, San Antonio, TX 78216</dd></div>
+      <div><dt>Model</dt><dd>Municipal range with indoor simulator</dd></div>
+      <div><dt>Technology</dt><dd>Unconfirmed</dd></div>
+      <div><dt>Partner fit</dt><dd>Medium</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Identify municipal decision maker and simulator evidence path</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact San Pedro Driving Range and Par 3"><a class="action" href="tel:2103495113">Call</a><a class="action primary" href="https://golfsanpedro.com/simulator/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="medium" data-search="medium on par golf operating by appointment san antonio 1250 mission grande, san antonio, tx 78221 instruction entertainment and events trackman 210-827-8494 info@onpargolf.net https://onpargolf.net/ medium confirm which site hosts simulator play 2026-09-16">
+    <div class="card-top">
+      <span class="number">09</span>
+      <div>
+        <h2>On Par Golf</h2>
+        <p class="location">San Antonio · operating by appointment</p>
+      </div>
+      <span class="badge badge-medium">medium</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>1250 Mission Grande, San Antonio, TX 78221</dd></div>
+      <div><dt>Model</dt><dd>Instruction entertainment and events</dd></div>
+      <div><dt>Technology</dt><dd>TrackMan</dd></div>
+      <div><dt>Partner fit</dt><dd>Medium</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Confirm which site hosts simulator play</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact On Par Golf"><a class="action" href="tel:2108278494">Call</a><a class="action" href="mailto:info%40onpargolf.net">Email</a><a class="action primary" href="https://onpargolf.net/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="low" data-search="low neighborhood national no. 7 operating membership san antonio 3942 bent grass, san antonio, tx 78261 residential members-only club bushnell launch pro / fsx / gspro   https://www.neighborhoodnationalgc.com/clubs/no-7 low assess residential permission capacity and result capture 2026-09-16">
+    <div class="card-top">
+      <span class="number">10</span>
+      <div>
+        <h2>Neighborhood National No. 7</h2>
+        <p class="location">San Antonio · operating membership</p>
+      </div>
+      <span class="badge badge-low">low</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>3942 Bent Grass, San Antonio, TX 78261</dd></div>
+      <div><dt>Model</dt><dd>Residential members-only club</dd></div>
+      <div><dt>Technology</dt><dd>Bushnell Launch Pro / FSX / GSPro</dd></div>
+      <div><dt>Partner fit</dt><dd>Low</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Assess residential permission capacity and result capture</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Neighborhood National No. 7"><a class="action primary" href="https://www.neighborhoodnationalgc.com/clubs/no-7" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="high" data-search="high inside nine golf and social club operating boerne 27650 ih-10 w ste 207, boerne, tx 78015 24/7 membership club golfzon twovision nx 210-239-7735 info@inside9tx.com https://www.inside9tx.com/ high request member-event conversation 2026-09-16">
+    <div class="card-top">
+      <span class="number">11</span>
+      <div>
+        <h2>Inside Nine Golf and Social Club</h2>
+        <p class="location">Boerne · operating</p>
+      </div>
+      <span class="badge badge-high">high</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>27650 IH-10 W Ste 207, Boerne, TX 78015</dd></div>
+      <div><dt>Model</dt><dd>24/7 membership club</dd></div>
+      <div><dt>Technology</dt><dd>Golfzon TwoVision NX</dd></div>
+      <div><dt>Partner fit</dt><dd>High</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Request member-event conversation</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Inside Nine Golf and Social Club"><a class="action" href="tel:2102397735">Call</a><a class="action" href="mailto:info%40inside9tx.com">Email</a><a class="action primary" href="https://www.inside9tx.com/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="high" data-search="high the swing lab operating boerne 635 hwy 46 e ste 204, boerne, tx 78006 hourly and membership venue trackman / protee vx 210-889-1822 indoorgolf@theswinglabtx.com https://theswinglabtx.com/ high request owner walkthrough 2026-09-16">
+    <div class="card-top">
+      <span class="number">12</span>
+      <div>
+        <h2>The Swing Lab</h2>
+        <p class="location">Boerne · operating</p>
+      </div>
+      <span class="badge badge-high">high</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>635 Hwy 46 E Ste 204, Boerne, TX 78006</dd></div>
+      <div><dt>Model</dt><dd>Hourly and membership venue</dd></div>
+      <div><dt>Technology</dt><dd>TrackMan / ProTee VX</dd></div>
+      <div><dt>Partner fit</dt><dd>High</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Request owner walkthrough</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact The Swing Lab"><a class="action" href="tel:2108891822">Call</a><a class="action" href="mailto:indoorgolf%40theswinglabtx.com">Email</a><a class="action primary" href="https://theswinglabtx.com/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="medium" data-search="medium the back nine golf boerne operating boerne 228 w bandera rd, boerne, tx 78006 public booking and 24/7 membership full swing 830-637-4653  https://thebackninegolf.com/local/boerne-tx/ medium clarify franchise approval and supervised hours 2026-09-16">
+    <div class="card-top">
+      <span class="number">13</span>
+      <div>
+        <h2>The Back Nine Golf Boerne</h2>
+        <p class="location">Boerne · operating</p>
+      </div>
+      <span class="badge badge-medium">medium</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>228 W Bandera Rd, Boerne, TX 78006</dd></div>
+      <div><dt>Model</dt><dd>Public booking and 24/7 membership</dd></div>
+      <div><dt>Technology</dt><dd>Full Swing</dd></div>
+      <div><dt>Partner fit</dt><dd>Medium</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Clarify franchise approval and supervised hours</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact The Back Nine Golf Boerne"><a class="action" href="tel:8306374653">Call</a><a class="action primary" href="https://thebackninegolf.com/local/boerne-tx/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="high" data-search="high future golf operating schertz 790 fm 3009 ste e, schertz, tx 78154 public practice instruction and play flightscope x3 / trugolf apogee / e6 210-876-0440 future.golf.schertz@gmail.com https://futuregolfoftexas.com/simulator-booking high request technical and owner walkthrough 2026-09-16">
+    <div class="card-top">
+      <span class="number">14</span>
+      <div>
+        <h2>Future Golf</h2>
+        <p class="location">Schertz · operating</p>
+      </div>
+      <span class="badge badge-high">high</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>790 FM 3009 Ste E, Schertz, TX 78154</dd></div>
+      <div><dt>Model</dt><dd>Public practice instruction and play</dd></div>
+      <div><dt>Technology</dt><dd>FlightScope X3 / TruGolf APOGEE / E6</dd></div>
+      <div><dt>Partner fit</dt><dd>High</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Request technical and owner walkthrough</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Future Golf"><a class="action" href="tel:2108760440">Call</a><a class="action" href="mailto:future.golf.schertz%40gmail.com">Email</a><a class="action primary" href="https://futuregolfoftexas.com/simulator-booking" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="high" data-search="high short game golf operating castroville 2205 fm 471, castroville, tx 78009 simulator range instruction food and events trackman 830-931-8891 info@shortgameusa.com https://www.shortgameusa.com/ high request owner or gm meeting 2026-09-16">
+    <div class="card-top">
+      <span class="number">15</span>
+      <div>
+        <h2>Short Game Golf</h2>
+        <p class="location">Castroville · operating</p>
+      </div>
+      <span class="badge badge-high">high</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>2205 FM 471, Castroville, TX 78009</dd></div>
+      <div><dt>Model</dt><dd>Simulator range instruction food and events</dd></div>
+      <div><dt>Technology</dt><dd>TrackMan</dd></div>
+      <div><dt>Partner fit</dt><dd>High</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Request owner or GM meeting</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Short Game Golf"><a class="action" href="tel:8309318891">Call</a><a class="action" href="mailto:info%40shortgameusa.com">Email</a><a class="action primary" href="https://www.shortgameusa.com/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="high" data-search="high the bunker indoor golf club operating la vernia 2742 fm 775, la vernia, tx 78121 public bays with planned 24/7 membership trackman 726-243-5014 info@thebunkerigc.com https://thebunkerigc.com/ high confirm staffed hours and opening maturity 2026-09-16">
+    <div class="card-top">
+      <span class="number">16</span>
+      <div>
+        <h2>The Bunker Indoor Golf Club</h2>
+        <p class="location">La Vernia · operating</p>
+      </div>
+      <span class="badge badge-high">high</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>2742 FM 775, La Vernia, TX 78121</dd></div>
+      <div><dt>Model</dt><dd>Public bays with planned 24/7 membership</dd></div>
+      <div><dt>Technology</dt><dd>TrackMan</dd></div>
+      <div><dt>Partner fit</dt><dd>High</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Confirm staffed hours and opening maturity</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact The Bunker Indoor Golf Club"><a class="action" href="tel:7262435014">Call</a><a class="action" href="mailto:info%40thebunkerigc.com">Email</a><a class="action primary" href="https://thebunkerigc.com/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="medium" data-search="medium divots indoor golf operating canyon lake 17290 fm 306, canyon lake, tx 78133 staffless bookings memberships and tournaments trackman 830-660-4377 texasdivots@gmail.com https://texasdivots.com/ medium discuss supervised-event option and onsite controls 2026-09-16">
+    <div class="card-top">
+      <span class="number">17</span>
+      <div>
+        <h2>Divots Indoor Golf</h2>
+        <p class="location">Canyon Lake · operating</p>
+      </div>
+      <span class="badge badge-medium">medium</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>17290 FM 306, Canyon Lake, TX 78133</dd></div>
+      <div><dt>Model</dt><dd>Staffless bookings memberships and tournaments</dd></div>
+      <div><dt>Technology</dt><dd>TrackMan</dd></div>
+      <div><dt>Partner fit</dt><dd>Medium</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Discuss supervised-event option and onsite controls</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Divots Indoor Golf"><a class="action" href="tel:8306604377">Call</a><a class="action" href="mailto:texasdivots%40gmail.com">Email</a><a class="action primary" href="https://texasdivots.com/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="high" data-search="high par-tee haus indoor golf and bar operating new braunfels 311 fm 306 ste 105, new braunfels, tx staffed golf bar and events unconfirmed 830-312-7804  https://parteehaus.com/ high request operator meeting and platform details 2026-09-16">
+    <div class="card-top">
+      <span class="number">18</span>
+      <div>
+        <h2>Par-Tee Haus Indoor Golf and Bar</h2>
+        <p class="location">New Braunfels · operating</p>
+      </div>
+      <span class="badge badge-high">high</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>311 FM 306 Ste 105, New Braunfels, TX</dd></div>
+      <div><dt>Model</dt><dd>Staffed golf bar and events</dd></div>
+      <div><dt>Technology</dt><dd>Unconfirmed</dd></div>
+      <div><dt>Partner fit</dt><dd>High</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Request operator meeting and platform details</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Par-Tee Haus Indoor Golf and Bar"><a class="action" href="tel:8303127804">Call</a><a class="action primary" href="https://parteehaus.com/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="high" data-search="high up and downs golf bar operating new braunfels 2163 stephens pl ste 100, new braunfels, tx 78130 golf bar bays memberships and parties unconfirmed 830-627-4000 upanddownsgolfbar@gmail.com https://upanddownsgolfbar.com/ high request owner meeting and platform details 2026-09-16">
+    <div class="card-top">
+      <span class="number">19</span>
+      <div>
+        <h2>Up and Downs Golf Bar</h2>
+        <p class="location">New Braunfels · operating</p>
+      </div>
+      <span class="badge badge-high">high</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>2163 Stephens Pl Ste 100, New Braunfels, TX 78130</dd></div>
+      <div><dt>Model</dt><dd>Golf bar bays memberships and parties</dd></div>
+      <div><dt>Technology</dt><dd>Unconfirmed</dd></div>
+      <div><dt>Partner fit</dt><dd>High</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Request owner meeting and platform details</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Up and Downs Golf Bar"><a class="action" href="tel:8306274000">Call</a><a class="action" href="mailto:upanddownsgolfbar%40gmail.com">Email</a><a class="action primary" href="https://upanddownsgolfbar.com/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="outer" data-search="outer swing station operating san marcos 1900 n i-35 frontage rd ste 104, san marcos, tx 78666 public bays events leagues and multisport unconfirmed 512-200-3770 info@swingstationgolf.com https://swingstationgolf.com/ high outer market contact after first san antonio outreach wave 2026-09-16">
+    <div class="card-top">
+      <span class="number">20</span>
+      <div>
+        <h2>Swing Station</h2>
+        <p class="location">San Marcos · operating</p>
+      </div>
+      <span class="badge badge-outer">outer</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>1900 N I-35 Frontage Rd Ste 104, San Marcos, TX 78666</dd></div>
+      <div><dt>Model</dt><dd>Public bays events leagues and multisport</dd></div>
+      <div><dt>Technology</dt><dd>Unconfirmed</dd></div>
+      <div><dt>Partner fit</dt><dd>High outer market</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Contact after first San Antonio outreach wave</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Swing Station"><a class="action" href="tel:5122003770">Call</a><a class="action" href="mailto:info%40swingstationgolf.com">Email</a><a class="action primary" href="https://swingstationgolf.com/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="secondary" data-search="secondary golftec san antonio operating san antonio 18410 hwy 281 n ste 105-b1, san antonio, tx 78259 instruction fitting and practice bays golftec / simulator 210-519-2600  https://www.golftec.com/golf-lessons/san-antonio low host / referral ask about referral or promotional relationship 2026-09-16">
+    <div class="card-top">
+      <span class="number">21</span>
+      <div>
+        <h2>GOLFTEC San Antonio</h2>
+        <p class="location">San Antonio · operating</p>
+      </div>
+      <span class="badge badge-secondary">secondary</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>18410 Hwy 281 N Ste 105-B1, San Antonio, TX 78259</dd></div>
+      <div><dt>Model</dt><dd>Instruction fitting and practice bays</dd></div>
+      <div><dt>Technology</dt><dd>GOLFTEC / simulator</dd></div>
+      <div><dt>Partner fit</dt><dd>Low host / referral</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Ask about referral or promotional relationship</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact GOLFTEC San Antonio"><a class="action" href="tel:2105192600">Call</a><a class="action primary" href="https://www.golftec.com/golf-lessons/san-antonio" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="secondary" data-search="secondary golftec northwest san antonio operating helotes 11851 bandera rd ste 110, helotes, tx 78023 instruction fitting and practice bays golftec / simulator 210-866-1127  https://www.golftec.com/near/san-antonio?search=san+antonio low host / referral ask about referral or promotional relationship 2026-09-16">
+    <div class="card-top">
+      <span class="number">22</span>
+      <div>
+        <h2>GOLFTEC Northwest San Antonio</h2>
+        <p class="location">Helotes · operating</p>
+      </div>
+      <span class="badge badge-secondary">secondary</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>11851 Bandera Rd Ste 110, Helotes, TX 78023</dd></div>
+      <div><dt>Model</dt><dd>Instruction fitting and practice bays</dd></div>
+      <div><dt>Technology</dt><dd>GOLFTEC / simulator</dd></div>
+      <div><dt>Partner fit</dt><dd>Low host / referral</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Ask about referral or promotional relationship</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact GOLFTEC Northwest San Antonio"><a class="action" href="tel:2108661127">Call</a><a class="action primary" href="https://www.golftec.com/near/san-antonio?search=San+Antonio" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="secondary" data-search="secondary golf galaxy san antonio operating san antonio 1211 n loop 1604 w, san antonio, tx 78258 retail lessons fitting and simulator rental trackman 210-764-1015  https://www.golfgalaxy.com/s/scheduling/s/3222/ low host / corporate identify store and corporate approval path 2026-09-16">
+    <div class="card-top">
+      <span class="number">23</span>
+      <div>
+        <h2>Golf Galaxy San Antonio</h2>
+        <p class="location">San Antonio · operating</p>
+      </div>
+      <span class="badge badge-secondary">secondary</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>1211 N Loop 1604 W, San Antonio, TX 78258</dd></div>
+      <div><dt>Model</dt><dd>Retail lessons fitting and simulator rental</dd></div>
+      <div><dt>Technology</dt><dd>TrackMan</dd></div>
+      <div><dt>Partner fit</dt><dd>Low host / corporate</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Identify store and corporate approval path</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Golf Galaxy San Antonio"><a class="action" href="tel:2107641015">Call</a><a class="action primary" href="https://www.golfgalaxy.com/s/scheduling/s/3222/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="secondary" data-search="secondary dick&#039;s house of sport operating san antonio 4100 ikea-rbfcu pkwy, san antonio, tx 78233 retail events and simulator rental unconfirmed   https://www.golfgalaxy.com/s/scheduling/s/1602 low host / corporate identify events manager and corporate approval path 2026-09-16">
+    <div class="card-top">
+      <span class="number">24</span>
+      <div>
+        <h2>DICK&#039;S House of Sport</h2>
+        <p class="location">San Antonio · operating</p>
+      </div>
+      <span class="badge badge-secondary">secondary</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>4100 IKEA-RBFCU Pkwy, San Antonio, TX 78233</dd></div>
+      <div><dt>Model</dt><dd>Retail events and simulator rental</dd></div>
+      <div><dt>Technology</dt><dd>Unconfirmed</dd></div>
+      <div><dt>Partner fit</dt><dd>Low host / corporate</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Identify events manager and corporate approval path</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact DICK&#039;S House of Sport"><a class="action primary" href="https://www.golfgalaxy.com/s/scheduling/s/1602" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="secondary" data-search="secondary pga tour superstore san antonio operating san antonio 18450 blanco rd ste 2, san antonio, tx 78258 retail practice bays simulators lessons and fitting trackman / foresight 726-336-2666  https://www.pgatoursuperstore.com/stores low host / corporate identify store manager and corporate partnership path 2026-09-16">
+    <div class="card-top">
+      <span class="number">25</span>
+      <div>
+        <h2>PGA TOUR Superstore San Antonio</h2>
+        <p class="location">San Antonio · operating</p>
+      </div>
+      <span class="badge badge-secondary">secondary</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>18450 Blanco Rd Ste 2, San Antonio, TX 78258</dd></div>
+      <div><dt>Model</dt><dd>Retail practice bays simulators lessons and fitting</dd></div>
+      <div><dt>Technology</dt><dd>TrackMan / Foresight</dd></div>
+      <div><dt>Partner fit</dt><dd>Low host / corporate</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Identify store manager and corporate partnership path</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact PGA TOUR Superstore San Antonio"><a class="action" href="tel:7263362666">Call</a><a class="action primary" href="https://www.pgatoursuperstore.com/stores" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="secondary" data-search="secondary club champion san antonio operating san antonio 340 e basse rd, san antonio, tx 78209 club-fitting studio launch monitor   https://www.bridgestonegolf.com/en-us/where-to-buy/find-a-club-retailer low host / referral explore referral relationship only 2026-09-16">
+    <div class="card-top">
+      <span class="number">26</span>
+      <div>
+        <h2>Club Champion San Antonio</h2>
+        <p class="location">San Antonio · operating</p>
+      </div>
+      <span class="badge badge-secondary">secondary</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>340 E Basse Rd, San Antonio, TX 78209</dd></div>
+      <div><dt>Model</dt><dd>Club-fitting studio</dd></div>
+      <div><dt>Technology</dt><dd>Launch monitor</dd></div>
+      <div><dt>Partner fit</dt><dd>Low host / referral</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Explore referral relationship only</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Club Champion San Antonio"><a class="action primary" href="https://www.bridgestonegolf.com/en-us/where-to-buy/find-a-club-retailer" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="watch" data-search="watch elite golf training lounge targeting september 2026 opening san antonio 4250 tpc pkwy ste 110, san antonio, tx 78261 private bays membership and public play trackman io 210-201-6536 info@elitegolflounge.com https://www.elitegolflounge.com/ potentially high confirm opening and request founder meeting 2026-09-16">
+    <div class="card-top">
+      <span class="number">27</span>
+      <div>
+        <h2>Elite Golf Training Lounge</h2>
+        <p class="location">San Antonio · targeting September 2026 opening</p>
+      </div>
+      <span class="badge badge-watch">watch</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>4250 TPC Pkwy Ste 110, San Antonio, TX 78261</dd></div>
+      <div><dt>Model</dt><dd>Private bays membership and public play</dd></div>
+      <div><dt>Technology</dt><dd>TrackMan iO</dd></div>
+      <div><dt>Partner fit</dt><dd>Potentially high</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Confirm opening and request founder meeting</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Elite Golf Training Lounge"><a class="action" href="tel:2102016536">Call</a><a class="action" href="mailto:info%40elitegolflounge.com">Email</a><a class="action primary" href="https://www.elitegolflounge.com/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="watch" data-search="watch alamo golf lounge status unconfirmed san antonio address not published ten private simulator concept unconfirmed 726-223-8910 info@alamogolflounge.com https://alamogolflounge.com/ unknown confirm distinct business address and opening status 2026-09-16">
+    <div class="card-top">
+      <span class="number">28</span>
+      <div>
+        <h2>Alamo Golf Lounge</h2>
+        <p class="location">San Antonio · status unconfirmed</p>
+      </div>
+      <span class="badge badge-watch">watch</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>Address not published</dd></div>
+      <div><dt>Model</dt><dd>Ten private simulator concept</dd></div>
+      <div><dt>Technology</dt><dd>Unconfirmed</dd></div>
+      <div><dt>Partner fit</dt><dd>Unknown</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Confirm distinct business address and opening status</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Alamo Golf Lounge"><a class="action" href="tel:7262238910">Call</a><a class="action" href="mailto:info%40alamogolflounge.com">Email</a><a class="action primary" href="https://alamogolflounge.com/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="watch" data-search="watch prestige golf lounge planned san antonio airport area planned membership-only planned foresight falcon  prestigegolflounge@gmail.com https://www.prestigegolflounge.com/about potential future request development status 2026-09-16">
+    <div class="card-top">
+      <span class="number">29</span>
+      <div>
+        <h2>Prestige Golf Lounge</h2>
+        <p class="location">San Antonio · planned</p>
+      </div>
+      <span class="badge badge-watch">watch</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>Airport area planned</dd></div>
+      <div><dt>Model</dt><dd>Membership-only planned</dd></div>
+      <div><dt>Technology</dt><dd>Foresight Falcon</dd></div>
+      <div><dt>Partner fit</dt><dd>Potential future</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Request development status</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Prestige Golf Lounge"><a class="action" href="mailto:prestigegolflounge%40gmail.com">Email</a><a class="action primary" href="https://www.prestigegolflounge.com/about" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="watch" data-search="watch neighborhood national no. 11 coming soon san antonio 11503 jones maltsberger rd, san antonio, tx 78216 commercial members-only club unconfirmed   https://www.neighborhoodnationalgc.com/clubs potential future request local operator and launch date 2026-09-16">
+    <div class="card-top">
+      <span class="number">30</span>
+      <div>
+        <h2>Neighborhood National No. 11</h2>
+        <p class="location">San Antonio · coming soon</p>
+      </div>
+      <span class="badge badge-watch">watch</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>11503 Jones Maltsberger Rd, San Antonio, TX 78216</dd></div>
+      <div><dt>Model</dt><dd>Commercial members-only club</dd></div>
+      <div><dt>Technology</dt><dd>Unconfirmed</dd></div>
+      <div><dt>Partner fit</dt><dd>Potential future</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Request local operator and launch date</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact Neighborhood National No. 11"><a class="action primary" href="https://www.neighborhoodnationalgc.com/clubs" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="watch" data-search="watch the back nine golf seguin coming soon seguin address not published 24/7 simulator franchise full swing   https://thebackninegolf.com/local/seguin-tx/contact/ potential future join local contact list and request timeline 2026-09-16">
+    <div class="card-top">
+      <span class="number">31</span>
+      <div>
+        <h2>The Back Nine Golf Seguin</h2>
+        <p class="location">Seguin · coming soon</p>
+      </div>
+      <span class="badge badge-watch">watch</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>Address not published</dd></div>
+      <div><dt>Model</dt><dd>24/7 simulator franchise</dd></div>
+      <div><dt>Technology</dt><dd>Full Swing</dd></div>
+      <div><dt>Partner fit</dt><dd>Potential future</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Join local contact list and request timeline</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact The Back Nine Golf Seguin"><a class="action primary" href="https://thebackninegolf.com/local/seguin-tx/contact/" target="_blank" rel="noreferrer">Website</a></nav>
+  </article>
+<article class="card" data-priority="watch" data-search="watch the back nine golf san antonio west listed planned san antonio west address not published 24/7 simulator franchise full swing   https://thebackninegolf.com/local/all-locations potential future contact franchise for owner and timeline 2026-09-16">
+    <div class="card-top">
+      <span class="number">32</span>
+      <div>
+        <h2>The Back Nine Golf San Antonio West</h2>
+        <p class="location">San Antonio West · listed planned</p>
+      </div>
+      <span class="badge badge-watch">watch</span>
+    </div>
+    <dl>
+      <div><dt>Address</dt><dd>Address not published</dd></div>
+      <div><dt>Model</dt><dd>24/7 simulator franchise</dd></div>
+      <div><dt>Technology</dt><dd>Full Swing</dd></div>
+      <div><dt>Partner fit</dt><dd>Potential future</dd></div>
+      <div class="next"><dt>Next action</dt><dd>Contact franchise for owner and timeline</dd></div>
+    </dl>
+    <nav class="actions" aria-label="Contact The Back Nine Golf San Antonio West"><a class="action primary" href="https://thebackninegolf.com/local/all-locations" target="_blank" rel="noreferrer">Website</a></nav>
+  </article></section>
+    <p id="empty" class="empty">No prospects match those filters.</p>
+  </main>
+  <footer>Internal working list · Confirm status, decision-maker and technical compatibility before outreach.</footer>
+  <script>
+    const search = document.querySelector('#search');
+    const priority = document.querySelector('#priority');
+    const cards = [...document.querySelectorAll('.card')];
+    const count = document.querySelector('#count');
+    const empty = document.querySelector('#empty');
+    function filterCards() {
+      const term = search.value.trim().toLowerCase();
+      const selected = priority.value;
+      let visible = 0;
+      cards.forEach((card) => {
+        const matchesText = !term || card.dataset.search.includes(term);
+        const matchesPriority = selected === 'all' || card.dataset.priority === selected;
+        const show = matchesText && matchesPriority;
+        card.hidden = !show;
+        if (show) visible += 1;
+      });
+      count.textContent = visible + (visible === 1 ? ' prospect shown' : ' prospects shown');
+      empty.style.display = visible ? 'none' : 'block';
+    }
+    search.addEventListener('input', filterCards);
+    priority.addEventListener('change', filterCards);
+  </script>
+</body>
+</html>

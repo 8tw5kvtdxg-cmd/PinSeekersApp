@@ -113,6 +113,8 @@ Important current-state note: New users must accept the legal documents and conf
 
 ## 9. Communications, Testing, and Launch
 
+Manual execution guide: [Consent and payment mobile test script](CONSENT_AND_PAYMENT_MOBILE_TEST_SCRIPT.md).
+
 - [~] Include the stored accepted-document version and legal package hash in Square confirmation email; exact challenge details still need a verified configuration snapshot.
 - [~] Link current rules and refund support from Square payment confirmation emails; other entry communications need review.
 - [~] Unit tests cover legal-document hashes, required account consent, session expiration, Square verification, and idempotency; full browser coverage is not implemented.

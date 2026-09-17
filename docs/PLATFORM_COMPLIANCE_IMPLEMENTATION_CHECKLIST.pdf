@@ -614,7 +614,7 @@ endobj
 << /Type /Page /Parent 25 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 19 0 R >>
 endobj
 21 0 obj
-<< /Length 5379 >>
+<< /Length 5627 >>
 stream
 0.984 0.973 0.945 rg
 0 0 612 792 re f
@@ -622,80 +622,82 @@ stream
 0.337 0.376 0.353 rg BT /F2 7.6 Tf 111 762 Td (9. COMMUNICATIONS, TESTING, AND LAUNCH) Tj ET
 0.871 0.839 0.784 RG 0.7 w 52 750 m 560 750 l S
 0.184 0.420 0.247 rg BT /F2 15 Tf 52 724 Td (9. Communications, Testing, and Launch) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.6 Tf 52 696 Td (Manual execution guide: [Consent and payment mobile test) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.6 Tf 52 682.6 Td (script]\(CONSENT_AND_PAYMENT_MOBILE_TEST_SCRIPT.md\).) Tj ET
 0.984 0.973 0.945 rg
 0.141 0.318 0.541 RG 0.8 w
-52 693 16 16 re B
-0.141 0.318 0.541 rg BT /F2 7.2 Tf 57.8 697 Td (~) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 696 Td (Include the stored accepted-document version and legal package hash in Square confirmation email; exact) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 683.2 Td (challenge details still need a verified configuration snapshot.) Tj ET
+52 654.2 16 16 re B
+0.141 0.318 0.541 rg BT /F2 7.2 Tf 57.8 658.2 Td (~) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 657.2 Td (Include the stored accepted-document version and legal package hash in Square confirmation email; exact) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 644.4000000000001 Td (challenge details still need a verified configuration snapshot.) Tj ET
 0.984 0.973 0.945 rg
 0.141 0.318 0.541 RG 0.8 w
-52 659.4 16 16 re B
-0.141 0.318 0.541 rg BT /F2 7.2 Tf 57.8 663.4 Td (~) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 662.4 Td (Link current rules and refund support from Square payment confirmation emails; other entry) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 649.6 Td (communications need review.) Tj ET
+52 620.6 16 16 re B
+0.141 0.318 0.541 rg BT /F2 7.2 Tf 57.8 624.6 Td (~) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 623.6 Td (Link current rules and refund support from Square payment confirmation emails; other entry) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 610.8000000000001 Td (communications need review.) Tj ET
 0.984 0.973 0.945 rg
 0.141 0.318 0.541 RG 0.8 w
-52 625.8 16 16 re B
-0.141 0.318 0.541 rg BT /F2 7.2 Tf 57.8 629.8 Td (~) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 628.8 Td (Unit tests cover legal-document hashes, required account consent, session expiration, Square) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 616 Td (verification, and idempotency; full browser coverage is not implemented.) Tj ET
+52 587 16 16 re B
+0.141 0.318 0.541 rg BT /F2 7.2 Tf 57.8 591 Td (~) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 590 Td (Unit tests cover legal-document hashes, required account consent, session expiration, Square) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 577.2 Td (verification, and idempotency; full browser coverage is not implemented.) Tj ET
 0.984 0.973 0.945 rg
 0.337 0.376 0.353 RG 0.8 w
-52 592.1999999999999 16 16 re B
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 595.1999999999999 Td (Test account creation, login, already-signed-in QR scans, and Square redirects on supported mobile) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 582.4 Td (browsers.) Tj ET
+52 553.4 16 16 re B
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 556.4 Td (Test account creation, login, already-signed-in QR scans, and Square redirects on supported mobile) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 543.6 Td (browsers.) Tj ET
 0.984 0.973 0.945 rg
 0.337 0.376 0.353 RG 0.8 w
-52 558.5999999999999 16 16 re B
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 561.5999999999999 Td (Test challenge state and time boundaries in the browser and directly against the API.) Tj ET
+52 519.8 16 16 re B
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 522.8 Td (Test challenge state and time boundaries in the browser and directly against the API.) Tj ET
 0.984 0.973 0.945 rg
 0.141 0.318 0.541 RG 0.8 w
-52 537.8 16 16 re B
-0.141 0.318 0.541 rg BT /F2 7.2 Tf 57.8 541.8 Td (~) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 540.8 Td (Unit tests cover chronology ordering, identical and unreliable timestamps, and simulator-secret-only) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 528 Td (ingestion; concurrent verification and closure need production-like database testing.) Tj ET
+52 498.99999999999994 16 16 re B
+0.141 0.318 0.541 rg BT /F2 7.2 Tf 57.8 502.99999999999994 Td (~) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 501.99999999999994 Td (Unit tests cover chronology ordering, identical and unreliable timestamps, and simulator-secret-only) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 489.19999999999993 Td (ingestion; concurrent verification and closure need production-like database testing.) Tj ET
 0.984 0.973 0.945 rg
 0.337 0.376 0.353 RG 0.8 w
-52 504.19999999999993 16 16 re B
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 507.19999999999993 Td (Test automatic refunds for unused entries after challenge closure.) Tj ET
+52 465.3999999999999 16 16 re B
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 468.3999999999999 Td (Test automatic refunds for unused entries after challenge closure.) Tj ET
 0.984 0.973 0.945 rg
 0.141 0.318 0.541 RG 0.8 w
-52 483.3999999999999 16 16 re B
-0.141 0.318 0.541 rg BT /F2 7.2 Tf 57.8 487.3999999999999 Td (~) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 486.3999999999999 Td (Unit tests cover the refund timing flag, entry review signals, upload validation, and Square refund) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 473.5999999999999 Td (requests; production-like deadline and audit-history testing remains.) Tj ET
+52 444.5999999999999 16 16 re B
+0.141 0.318 0.541 rg BT /F2 7.2 Tf 57.8 448.5999999999999 Td (~) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 447.5999999999999 Td (Unit tests cover the refund timing flag, entry review signals, upload validation, and Square refund) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 434.7999999999999 Td (requests; production-like deadline and audit-history testing remains.) Tj ET
 0.984 0.973 0.945 rg
 0.141 0.318 0.541 RG 0.8 w
-52 449.7999999999999 16 16 re B
-0.141 0.318 0.541 rg BT /F2 7.2 Tf 57.8 453.7999999999999 Td (~) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 452.7999999999999 Td (Unit tests cover Square payment validation, duplicate entry creation, and partial confirmation-email) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 439.9999999999999 Td (retry; production-like webhook delay, duplicate, and reconciliation testing remains.) Tj ET
+52 410.9999999999999 16 16 re B
+0.141 0.318 0.541 rg BT /F2 7.2 Tf 57.8 414.9999999999999 Td (~) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 413.9999999999999 Td (Unit tests cover Square payment validation, duplicate entry creation, and partial confirmation-email) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 401.1999999999999 Td (retry; production-like webhook delay, duplicate, and reconciliation testing remains.) Tj ET
 0.984 0.973 0.945 rg
 0.337 0.376 0.353 RG 0.8 w
-52 416.1999999999999 16 16 re B
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 419.1999999999999 Td (Complete accessibility and mobile checkout review.) Tj ET
+52 377.39999999999986 16 16 re B
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 380.39999999999986 Td (Complete accessibility and mobile checkout review.) Tj ET
 0.984 0.973 0.945 rg
 0.184 0.420 0.247 RG 0.8 w
-52 395.39999999999986 16 16 re B
-0.184 0.420 0.247 rg BT /F2 7.2 Tf 54.6 399.39999999999986 Td (OK) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 398.39999999999986 Td (Insert the owner-confirmed effective date and business mailing address in the legal package.) Tj ET
+52 356.59999999999985 16 16 re B
+0.184 0.420 0.247 rg BT /F2 7.2 Tf 54.6 360.59999999999985 Td (OK) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 359.59999999999985 Td (Insert the owner-confirmed effective date and business mailing address in the legal package.) Tj ET
 0.984 0.973 0.945 rg
 0.141 0.318 0.541 RG 0.8 w
-52 374.59999999999985 16 16 re B
-0.141 0.318 0.541 rg BT /F2 7.2 Tf 57.8 378.59999999999985 Td (~) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 377.59999999999985 Td (Owner reported counsel acceptance of the current terms package; retain written approval and obtain) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 364.79999999999984 Td (remaining CPA sign-off.) Tj ET
+52 335.79999999999984 16 16 re B
+0.141 0.318 0.541 rg BT /F2 7.2 Tf 57.8 339.79999999999984 Td (~) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 338.79999999999984 Td (Owner reported counsel acceptance of the current terms package; retain written approval and obtain) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 325.99999999999983 Td (remaining CPA sign-off.) Tj ET
 0.984 0.973 0.945 rg
 0.141 0.318 0.541 RG 0.8 w
-52 340.99999999999983 16 16 re B
-0.141 0.318 0.541 rg BT /F2 7.2 Tf 57.8 344.99999999999983 Td (~) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 343.99999999999983 Td (Remove website draft banners after reported approval; internal launch material remains in the source) Tj ET
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 331.1999999999998 Td (package but is excluded from published routes.) Tj ET
+52 302.1999999999998 16 16 re B
+0.141 0.318 0.541 rg BT /F2 7.2 Tf 57.8 306.1999999999998 Td (~) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 305.1999999999998 Td (Remove website draft banners after reported approval; internal launch material remains in the source) Tj ET
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 292.3999999999998 Td (package but is excluded from published routes.) Tj ET
 0.984 0.973 0.945 rg
 0.337 0.376 0.353 RG 0.8 w
-52 307.3999999999998 16 16 re B
-0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 310.3999999999998 Td (Complete a production launch rehearsal before enabling paid entries.) Tj ET
+52 268.5999999999998 16 16 re B
+0.094 0.129 0.122 rg BT /F1 9.35 Tf 81 271.5999999999998 Td (Complete a production launch rehearsal before enabling paid entries.) Tj ET
 0.871 0.839 0.784 RG 0.6 w 52 33 m 560 33 l S
 0.337 0.376 0.353 rg BT /F2 7.2 Tf 52 20 Td (PIN2WIN PLATFORM COMPLIANCE) Tj ET
 0.337 0.376 0.353 rg BT /F2 7.2 Tf 534 20 Td (10 / 11) Tj ET
@@ -769,13 +771,13 @@ xref
 0000033046 00000 n 
 0000037723 00000 n 
 0000037862 00000 n 
-0000043294 00000 n 
-0000043433 00000 n 
-0000045235 00000 n 
-0000045374 00000 n 
-0000045501 00000 n 
+0000043542 00000 n 
+0000043681 00000 n 
+0000045483 00000 n 
+0000045622 00000 n 
+0000045749 00000 n 
 trailer
 << /Size 27 /Root 26 0 R >>
 startxref
-45552
+45800
 %%EOF
