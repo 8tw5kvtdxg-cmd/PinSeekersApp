@@ -1,10 +1,28 @@
-ALTER TABLE "SquareCheckout" ADD COLUMN "refundStatus" TEXT NOT NULL DEFAULT 'None';
-ALTER TABLE "SquareCheckout" ADD COLUMN "refundedAmountCents" INTEGER NOT NULL DEFAULT 0;
-ALTER TABLE "SquareCheckout" ADD COLUMN "squarePaidAt" TIMESTAMP(3);
-ALTER TABLE "ClubhouseEntryRecord" ADD COLUMN "refundStatus" TEXT NOT NULL DEFAULT 'None';
-ALTER TABLE "ClubhouseEntryRecord" ADD COLUMN "refundedAmountCents" INTEGER NOT NULL DEFAULT 0;
-ALTER TABLE "PaymentReconciliationIssue" ADD COLUMN "customerEmail" TEXT;
-ALTER TABLE "PaymentReconciliationIssue" ADD COLUMN "customerNotifiedAt" TIMESTAMP(3);
+-- An earlier, superseded refund migration may already have created the four
+-- refund columns below. Adopt those columns and normalize their constraints so
+-- this migration works both on production databases with that history and on
+-- clean databases.
+ALTER TABLE "SquareCheckout" ADD COLUMN IF NOT EXISTS "refundStatus" TEXT;
+ALTER TABLE "SquareCheckout" ADD COLUMN IF NOT EXISTS "refundedAmountCents" INTEGER;
+ALTER TABLE "SquareCheckout" ADD COLUMN IF NOT EXISTS "squarePaidAt" TIMESTAMP(3);
+UPDATE "SquareCheckout" SET "refundStatus" = 'None' WHERE "refundStatus" IS NULL;
+UPDATE "SquareCheckout" SET "refundedAmountCents" = 0 WHERE "refundedAmountCents" IS NULL;
+ALTER TABLE "SquareCheckout" ALTER COLUMN "refundStatus" SET DEFAULT 'None';
+ALTER TABLE "SquareCheckout" ALTER COLUMN "refundStatus" SET NOT NULL;
+ALTER TABLE "SquareCheckout" ALTER COLUMN "refundedAmountCents" SET DEFAULT 0;
+ALTER TABLE "SquareCheckout" ALTER COLUMN "refundedAmountCents" SET NOT NULL;
+
+ALTER TABLE "ClubhouseEntryRecord" ADD COLUMN IF NOT EXISTS "refundStatus" TEXT;
+ALTER TABLE "ClubhouseEntryRecord" ADD COLUMN IF NOT EXISTS "refundedAmountCents" INTEGER;
+UPDATE "ClubhouseEntryRecord" SET "refundStatus" = 'None' WHERE "refundStatus" IS NULL;
+UPDATE "ClubhouseEntryRecord" SET "refundedAmountCents" = 0 WHERE "refundedAmountCents" IS NULL;
+ALTER TABLE "ClubhouseEntryRecord" ALTER COLUMN "refundStatus" SET DEFAULT 'None';
+ALTER TABLE "ClubhouseEntryRecord" ALTER COLUMN "refundStatus" SET NOT NULL;
+ALTER TABLE "ClubhouseEntryRecord" ALTER COLUMN "refundedAmountCents" SET DEFAULT 0;
+ALTER TABLE "ClubhouseEntryRecord" ALTER COLUMN "refundedAmountCents" SET NOT NULL;
+
+ALTER TABLE "PaymentReconciliationIssue" ADD COLUMN IF NOT EXISTS "customerEmail" TEXT;
+ALTER TABLE "PaymentReconciliationIssue" ADD COLUMN IF NOT EXISTS "customerNotifiedAt" TIMESTAMP(3);
 
 CREATE TABLE "PaymentIssueClaim" (
   "id" TEXT NOT NULL PRIMARY KEY,
