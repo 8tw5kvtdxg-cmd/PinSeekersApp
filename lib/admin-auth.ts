@@ -9,7 +9,10 @@ export const adminSessionIdleSeconds = 60 * 60;
 
 const adminSessionAbsoluteDurationMs = 1000 * 60 * 60 * 8;
 const adminSessionTouchIntervalMs = 1000 * 60 * 5;
-const builtInAdminEmails = ["sanchez.pete07@gmail.com"];
+const builtInAdminEmails = [
+  "sanchez.pete07@gmail.com",
+  "pin2wingolf@outlook.com",
+];
 
 function normalizeEmail(value: string) {
   return value.trim().toLowerCase();

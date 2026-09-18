@@ -1,3 +1,4 @@
+import { challengeSaleError } from "./challenge-readiness-policy.ts";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Prisma } from "@/app/generated/prisma/client";
@@ -730,6 +731,7 @@ export async function createClubhouseEntryRecord(input: {
   }
 
   const normalizedChallengeSlug = normalizeChallengeSlug(input.challengeSlug);
+  if (!input.locationSlug?.trim() || !input.bayName?.trim()) throw new Error("An approved venue and bay are required for entry.");
   const locationName = input.locationName?.trim() || challenge.venue;
   const locationSlug =
     slugifyLocation(input.locationSlug || locationName) ||
@@ -844,13 +846,14 @@ export async function createClubhouseEntryRecord(input: {
   };
 
   if (prisma) {
-    const created = await prisma.clubhouseEntryRecord.create({
-      data: {
-        ...entry,
-        createdAt: now,
-        updatedAt: now,
-      },
-    });
+    const created = await prisma.$transaction(async tx => {
+      const setting = await tx.clubhouseChallengeSetting.findUnique({where:{challengeSlug:normalizedChallengeSlug}});
+      const saleError = challengeSaleError(setting);
+      if (saleError) throw new Error(`${saleError} Any confirmed payment requires support review before a new entry can be issued.`);
+      const approvedBay = await tx.bay.findFirst({where:{name:bayName,isActive:true,location:{slug:locationSlug,isActive:true},clubhouseAssignments:{some:{challengeSlug:normalizedChallengeSlug}}},include:{location:true}});
+      if (!approvedBay) throw new Error("The paid venue/bay is no longer approved. Contact support for payment review.");
+      return tx.clubhouseEntryRecord.create({data:{...entry,locationName:approvedBay.location.name,locationSlug:approvedBay.location.slug,bayName:approvedBay.name,e6EventCode:setting!.e6EventCode!,createdAt:now,updatedAt:now}});
+    }, {isolationLevel:Prisma.TransactionIsolationLevel.Serializable});
 
     if (bookingVerification) {
       await updateBookingVerificationStatus({

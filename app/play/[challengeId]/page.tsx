@@ -1,3 +1,4 @@
+import { resolveChallengeCheckout } from "@/lib/challenge-checkout";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { EntryFlow } from "@/app/play/[challengeId]/entry-flow";
@@ -40,6 +41,12 @@ export default async function ClubhouseChallengePage({
     notFound();
   }
 
+  let venueName = "Your approved partner venue";
+  const returning = Boolean(squareCheckoutId || checkoutId || referenceId);
+  if (!returning) {
+    try { const assignment = await resolveChallengeCheckout(challenge.slug, location || "", bay || ""); venueName = assignment.bay.location.name; }
+    catch { return <main className="mx-auto max-w-xl p-8"><h1 className="text-3xl font-black">Challenge entry unavailable</h1><p className="my-6">This challenge is not currently open at this bay. Please use an approved onsite QR code when the challenge opens.</p><Link href="/rent" className="font-bold underline">Book simulator time with a partner</Link></main>; }
+  }
   const booking = location
     ? await findLikelyBookingMatch({
         bayName: bay,
@@ -53,7 +60,7 @@ export default async function ClubhouseChallengePage({
     bookingVerificationId: booking?.id,
     challengeSlug: challenge.slug,
     locationSlug: location,
-  });
+  }).catch(() => null);
 
   if (location) {
     await sendQrScanNotification({
@@ -84,6 +91,11 @@ export default async function ClubhouseChallengePage({
     );
   }
 
+  if (player && !player.emailVerifiedAt && !isReturningFromCheckout) {
+    const next = `/play/${challenge.slug}?${new URLSearchParams({ ...(location ? { location } : {}), ...(bay ? { bay } : {}), autoCheckout: "1" })}`;
+    redirect(`/account/verify?next=${encodeURIComponent(next)}`);
+  }
+
   return (
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
       <div className="mx-auto max-w-6xl">
@@ -101,7 +113,7 @@ export default async function ClubhouseChallengePage({
               name: challenge.name,
               playWindowMinutes: challenge.playWindowMinutes,
               slug: challenge.slug,
-              venue: challenge.venue,
+              venue: venueName,
             }}
             autoCheckout={
               autoCheckout === "1" ||

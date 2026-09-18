@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { validateEmailForSignup } from "@/lib/email-verification";
+import { createEmailVerificationToken, sendEmailVerification, validateEmailForSignup } from "@/lib/email-verification";
 import { validateAccountCreationConsent } from "@/lib/legal-documents";
 import { getPrismaClient } from "@/lib/prisma";
 import { consumeRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
@@ -97,6 +97,7 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json()) as {
+    next?: unknown;
     username?: unknown;
     name?: unknown;
     email?: unknown;
@@ -192,7 +193,7 @@ export async function POST(request: Request) {
           email,
           phone,
           simulatorDisplayName,
-          emailVerifiedAt: new Date(),
+          emailVerifiedAt: null,
           passwordHash: hashPassword(password),
         },
         select: {
@@ -244,8 +245,15 @@ export async function POST(request: Request) {
       maxAge: playerSessionDurationSeconds,
     });
 
+    let verificationSent = false;
+    try {
+      const token = await createEmailVerificationToken({ userId: user.id, email: user.email, returnTo: body.next });
+      await sendEmailVerification({ email: user.email, username: user.username, token, request });
+      verificationSent = true;
+    } catch { console.error("Account created, but verification delivery failed."); }
     return Response.json(
       {
+        verificationSent,
         user: publicPlayer(user),
       },
       { status: 201 },

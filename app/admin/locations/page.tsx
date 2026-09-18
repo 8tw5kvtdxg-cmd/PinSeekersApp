@@ -39,24 +39,6 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
   timeStyle: "short",
 });
 
-const existingLocations = [
-  {
-    id: "existing-alamo-golf-den",
-    name: "Alamo Golf Den",
-    slug: "alamo-golf-den",
-    address: "7001 I-10 #225",
-    city: "San Antonio",
-    state: "TX 78213",
-    websiteUrl: "https://alamogolfden.com",
-    bookingUrl: "https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml",
-    simulatorProvider: "E6_CONNECT",
-    simulatorSoftwareName: null,
-    isActive: true,
-    isEditable: false,
-    bays: [{ id: "existing-alamo-general", name: "General QR" }],
-  },
-];
-
 const simulatorProviderLabels: Record<string, string> = {
   TRUGOLF_APOGEE_E6: "TruGolf Apogee + E6",
   E6_CONNECT: "E6 Golf",
@@ -173,14 +155,7 @@ export default async function AdminLocationsPage({
       : Promise.resolve(null),
   ]);
   const locations = [
-    ...existingLocations,
     ...dbLocations
-      .filter(
-        (location) =>
-          !existingLocations.some(
-            (existingLocation) => existingLocation.slug === location.slug,
-          ),
-      )
       .map<AdminLocationCard>((location) => ({
         id: location.id,
         name: location.name,

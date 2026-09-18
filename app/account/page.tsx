@@ -48,6 +48,7 @@ const challengeSteps = [
 ];
 
 type PlayerAccount = {
+  emailVerified: boolean;
   id: string;
   name: string;
   username: string;
@@ -162,6 +163,7 @@ export default function AccountPage() {
         user?: PlayerAccount;
         error?: string;
         warning?: string;
+        verificationSent?: boolean;
       };
 
       if (!response.ok || !data.user) {
@@ -174,8 +176,10 @@ export default function AccountPage() {
       setAccountNotice(
         data.warning
           ? data.warning
-          : mode === "create"
-          ? "Account created. You can enter a challenge when you are onsite at a partner location."
+          : !data.user.emailVerified
+          ? data.verificationSent
+            ? "Account created. Check your inbox to verify your email before entering a challenge."
+            : "Verify your account email before entering a challenge. Use the verification link above to request an email."
           : "",
       );
     } catch (error) {
@@ -203,7 +207,8 @@ export default function AccountPage() {
           <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
             Pin2Win
           </p>
-          <h1 className="mt-8 text-4xl font-black">Loading account...</h1>
+          <Link href="/account/verify" className="block text-sm font-bold underline">Verify your account email</Link>
+            <h1 className="mt-8 text-4xl font-black">Loading account...</h1>
         </div>
       </main>
     );
@@ -595,7 +600,7 @@ export default function AccountPage() {
                 <CheckCircle2 className="mt-0.5 text-[#2f6b3f]" size={22} />
                 <p className="text-sm leading-6 text-[#405047]">
                   This page is ready for real account data. Booking payment
-                  details are handled by Alamo Golf Den before a player
+                  details are handled by the partner venue before a player
                   registers a challenge entry.
                 </p>
               </div>

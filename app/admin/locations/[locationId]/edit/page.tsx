@@ -73,6 +73,7 @@ export default async function EditAdminLocationPage({
           locationId={location.id}
           simulatorSoftwareOptions={simulatorSoftwareOptions}
           initialValues={{
+            isActive: location.isActive,
             name: location.name,
             slug: location.slug,
             address: location.address ?? "",

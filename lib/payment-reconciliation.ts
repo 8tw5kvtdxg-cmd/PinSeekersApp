@@ -97,7 +97,7 @@ async function inspectConfirmedCheckoutAccess(checkoutId: string) {
     checkoutStatus: checkout.status, refundStatus: checkout.refundStatus,
     entryArchived: Boolean(entry.archivedAt), eventCode: entry.e6EventCode,
     accessRevealed: Boolean(checkout.accessRevealedAt), resultStatus: entry.resultStatus,
-    salesState: setting?.salesState || "Open",
+    salesState: setting?.salesState || "Draft",
   });
   if (signals.archivedPaidEntry) {
     await flagSystemPaymentIssue({ checkoutId, entryId: entry.id, issueCode: "archived-paid-entry", reason: "Other payment issue",

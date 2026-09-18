@@ -1,3 +1,4 @@
+import { challengeSaleError } from "./challenge-readiness-policy.ts";
 import { randomUUID } from "node:crypto";
 import { Prisma } from "@/app/generated/prisma/client";
 import { canTransitionCheckoutStatus } from "@/lib/checkout-status";
@@ -142,11 +143,12 @@ export async function createSquareCheckoutRecord(
   const now = new Date();
   const checkout = await prisma.$transaction(async (tx) => {
     const setting = await tx.clubhouseChallengeSetting.findUnique({
-      where: { challengeSlug: input.challengeSlug }, select: { salesState: true },
+      where: { challengeSlug: input.challengeSlug },
     });
-    if (setting?.salesState && setting.salesState !== "Open") {
-      throw new Error("This challenge is paused or closed to new entries.");
-    }
+    const saleError = challengeSaleError(setting);
+    if (saleError) throw new Error(saleError);
+    const bay = input.locationSlug && input.bayName ? await tx.bay.findFirst({where:{name:input.bayName,isActive:true,location:{slug:input.locationSlug,isActive:true},clubhouseAssignments:{some:{challengeSlug:input.challengeSlug}}}}) : null;
+    if (!bay) throw new Error("This venue and bay are not approved for this challenge.");
     return tx.squareCheckout.create({
       data: {
         ...input,

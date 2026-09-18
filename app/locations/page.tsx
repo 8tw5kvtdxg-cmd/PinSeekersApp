@@ -1,128 +1,15 @@
-import Link from "next/link";
-import {
-  BadgeCheck,
-  CalendarCheck,
-  ExternalLink,
-  Globe,
-  MapPin,
-  QrCode,
-  Trophy,
-} from "lucide-react";
-
-const playerDetails = [
-  "Create your Pin2Win entry from the QR landing page.",
-  "Scan the challenge QR code when you arrive at the bay.",
-  "Complete checkout to reveal the simulator event code.",
-  "Play the challenge during your simulator session.",
-];
-
-export default function LocationsPage() {
-  return (
-    <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
-      <div className="mx-auto max-w-6xl">
-        <Link
-          href="/"
-          className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]"
-        >
-          Pin2Win
-        </Link>
-
-        <section className="mt-10 rounded-lg bg-[#18211f] p-8 text-white">
-          <MapPin className="text-[#a8c878]" size={34} />
-          <h1 className="mt-5 text-4xl font-black sm:text-5xl">
-            Find a Pin2Win location near you
-          </h1>
-          <p className="mt-5 max-w-3xl text-lg leading-8 text-white/74">
-            Choose a partner simulator venue, book your bay time, then scan the
-            onsite QR code to access the active Pin2Win Challenge experience.
-          </p>
-          <div className="mt-5 inline-flex items-center gap-2 rounded-md border border-white/14 bg-white/10 px-4 py-2 text-sm font-black text-[#a8c878]">
-            <BadgeCheck size={17} /> Current partner: Alamo Golf Den
-          </div>
-          <Link
-            href="/rent"
-            className="mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#a8c878] px-6 text-sm font-black text-[#101816] transition hover:bg-[#c1df8d]"
-          >
-            Book your bay <CalendarCheck size={18} />
-          </Link>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-[#ded6c8] bg-white p-6">
-          <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-            Partner location
-          </p>
-          <h2 className="mt-3 text-2xl font-black">Alamo Golf Den</h2>
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <div className="flex gap-3 rounded-lg bg-[#fbf8f1] p-4">
-              <MapPin className="mt-0.5 shrink-0 text-[#2f6b3f]" size={22} />
-              <p className="leading-7 text-[#59655f]">
-                7001 I-10 #225, San Antonio, TX 78213
-              </p>
-            </div>
-            <a
-              href="https://alamogolfden.com"
-              className="flex gap-3 rounded-lg bg-[#fbf8f1] p-4 leading-7 text-[#59655f] transition hover:bg-[#f5efdf]"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Globe className="mt-0.5 shrink-0 text-[#2f6b3f]" size={22} />
-              <span className="font-bold">alamogolfden.com</span>
-              <ExternalLink className="ml-auto shrink-0 text-[#2f6b3f]" size={18} />
-            </a>
-            <a
-              href="https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml"
-              className="flex gap-3 rounded-lg bg-[#fbf8f1] p-4 leading-7 text-[#59655f] transition hover:bg-[#f5efdf]"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <CalendarCheck className="mt-0.5 shrink-0 text-[#2f6b3f]" size={22} />
-              <span className="font-bold">Book bay time</span>
-              <ExternalLink className="ml-auto shrink-0 text-[#2f6b3f]" size={18} />
-            </a>
-          </div>
-        </section>
-
-        <section className="mt-8 grid gap-4 md:grid-cols-3">
-          <article className="rounded-lg border border-[#ded6c8] bg-white p-5">
-            <QrCode className="text-[#2f6b3f]" size={30} />
-            <h2 className="mt-4 text-2xl font-black">Bay QR codes</h2>
-            <p className="mt-3 leading-7 text-[#59655f]">
-              Look for the Pin2Win QR code near the simulator bay to open the
-              challenge entry page on your phone.
-            </p>
-          </article>
-          <article className="rounded-lg border border-[#ded6c8] bg-white p-5">
-            <Trophy className="text-[#2f6b3f]" size={30} />
-            <h2 className="mt-4 text-2xl font-black">Simulator events</h2>
-            <p className="mt-3 leading-7 text-[#59655f]">
-              After checkout, use the simulator event code from your
-              confirmation page to play the active challenge.
-            </p>
-          </article>
-          <article className="rounded-lg border border-[#ded6c8] bg-white p-5">
-            <BadgeCheck className="text-[#2f6b3f]" size={30} />
-            <h2 className="mt-4 text-2xl font-black">Player details</h2>
-            <p className="mt-3 leading-7 text-[#59655f]">
-              Use your real name and simulator username so your entry can be
-              matched with your challenge result.
-            </p>
-          </article>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-[#ded6c8] bg-white p-6">
-          <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
-            What to expect
-          </p>
-          <ul className="mt-5 grid gap-3 md:grid-cols-4">
-            {playerDetails.map((detail) => (
-              <li key={detail} className="flex gap-3 leading-7 text-[#59655f]">
-                <BadgeCheck className="mt-1 shrink-0 text-[#2f6b3f]" size={20} />
-                <span>{detail}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
-    </main>
-  );
+import Link from 'next/link';
+import { listPartnerLocations } from '@/lib/partner-locations';
+import { BookingLinkButton } from '@/app/rent/booking-link-button';
+export const dynamic = 'force-dynamic';
+export default async function LocationsPage() {
+    const locations = await listPartnerLocations();
+    return <main className="min-h-screen bg-[#f8f4ec] px-6 py-12 text-[#18211f]"><div className="mx-auto max-w-6xl">
+  <h1 className="text-4xl font-black">Find a partner venue</h1><p className="my-5 text-lg">Book simulator time directly with the venue. A Pin2Win challenge is optional, separately priced, and available only at approved bays while sales are open.</p>
+  <div className="grid gap-6">{locations.map(location => <article className="rounded-lg border bg-white p-6" key={location.id}>
+    <h2 className="text-2xl font-bold">{location.name}</h2><p className="my-4">{[location.address, location.city, location.state].filter(Boolean).join(', ')}</p>
+    <div className="flex flex-wrap gap-4">{location.websiteUrl && <a className="rounded border px-5 py-3 font-bold" href={location.websiteUrl} target="_blank" rel="noreferrer">Venue website</a>}{location.bookingUrl && <BookingLinkButton bookingUrl={location.bookingUrl} locationId={location.id} locationName={location.name} locationSlug={location.slug}/>}</div>
+  </article>)}</div>
+  {!locations.length && <p>No active partner locations are available right now. <Link href="/contact" className="underline">Contact us</Link> for help.</p>}
+ </div></main>;
 }

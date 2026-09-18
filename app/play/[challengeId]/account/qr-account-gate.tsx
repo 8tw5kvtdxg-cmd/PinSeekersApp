@@ -28,6 +28,7 @@ type SquareCheckout = {
 };
 
 type PlayerAccount = {
+  emailVerified: boolean;
   id: string;
   name: string;
   username: string;
@@ -89,6 +90,7 @@ export function QrAccountGate({
           body: JSON.stringify(
             mode === "create"
               ? {
+                  next: nextPath,
                   email: trimmedEmailOrLogin,
                   name: fullName.trim(),
                   password,
@@ -117,6 +119,7 @@ export function QrAccountGate({
       window.dispatchEvent(new Event("pin2win:player-session-started"));
       setIsRedirectingToCheckout(true);
       const player = data.user;
+      if (!player.emailVerified) { window.location.replace(`/account/verify?next=${encodeURIComponent(nextPath)}`); return; }
       const playerName = player.name.trim();
       const phoneNumber = player.phone.trim();
       const e6DisplayName = (

@@ -1,51 +1,20 @@
 import { getPrismaClient } from "@/lib/prisma";
-
 export type PartnerLocationSummary = {
-  id: string;
-  name: string;
-  slug: string;
-  bookingUrl: string | null;
-  websiteUrl: string | null;
-  isActive: boolean;
+    id: string;
+    name: string;
+    slug: string;
+    bookingUrl: string | null;
+    websiteUrl: string | null;
+    address: string | null;
+    city: string | null;
+    state: string | null;
+    isActive: boolean;
 };
-
-const builtInPartnerLocations: PartnerLocationSummary[] = [
-  {
-    id: "existing-alamo-golf-den",
-    name: "Alamo Golf Den",
-    slug: "alamo-golf-den",
-    bookingUrl: "https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml",
-    websiteUrl: "https://alamogolfden.com",
-    isActive: true,
-  },
-];
-
-export async function listPartnerLocations() {
-  const prisma = getPrismaClient();
-  const dbLocations = prisma
-    ? await prisma.location.findMany({
-        orderBy: { name: "asc" },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          bookingUrl: true,
-          websiteUrl: true,
-          isActive: true,
-        },
-        where: {
-          isActive: true,
-        },
-      })
-    : [];
-
-  return [
-    ...builtInPartnerLocations,
-    ...dbLocations.filter(
-      (location) =>
-        !builtInPartnerLocations.some(
-          (builtInLocation) => builtInLocation.slug === location.slug,
-        ),
-    ),
-  ];
+export async function listPartnerLocations(): Promise<PartnerLocationSummary[]> {
+    const prisma = getPrismaClient();
+    return prisma ? prisma.location.findMany({ where: { isActive: true }, orderBy: { name: 'asc' }, select: { id: true, name: true, slug: true, bookingUrl: true, websiteUrl: true, address: true, city: true, state: true, isActive: true } }) : [];
+}
+export async function getPartnerLocation(slug: string) {
+    const prisma = getPrismaClient();
+    return prisma ? prisma.location.findFirst({ where: { slug, isActive: true } }) : null;
 }

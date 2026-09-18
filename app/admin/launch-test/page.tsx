@@ -17,19 +17,6 @@ import { getPrismaClient } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-const builtInLocations = [
-  {
-    id: "existing-alamo-golf-den",
-    name: "Alamo Golf Den",
-    slug: "alamo-golf-den",
-    address: "7001 I-10 #225",
-    bookingUrl: "https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml",
-    simulatorProvider: "E6_CONNECT",
-    simulatorSoftwareName: null,
-    websiteUrl: "https://alamogolfden.com",
-  },
-];
-
 type TestStatus = "fail" | "pass" | "warning";
 
 type LaunchTestResult = {
@@ -137,15 +124,7 @@ export default async function AdminLaunchTestPage({
         where: { isActive: true },
       })
     : [];
-  const locations = [
-    ...builtInLocations,
-    ...dbLocations.filter(
-      (location) =>
-        !builtInLocations.some(
-          (builtInLocation) => builtInLocation.slug === location.slug,
-        ),
-    ),
-  ];
+  const locations = dbLocations;
   const selectedLocation =
     locations.find((location) => location.slug === requestedLocation) ??
     locations[0] ??

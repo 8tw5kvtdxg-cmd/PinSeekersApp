@@ -1,3 +1,5 @@
+import { listPartnerLocations } from "@/lib/partner-locations";
+export const dynamic = "force-dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -75,6 +77,7 @@ const compatibleSystems = [
 ];
 
 export default async function Home() {
+  const partners = await listPartnerLocations();
   return (
     <main className="min-h-screen bg-[#f6f8f5] text-[#13201c]">
       <section className="relative isolate overflow-hidden bg-[#0f1b18] text-white">
@@ -304,17 +307,7 @@ export default async function Home() {
               </div>
             ))}
           </div>
-          <div className="mt-5 rounded-md bg-[#eaf2ff] p-5">
-            <p className="text-sm font-black uppercase text-[#24518a]">
-              Current pilot
-            </p>
-            <h3 className="mt-2 text-2xl font-black">Alamo Golf Den</h3>
-            <p className="mt-3 leading-7 text-[#51615b]">
-              Alamo Golf Den is the current Pin2Win partner location. Book
-              simulator time, visit the venue, and scan onsite to access the
-              active challenge.
-            </p>
-          </div>
+          {partners.map(partner => <div key={partner.id} className="mt-5 rounded-md bg-[#eaf2ff] p-5"><h3 className="text-2xl font-black">{partner.name}</h3><p className="mt-3">Book simulator time with our partner. Challenge availability is managed separately.</p><Link href="/rent" className="font-bold underline">View booking options</Link></div>)}
         </div>
       </section>
     </main>

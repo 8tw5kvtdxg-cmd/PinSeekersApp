@@ -6,77 +6,17 @@ import {
   Globe,
   MapPin,
 } from "lucide-react";
-import { getPrismaClient } from "@/lib/prisma";
+import { listPartnerLocations, type PartnerLocationSummary } from "@/lib/partner-locations";
 import { BookingLinkButton } from "@/app/rent/booking-link-button";
 
 export const dynamic = "force-dynamic";
 
-type BookingLocation = {
-  id: string;
-  name: string;
-  slug: string;
-  address: string | null;
-  city: string | null;
-  state: string | null;
-  websiteUrl: string | null;
-  bookingUrl: string | null;
-  isActive: boolean;
-};
-
-const builtInBookingLocations: BookingLocation[] = [
-  {
-    id: "existing-alamo-golf-den",
-    name: "Alamo Golf Den",
-    slug: "alamo-golf-den",
-    address: "7001 I-10 #225",
-    city: "San Antonio",
-    state: "TX 78213",
-    websiteUrl: "https://alamogolfden.com",
-    bookingUrl: "https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml",
-    isActive: true,
-  },
-];
-
-function locationAddress(location: BookingLocation) {
-  return [location.address, location.city, location.state]
-    .filter(Boolean)
-    .join(", ");
-}
-
-async function getBookingLocations() {
-  const prisma = getPrismaClient();
-  const dbLocations = prisma
-    ? await prisma.location.findMany({
-        orderBy: { name: "asc" },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          address: true,
-          city: true,
-          state: true,
-          websiteUrl: true,
-          bookingUrl: true,
-          isActive: true,
-        },
-        where: { isActive: true },
-      })
-    : [];
-  const mergedLocations = [
-    ...builtInBookingLocations,
-    ...dbLocations.filter(
-      (location) =>
-        !builtInBookingLocations.some(
-          (builtInLocation) => builtInLocation.slug === location.slug,
-        ),
-    ),
-  ];
-
-  return mergedLocations.filter((location) => location.bookingUrl);
+function locationAddress(location: PartnerLocationSummary) {
+  return [location.address, location.city, location.state].filter(Boolean).join(", ");
 }
 
 export default async function RentBayPage() {
-  const locations = await getBookingLocations();
+  const locations = (await listPartnerLocations()).filter(location => location.bookingUrl);
 
   return (
     <main className="min-h-screen bg-[#f8f4ec] px-6 py-10 text-[#18211f] sm:px-10">
@@ -97,9 +37,7 @@ export default async function RentBayPage() {
             Choose a partner location and reserve simulator time.
           </h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-white/74">
-            Bay reservations are handled by each partner venue. After booking,
-            arrive at the location, scan the Pin2Win QR code, and complete your
-            challenge entry from the bay.
+            Book and pay for simulator time directly with the venue. The Pin2Win challenge is optional and purchased separately when available.
           </p>
         </section>
 
@@ -164,8 +102,8 @@ export default async function RentBayPage() {
           <ul className="mt-5 grid gap-3 md:grid-cols-3">
             {[
               "Arrive for your reserved simulator time.",
-              "Scan the Pin2Win QR code at the bay.",
-              "Enter the challenge and use the revealed simulator event code.",
+              "Enjoy your simulator session with your group.",
+              "If a challenge is open, scan its approved bay QR to learn more.",
             ].map((detail) => (
               <li key={detail} className="flex gap-3 leading-7 text-[#59655f]">
                 <BadgeCheck className="mt-1 shrink-0 text-[#2f6b3f]" size={20} />

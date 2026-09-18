@@ -10,11 +10,11 @@ export async function GET(request: Request) {
     redirect("/account?verification=missing#login");
   }
 
-  const result = await verifyEmailToken(token);
+  const result = await verifyEmailToken(token).catch(() => ({ ok: false }));
 
   if (!result.ok) {
     redirect("/account?verification=failed#login");
   }
 
-  redirect("/account?verification=success#login");
+  redirect(("returnTo" in result && typeof result.returnTo === "string" ? result.returnTo : null) || "/account?verification=success#login");
 }

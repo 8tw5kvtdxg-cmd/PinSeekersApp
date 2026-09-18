@@ -1,3 +1,4 @@
+import { approvedBookingUrl } from "@/lib/booking-link-policy";
 import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
 import type { SimulatorProvider } from "@/app/generated/prisma/client";
 import { clubhouseChallenges } from "@/lib/clubhouse";
@@ -26,6 +27,7 @@ function isSimulatorProvider(value: unknown): value is SimulatorProvider {
 
 async function parseLocationBody(request: Request) {
   const body = (await request.json()) as {
+    isActive?: unknown;
     locationId?: unknown;
     name?: unknown;
     slug?: unknown;
@@ -73,6 +75,7 @@ async function parseLocationBody(request: Request) {
     : [];
 
   return {
+    isActive: typeof body.isActive === "boolean" ? body.isActive : undefined,
     locationId:
       typeof body.locationId === "string" ? body.locationId.trim() : "",
     name,
@@ -103,6 +106,7 @@ export async function POST(request: Request) {
   }
 
   const {
+    isActive,
     name,
     slug,
     address,
@@ -114,6 +118,8 @@ export async function POST(request: Request) {
     simulatorSoftwareName,
     bayNames,
   } = await parseLocationBody(request);
+
+  if ((bookingUrl && !approvedBookingUrl(bookingUrl)) || (websiteUrl && !approvedBookingUrl(websiteUrl))) return Response.json({error:"Website and booking links must be valid HTTPS URLs without embedded credentials."},{status:400});
 
   if (!name || !slug) {
     return Response.json(
@@ -128,6 +134,7 @@ export async function POST(request: Request) {
   try {
     const location = await prisma.location.create({
       data: {
+        isActive,
         name,
         slug,
         address: address || null,
@@ -181,6 +188,7 @@ export async function PATCH(request: Request) {
   }
 
   const {
+    isActive,
     locationId,
     name,
     slug,
@@ -193,6 +201,8 @@ export async function PATCH(request: Request) {
     simulatorSoftwareName,
     bayNames,
   } = await parseLocationBody(request);
+
+  if ((bookingUrl && !approvedBookingUrl(bookingUrl)) || (websiteUrl && !approvedBookingUrl(websiteUrl))) return Response.json({error:"Website and booking links must be valid HTTPS URLs without embedded credentials."},{status:400});
 
   if (!locationId || !name || !slug) {
     return Response.json(
@@ -209,6 +219,7 @@ export async function PATCH(request: Request) {
       const updatedLocation = await transaction.location.update({
         where: { id: locationId },
         data: {
+          isActive,
           name,
           slug,
           address: address || null,

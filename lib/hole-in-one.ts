@@ -1,3 +1,4 @@
+import { challengeSaleError } from "./challenge-readiness-policy.ts";
 import { Prisma } from "@/app/generated/prisma/client";
 import { getPrismaClient } from "@/lib/prisma";
 import { deriveWinnerChronology } from "@/lib/winner-chronology-policy";
@@ -29,7 +30,7 @@ export async function getChallengeSalesState(challengeSlug: string) {
   const setting = await requiredPrisma().clubhouseChallengeSetting.findUnique({
     where: { challengeSlug }, select: { salesState: true },
   });
-  return setting?.salesState ?? "Open";
+  return setting?.salesState ?? "Draft";
 }
 
 export async function reportPlayerHoleInOne(input: {
@@ -311,6 +312,10 @@ export async function resumeChallengeSales(input: {
     if (!latest) throw new Error("No result hold exists for this challenge.");
     const setting = await tx.clubhouseChallengeSetting.findUnique({ where: { challengeSlug: input.challengeSlug } });
     if (!setting || setting.salesState !== "Paused") throw new Error("Challenge sales are not paused.");
+    const readinessError = challengeSaleError({...setting,salesState:"Open"});
+    if (readinessError) throw new Error(readinessError);
+    const bayCount = await tx.clubhouseChallengeBay.count({where:{challengeSlug:input.challengeSlug,bay:{isActive:true,location:{isActive:true}}}});
+    if (!bayCount) throw new Error("An active approved bay is required before resuming sales.");
     await tx.clubhouseChallengeSetting.update({
       where: { challengeSlug: input.challengeSlug },
       data: { salesState: "Open", salesHoldReason: null, salesHeldAt: null },
