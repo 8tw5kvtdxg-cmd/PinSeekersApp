@@ -29,7 +29,7 @@ export default async function QrAccountPage({
   const player = await getCurrentPlayer();
 
   if (player) {
-    redirect(nextPath);
+    redirect(player.emailVerifiedAt ? nextPath : `/account/verify?next=${encodeURIComponent(nextPath)}`);
   }
 
   return (

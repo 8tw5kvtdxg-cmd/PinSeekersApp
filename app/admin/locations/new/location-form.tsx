@@ -9,6 +9,7 @@ type LocationFormProps = {
   locationId?: string;
   simulatorSoftwareOptions?: string[];
   initialValues?: {
+    isActive?: boolean;
     name: string;
     slug: string;
     address: string;
@@ -77,6 +78,7 @@ export function LocationForm({
   simulatorSoftwareOptions = [],
   initialValues = emptyValues,
 }: LocationFormProps) {
+  const [isActive, setIsActive] = useState(initialValues.isActive ?? true);
   const [name, setName] = useState(initialValues.name);
   const [slug, setSlug] = useState(initialValues.slug);
   const [address, setAddress] = useState(initialValues.address);
@@ -107,6 +109,7 @@ export function LocationForm({
         method: mode === "create" ? "POST" : "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          isActive,
           locationId,
           name,
           slug,
@@ -242,6 +245,7 @@ export function LocationForm({
         ) : null}
       </div>
 
+      <label className="my-6 flex gap-3 font-bold"><input type="checkbox" checked={isActive} onChange={event=>setIsActive(event.target.checked)}/>Venue active: display publicly and allow approved booking and challenge access</label>
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         {[
           ["Location name", name, setName],

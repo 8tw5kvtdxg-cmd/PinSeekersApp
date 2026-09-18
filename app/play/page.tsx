@@ -34,7 +34,7 @@ const steps = [
 
 const trustNotes = [
   "Verified email required",
-  "One active hole-in-one experience",
+  "Hole-in-one challenge",
   "15-minute attempt window",
   "Result matching by simulator display name",
 ];
@@ -55,7 +55,7 @@ export default async function PlayPage() {
               <QrCode size={16} /> Challenge lobby
             </p>
             <h1 className="mt-5 text-4xl font-black leading-tight sm:text-5xl">
-              Open the active challenge.
+              View the challenge.
             </h1>
             <p className="mt-5 text-lg leading-8 text-[#51615b]">
               Select the current Hole-in-One Challenge, create or log into your
@@ -67,13 +67,13 @@ export default async function PlayPage() {
             <div className="flex items-start justify-between gap-5">
               <div>
                 <p className="text-sm font-black uppercase text-[#b7d37c]">
-                  Available now
+                  Check availability
                 </p>
                 <h2 className="mt-3 text-3xl font-black">
                   Hole-in-One Challenge
                 </h2>
                 <p className="mt-2 flex items-center gap-2 text-sm font-bold text-white/68">
-                  <MapPin size={16} /> Alamo Golf Den
+                  <MapPin size={16} /> Approved partner bays
                 </p>
               </div>
               <Trophy className="text-[#b7d37c]" size={34} />

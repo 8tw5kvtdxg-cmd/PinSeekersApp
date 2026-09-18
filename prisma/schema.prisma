@@ -268,6 +268,7 @@ model EmailVerificationToken {
   tokenHash String    @unique
   expiresAt DateTime
   usedAt    DateTime?
+  returnTo  String?
   createdAt DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -338,6 +339,26 @@ model QrScan {
   @@index([bookingMatchStatus, createdAt])
   @@index([challengeSlug, createdAt])
   @@index([createdAt])
+}
+
+model BookingVisitOutcome {
+  bookingId String @id
+  status String
+  evidence String
+  acquisitionSource String @default("Unknown")
+  updatedByEmail String
+  updatedAt DateTime @updatedAt
+}
+
+model BookingVisitOutcomeAudit {
+  id String @id @default(cuid())
+  bookingId String
+  status String
+  evidence String
+  acquisitionSource String
+  actorEmail String
+  createdAt DateTime @default(now())
+  @@index([bookingId, createdAt])
 }
 
 model BookingVerification {
@@ -611,6 +632,7 @@ model Bay {
   challenges Challenge[]
   entries    Entry[]
   simulatorSessions SimulatorSession[]
+  clubhouseAssignments ClubhouseChallengeBay[]
 
   @@unique([locationId, name])
 }
@@ -640,13 +662,32 @@ model ClubhouseChallengeSetting {
   id          String    @id @default(cuid())
   challengeSlug String  @unique
   e6EventCode String?
-  salesState  String   @default("Open")
+  salesState  String   @default("Draft")
   salesHoldReason String?
   salesHeldAt DateTime?
   startsAt    DateTime?
   endsAt      DateTime?
+  courseName String?
+  holeNumber Int?
+  teeName String?
+  pinPosition String?
+  distanceYards Int?
+  simulatorSettings String?
+  readinessReference String?
+  prizeFundingConfirmed Boolean @default(false)
+  evidenceReady Boolean @default(false)
+  rehearsalCompleted Boolean @default(false)
+  approvedByEmail String?
+  approvedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model ClubhouseChallengeBay {
+  challengeSlug String
+  bayId String
+  bay Bay @relation(fields: [bayId], references: [id], onDelete: Cascade)
+  @@id([challengeSlug, bayId])
 }
 
 model HoleInOneReport {

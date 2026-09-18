@@ -121,6 +121,10 @@ export default async function AdminLoginPage({
             >
               <KeyRound size={18} /> Login
             </button>
+            <Link className="text-center text-sm font-black text-[#2f6b3f]" href="/account/recovery">
+              Forgot your account password or username?
+            </Link>
+            <p className="text-sm leading-6 text-[#59655f]">Use your individual player account password. The former shared administrator login is no longer supported.</p>
           </form>
           )}
         </section>

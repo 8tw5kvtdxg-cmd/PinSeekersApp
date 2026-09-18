@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import type { ClubhouseChallenge } from "@/lib/clubhouse";
 
-const alamoBookingUrl = "https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml";
+
 
 type EntryFlowProps = {
   challenge: Pick<
@@ -338,7 +338,7 @@ export function EntryFlow({
           </div>
         </div>
         <a
-          href={alamoBookingUrl}
+          href="/rent"
           target="_blank"
           rel="noreferrer"
           className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#ded6c8] bg-white px-5 text-sm font-black text-[#2f6b3f] transition hover:border-[#2f6b3f]"

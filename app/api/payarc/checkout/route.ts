@@ -1,3 +1,4 @@
+import { resolveChallengeCheckout } from "@/lib/challenge-checkout";
 import { getClubhouseChallenge } from "@/lib/clubhouse";
 import { isLegacyPayarcEnabled } from "@/lib/payment-provider";
 import {
@@ -75,6 +76,7 @@ export async function POST(request: Request) {
   }
 
   try {
+    const assignment = await resolveChallengeCheckout(challenge.slug, typeof body.locationSlug === "string" ? body.locationSlug.trim() : "", typeof body.bayName === "string" ? body.bayName.trim() : "");
     const checkoutId = nextPayarcCheckoutId();
     const order = await createPayarcOrder({
       amountCents: challenge.entryFeeCents,
@@ -83,6 +85,7 @@ export async function POST(request: Request) {
     if (await getChallengeSalesState(challenge.slug) !== "Open") {
       return Response.json({ error: "This challenge was paused before checkout could be issued." }, { status: 409 });
     }
+    await resolveChallengeCheckout(challenge.slug, assignment.bay.location.slug, assignment.bay.name);
     const checkout = await createPayarcCheckoutRecord({
       id: checkoutId,
       playerEmail: player.email,
@@ -90,10 +93,9 @@ export async function POST(request: Request) {
       playerName,
       phoneNumber,
       e6DisplayName,
-      locationSlug:
-        typeof body.locationSlug === "string" ? body.locationSlug : "",
-      locationName: challenge.venue,
-      bayName: typeof body.bayName === "string" ? body.bayName : "",
+      locationSlug: assignment.bay.location.slug,
+      locationName: assignment.bay.location.name,
+      bayName: assignment.bay.name,
       amountCents: challenge.entryFeeCents,
       payarcOrderId: order.id,
       payarcOrderToken: order.token,

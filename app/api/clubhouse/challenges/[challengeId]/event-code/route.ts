@@ -1,4 +1,4 @@
-import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
+import { getAdminRequestIdentity, isAdminRequestAuthenticated } from "@/lib/admin-auth";
 import {
   getClubhouseChallengeSetting,
   updateClubhouseChallengeSetting,
@@ -22,6 +22,7 @@ export async function GET(
   }
 
   return Response.json({
+    ...setting,
     challengeId: setting.challengeSlug,
     eventCode: setting.e6EventCode,
     startsAt: setting.startsAt,
@@ -33,15 +34,15 @@ export async function PATCH(
   request: Request,
   context: { params: Promise<{ challengeId: string }> },
 ) {
-  if (!(await isAdminRequestAuthenticated(request))) {
-    return Response.json({ error: "Admin login required." }, { status: 401 });
-  }
+  const admin = await getAdminRequestIdentity(request);
+  if (!admin) return Response.json({ error: "Admin login required." }, { status: 401 });
 
   const { challengeId } = await context.params;
   const body = (await request.json()) as {
     eventCode?: unknown;
     startsAt?: unknown;
     endsAt?: unknown;
+    configuration?: Record<string, unknown>;
   };
 
   try {
@@ -50,9 +51,12 @@ export async function PATCH(
       e6EventCode: body.eventCode,
       startsAt: body.startsAt,
       endsAt: body.endsAt,
+      configuration: body.configuration,
+      actorEmail: admin.email,
     });
 
     return Response.json({
+      ...setting,
       challengeId: setting.challengeSlug,
       eventCode: setting.e6EventCode,
       startsAt: setting.startsAt,

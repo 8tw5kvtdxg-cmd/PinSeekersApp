@@ -1,3 +1,4 @@
+throw new Error("Retired commercial scenarios. Use docs/PARTNER_COMMERCIAL_TERMS.md; update the generator only after terms are agreed.");
 import { writeFileSync } from "node:fs";
 
 const outputPath = "docs/partner-development-marketing-plan.pdf";

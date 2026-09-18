@@ -8,15 +8,10 @@ type BookingLinkButtonProps = {
 };
 
 export function BookingLinkButton({
-  bookingUrl,
-  locationId,
   locationName,
   locationSlug,
 }: BookingLinkButtonProps) {
   const trackingUrl = `/api/booking-link-clicks?${new URLSearchParams({
-    bookingUrl,
-    locationId,
-    locationName,
     locationSlug,
   }).toString()}`;
 

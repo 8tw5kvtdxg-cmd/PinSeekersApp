@@ -90,7 +90,7 @@ export default async function AdminDashboardPage() {
       getClubhouseLocationRevenueSummaries(),
       prisma ? prisma.user.count() : Promise.resolve(0),
       prisma
-        ? prisma.location.count({ where: { slug: { not: "alamo-golf-den" } } })
+        ? prisma.location.count()
         : Promise.resolve(0),
     ]);
   const registeredEntries = entries.filter(
@@ -109,10 +109,7 @@ export default async function AdminDashboardPage() {
     (sum, summary) => sum + summary.revenueCents,
     0,
   );
-  const locationCount = Math.max(
-    1 + dbLocationCount,
-    new Set(["alamo-golf-den", ...Object.keys(revenueSummaryMap)]).size,
-  );
+  const locationCount = dbLocationCount;
   const now = new Date();
   const upcomingBookings = bookings
     .filter((booking) => {

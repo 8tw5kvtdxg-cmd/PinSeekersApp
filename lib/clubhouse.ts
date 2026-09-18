@@ -69,8 +69,8 @@ export const clubhouseChallenges: ClubhouseChallenge[] = [
     endsAt: "",
     playWindowMinutes: 15,
     e6EventName: "Pin2Win Hole-in-One Challenge",
-    e6JoinCode: "E6-P2W-7429",
-    e6QueueCode: "QUEUE-118",
+    e6JoinCode: "",
+    e6QueueCode: "",
     e6ClubhouseUrl: "https://e6golf.com/clubhouse",
     prizeSummary: "$5,000 Hole-in-One prize, subject to the published Official Rules and final challenge details.",
     instructions: [

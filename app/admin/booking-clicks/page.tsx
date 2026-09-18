@@ -5,15 +5,6 @@ import { getPrismaClient } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-const builtInBookingLocations = [
-  {
-    id: "existing-alamo-golf-den",
-    name: "Alamo Golf Den",
-    slug: "alamo-golf-den",
-    bookingUrl: "https://alamogolfden.golf918.net/embed/y1snhpyhqamwoh5xo4lml",
-  },
-];
-
 function formatDate(value: Date) {
   return new Intl.DateTimeFormat("en", {
     dateStyle: "medium",
@@ -34,7 +25,7 @@ export default async function AdminBookingClicksPage() {
           take: 100,
         }),
         bookingLinkClick.groupBy({
-          by: ["locationSlug", "locationName"],
+          by: ["locationSlug"],
           _count: { _all: true },
           _max: { createdAt: true },
           orderBy: { _count: { id: "desc" } },
@@ -55,15 +46,8 @@ export default async function AdminBookingClicksPage() {
       ])
     : [[], [], []];
   const bookingLocations = [
-    ...builtInBookingLocations,
     ...dbLocations
       .filter((location) => location.bookingUrl)
-      .filter(
-        (location) =>
-          !builtInBookingLocations.some(
-            (builtInLocation) => builtInLocation.slug === location.slug,
-          ),
-      )
       .map((location) => ({
         id: location.id,
         name: location.name,

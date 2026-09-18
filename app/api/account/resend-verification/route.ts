@@ -30,9 +30,13 @@ export async function POST(request: Request) {
     return Response.json({ sent: false, alreadyVerified: true });
   }
 
+  const accountLimit = await consumeRateLimit({ namespace: "verification-resend-account", identifier: user.id, limit: 5, windowMs: 60 * 60 * 1000 });
+  if (!accountLimit.allowed) return rateLimitResponse(accountLimit);
   try {
+    const body = await request.json().catch(() => ({}));
     const token = await createEmailVerificationToken({
       userId: user.id,
+      returnTo: body.next,
       email: user.email,
     });
 
