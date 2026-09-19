@@ -607,7 +607,7 @@ export default function AccountPage() {
             </div>
             <div className="mt-5 flex flex-wrap gap-4 text-sm font-bold">
               <Link href="/account/privacy" className="underline">Privacy requests and appeals</Link>
-              <Link href="/account/payment-issue" className="underline">Payment or refund claims</Link>
+              <Link href="/account/payment-issue" className="underline">Request a refund review</Link>
               <Link href="/privacy" className="underline">Current Privacy Policy</Link>
             </div>
             <button

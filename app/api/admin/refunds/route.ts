@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       const amountCents = Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
       await requestApprovedSquareRefund({ claimId, actorId: admin.id, actorEmail: admin.email, amountCents, note });
     } else throw new Error("Unknown refund action.");
-    await deliverPaymentIssueCommunications(10).catch((caught) => console.error("Refund update email will be retried.", caught));
+    await deliverPaymentIssueCommunications(10, claimId).catch((caught) => console.error("Refund update email will be retried.", caught));
     destination.searchParams.set("message", "Refund review action saved.");
   } catch (caught) {
     destination.searchParams.set("error", caught instanceof Error ? caught.message.slice(0, 250) : "Refund action failed.");

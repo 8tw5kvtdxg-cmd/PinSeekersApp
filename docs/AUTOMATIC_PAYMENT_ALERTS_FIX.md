@@ -1,5 +1,7 @@
 # Automatic payment alerts and refund claims
 
+> Superseded by the owner’s subsequent instruction: automatic detection and alert emails are removed entirely. See CUSTOMER_REFUND_CLAIMS.md. The implementation described below is historical.
+
 September 19, 2026
 
 The scheduled reconciliation job previously inserted PaymentIssueClaim records when it detected a completed payment without an entry, archived paid entry, missing event code, or an unused entry on a held/closed challenge. It could reopen previously resolved automatic claims. The claim email worker then sent these detections as claim updates. A challenge changed to Draft can trigger the held/closed signal.

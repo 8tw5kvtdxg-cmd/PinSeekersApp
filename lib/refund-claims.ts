@@ -1,4 +1,3 @@
-import { flagPaymentAlert, flagPaymentWithoutEntry, resolvePaymentAlert, type SystemPaymentIssue } from "./system-payment-alerts";
 import { createHash } from "node:crypto";
 import { Prisma } from "@/app/generated/prisma/client";
 import { getPrismaClient } from "@/lib/prisma";
@@ -82,22 +81,6 @@ export async function addPaymentIssueEvidence(input: {
     } });
     return evidence.id;
   }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
-}
-
-export async function flagConfirmedPaymentWithoutEntry(checkoutId: string) {
-  return flagPaymentWithoutEntry(database(), checkoutId);
-}
-
-export async function resolveRecoveredPaymentIssue(checkoutId: string) {
-  return resolvePaymentAlert(database(), checkoutId, "paid-without-entry");
-}
-
-export async function flagSystemPaymentIssue(input: SystemPaymentIssue) {
-  return flagPaymentAlert(database(), input);
-}
-
-export async function resolveSystemPaymentIssue(checkoutId: string, issueCode: string) {
-  return resolvePaymentAlert(database(), checkoutId, issueCode);
 }
 
 export async function updatePaymentIssueReview(input: {

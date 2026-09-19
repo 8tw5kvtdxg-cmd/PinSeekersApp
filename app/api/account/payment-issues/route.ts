@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       incidentAt: typeof incidentAt === "string" && incidentAt ? new Date(incidentAt) : null,
       evidenceFile: file instanceof File && file.size > 0 ? await prepareRefundEvidence(file) : null,
     });
-    await deliverPaymentIssueCommunications(5).catch((caught) => console.error("Refund claim email will be retried.", caught));
+    await deliverPaymentIssueCommunications(5, claim.id).catch((caught) => console.error("Refund claim email will be retried.", caught));
     destination.searchParams.set("submitted", claim.id);
     return Response.redirect(destination, 303);
   } catch (caught) {
