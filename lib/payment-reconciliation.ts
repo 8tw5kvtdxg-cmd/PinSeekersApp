@@ -104,19 +104,19 @@ async function inspectConfirmedCheckoutAccess(checkoutId: string) {
       narrative: "A successful Square checkout is linked to an archived entry. Administrator review is needed to determine access and any remedy; no refund is automatic.",
       action: "Paid entry unavailable for review",
     });
-  } else await resolveSystemPaymentIssue(checkoutId, "archived-paid-entry", "Entry archive signal is no longer present; contact support if access still failed.");
+  } else await resolveSystemPaymentIssue(checkoutId, "archived-paid-entry");
   if (signals.missingEventCode) {
     await flagSystemPaymentIssue({ checkoutId, entryId: entry.id, issueCode: "missing-event-code", reason: "Access not delivered",
       narrative: "A paid entry has no usable simulator event code in its record. Administrator review is required; no refund is automatic.",
       action: "Event code unavailable for paid entry",
     });
-  } else await resolveSystemPaymentIssue(checkoutId, "missing-event-code", "The event-code signal is no longer present; contact support if access still failed.");
+  } else await resolveSystemPaymentIssue(checkoutId, "missing-event-code");
   if (signals.challengeHoldMayAffectUnusedEntry) {
     await flagSystemPaymentIssue({ checkoutId, entryId: entry.id, issueCode: "challenge-hold-unused", reason: "Other payment issue",
       narrative: "The challenge is held or closed and this paid entry has no recorded event-code reveal. Review venue/simulator attempt logs before deciding whether an unused-entry remedy is due.",
       action: "Challenge hold may affect unused paid entry",
     });
-  } else await resolveSystemPaymentIssue(checkoutId, "challenge-hold-unused", "The challenge-hold signal no longer applies; contact support if access still failed.");
+  } else await resolveSystemPaymentIssue(checkoutId, "challenge-hold-unused");
 }
 
 async function reconcileCheckout(checkoutId: string) {

@@ -1,3 +1,4 @@
+import { refundNotificationEventWhere } from "@/lib/refund-claim-source";
 import { getAppBaseUrl } from "@/lib/app-url";
 import { getPin2WinNotificationEmails } from "@/lib/notification-email-recipients";
 import { getPrismaClient } from "@/lib/prisma";
@@ -26,7 +27,9 @@ async function sendEmail(input: { to: string[]; subject: string; text: string; i
 export async function deliverPaymentIssueCommunications(limit = 30) {
   const prisma = database();
   const events = await prisma.paymentIssueEvent.findMany({
-    where: { OR: [
+    where: {
+      AND: [refundNotificationEventWhere],
+      OR: [
       { deliveries: { none: { audience: "Customer" } } },
       { deliveries: { none: { audience: "Staff" } } },
     ] },

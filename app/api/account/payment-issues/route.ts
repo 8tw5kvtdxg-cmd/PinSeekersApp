@@ -1,3 +1,4 @@
+import { customerManagedClaimWhere } from "@/lib/refund-claim-source";
 import { getCurrentVerifiedPlayer } from "@/lib/player-auth";
 import { getPrismaClient } from "@/lib/prisma";
 import { rejectCrossSiteRequest } from "@/lib/request-security";
@@ -14,7 +15,7 @@ export async function GET() {
   const prisma = getPrismaClient();
   if (!prisma) return Response.json({ error: "Database unavailable." }, { status: 503 });
   const claims = await prisma.paymentIssueClaim.findMany({
-    where: { playerId: player.id }, orderBy: { createdAt: "desc" }, take: 100,
+    where: { playerId: player.id, ...customerManagedClaimWhere }, orderBy: { createdAt: "desc" }, take: 100,
     select: { id: true, checkoutId: true, entryId: true, reason: true, status: true, createdAt: true, lateSubmissionFlag: true },
   });
   return Response.json({ claims });

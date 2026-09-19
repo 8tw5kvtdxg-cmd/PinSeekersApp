@@ -1,3 +1,4 @@
+import { customerManagedClaimWhere } from "@/lib/refund-claim-source";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentVerifiedPlayer } from "@/lib/player-auth";
@@ -16,7 +17,7 @@ export default async function PaymentIssuePage({ searchParams }: { searchParams:
       orderBy: { createdAt: "desc" }, take: 50,
       select: { id: true, squareOrderId: true, squarePaymentId: true, entryId: true, locationName: true, amountCents: true, status: true, refundStatus: true, createdAt: true },
     }),
-    prisma.paymentIssueClaim.findMany({ where: { playerId: player.id }, orderBy: { createdAt: "desc" }, take: 50,
+    prisma.paymentIssueClaim.findMany({ where: { playerId: player.id, ...customerManagedClaimWhere }, orderBy: { createdAt: "desc" }, take: 50,
       include: { evidenceFiles: { select: { id: true, originalName: true, sizeBytes: true, createdAt: true }, orderBy: { createdAt: "asc" } } },
     }),
   ]) : [[], []];

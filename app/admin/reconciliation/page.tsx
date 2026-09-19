@@ -25,8 +25,9 @@ export default async function AdminReconciliationPage() {
     <AdminShell
       eyebrow="Payment operations"
       title="Square reconciliation"
-      description="Review payment and entry mismatches, confirmation-email retries, and automated recovery."
+      description="Internal payment alerts and automated recovery. These alerts do not submit customer refund claims or issue refunds."
     >
+      <Link href="/admin/refunds?source=automatic" className="mb-4 block text-sm underline">View historical automatic records</Link>
       <div className="rounded-2xl border border-stone-200 bg-white p-6">
         <p className="text-sm text-stone-600">
           {openCount} open issue{openCount === 1 ? "" : "s"} · Last checkout scan: {lastCheckout?.reconciledAt?.toLocaleString() ?? "Not run yet"}
