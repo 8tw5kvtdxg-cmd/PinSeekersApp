@@ -1,3 +1,4 @@
+import { flagPaymentAlert, flagPaymentWithoutEntry, resolvePaymentAlert, type SystemPaymentIssue } from "./system-payment-alerts";
 import { createHash } from "node:crypto";
 import { Prisma } from "@/app/generated/prisma/client";
 import { getPrismaClient } from "@/lib/prisma";
@@ -84,88 +85,19 @@ export async function addPaymentIssueEvidence(input: {
 }
 
 export async function flagConfirmedPaymentWithoutEntry(checkoutId: string) {
-  const prisma = database();
-  const checkout = await prisma.squareCheckout.findUnique({ where: { id: checkoutId } });
-  if (!checkout || checkout.status !== "Succeeded") return null;
-  const entry = await prisma.clubhouseEntryRecord.findUnique({ where: { squareCheckoutId: checkoutId } });
-  if (entry) return null;
-  const user = await prisma.user.findFirst({ where: { email: { equals: checkout.playerEmail, mode: "insensitive" } }, select: { id: true } });
-  const key = `paid-without-entry:${checkoutId}`;
-  const claim = await prisma.paymentIssueClaim.upsert({
-    where: { systemIssueKey: key },
-    create: {
-      systemIssueKey: key, checkoutId, playerId: user?.id || `unmatched:${checkoutId}`,
-      playerEmail: checkout.playerEmail, reason: "Missing entry",
-      venueName: checkout.locationName, narrative: "A completed Square payment has no usable Pin2Win entry after automated recovery. Administrator review is required; no refund has been issued automatically.",
-      events: { create: { actorId: "system", actorEmail: "Square reconciliation", action: "Paid without entry detected" } },
-    },
-    update: {},
-  });
-  if (claim.status === "Resolved") {
-    const reopened = await prisma.paymentIssueClaim.updateMany({ where: { id: claim.id, status: "Resolved" }, data: { status: "Open" } });
-    if (reopened.count) await prisma.paymentIssueEvent.create({ data: {
-      claimId: claim.id, actorId: "system", actorEmail: "Square reconciliation",
-      action: "Paid without entry detected again",
-    } });
-  }
-  return claim;
+  return flagPaymentWithoutEntry(database(), checkoutId);
 }
 
 export async function resolveRecoveredPaymentIssue(checkoutId: string) {
-  const prisma = database();
-  const claim = await prisma.paymentIssueClaim.findUnique({ where: { systemIssueKey: `paid-without-entry:${checkoutId}` }, include: { refund: true } });
-  if (!claim || claim.refund || !["Open", "In Review"].includes(claim.status)) return;
-  await prisma.$transaction(async (tx) => {
-    await tx.paymentIssueClaim.update({ where: { id: claim.id }, data: { status: "Resolved" } });
-    await tx.paymentIssueEvent.create({ data: {
-      claimId: claim.id, actorId: "system", actorEmail: "Square reconciliation",
-      action: "Entry recovered", note: "The paid entry was created by reconciliation; customer review remains available if access still failed.",
-    } });
-  });
+  return resolvePaymentAlert(database(), checkoutId, "paid-without-entry");
 }
 
-export async function flagSystemPaymentIssue(input: {
-  checkoutId: string; issueCode: string; entryId?: string;
-  reason: (typeof refundReasons)[number]; narrative: string; action: string;
-}) {
-  const prisma = database();
-  const checkout = await prisma.squareCheckout.findUnique({ where: { id: input.checkoutId } });
-  if (!checkout || checkout.status !== "Succeeded" || ["Refund Requested", "Refund Pending", "Refunded"].includes(checkout.refundStatus)) return null;
-  const user = await prisma.user.findFirst({ where: { email: { equals: checkout.playerEmail, mode: "insensitive" } }, select: { id: true } });
-  const claim = await prisma.paymentIssueClaim.upsert({
-    where: { systemIssueKey: `${input.issueCode}:${checkout.id}` },
-    create: {
-      systemIssueKey: `${input.issueCode}:${checkout.id}`, checkoutId: checkout.id,
-      entryId: input.entryId, playerId: user?.id || `unmatched:${checkout.id}`,
-      playerEmail: checkout.playerEmail, reason: input.reason, venueName: checkout.locationName,
-      narrative: input.narrative,
-      events: { create: { actorId: "system", actorEmail: "Square reconciliation", action: input.action } },
-    },
-    update: {},
-  });
-  if (claim.status === "Resolved") {
-    const reopened = await prisma.paymentIssueClaim.updateMany({ where: { id: claim.id, status: "Resolved" }, data: { status: "Open" } });
-    if (reopened.count) await prisma.paymentIssueEvent.create({ data: {
-      claimId: claim.id, actorId: "system", actorEmail: "Square reconciliation",
-      action: `${input.action} again`,
-    } });
-  }
-  return claim;
+export async function flagSystemPaymentIssue(input: SystemPaymentIssue) {
+  return flagPaymentAlert(database(), input);
 }
 
-export async function resolveSystemPaymentIssue(checkoutId: string, issueCode: string, explanation: string) {
-  const prisma = database();
-  const claim = await prisma.paymentIssueClaim.findUnique({
-    where: { systemIssueKey: `${issueCode}:${checkoutId}` }, include: { refund: true },
-  });
-  if (!claim || claim.refund || !["Open", "In Review"].includes(claim.status)) return;
-  await prisma.$transaction(async tx => {
-    await tx.paymentIssueClaim.update({ where: { id: claim.id }, data: { status: "Resolved" } });
-    await tx.paymentIssueEvent.create({ data: {
-      claimId: claim.id, actorId: "system", actorEmail: "Square reconciliation",
-      action: "Issue signal cleared", customerMessage: explanation,
-    } });
-  });
+export async function resolveSystemPaymentIssue(checkoutId: string, issueCode: string) {
+  return resolvePaymentAlert(database(), checkoutId, issueCode);
 }
 
 export async function updatePaymentIssueReview(input: {
