@@ -24,20 +24,15 @@ export default async function AdminReconciliationPage() {
   return (
     <AdminShell
       eyebrow="Payment operations"
-      title="Square reconciliation"
-      description="Internal payment alerts and automated recovery. These alerts do not submit customer refund claims or issue refunds."
+      title="Historical payment alerts"
+      description="Archived records from the retired automatic checker. No new detections or alert emails are generated."
     >
       <Link href="/admin/refunds?source=automatic" className="mb-4 block text-sm underline">View historical automatic records</Link>
       <div className="rounded-2xl border border-stone-200 bg-white p-6">
         <p className="text-sm text-stone-600">
-          {openCount} open issue{openCount === 1 ? "" : "s"} · Last checkout scan: {lastCheckout?.reconciledAt?.toLocaleString() ?? "Not run yet"}
+          {openCount} historical open record{openCount === 1 ? "" : "s"} · Last scan before retirement: {lastCheckout?.reconciledAt?.toLocaleString() ?? "Not run yet"}
         </p>
-        <form action="/api/cron/payment-reconciliation" method="post" className="mt-4">
-          <button type="submit" className="rounded-lg bg-stone-900 px-4 py-2 text-sm font-semibold text-white">
-            Run reconciliation now
-          </button>
-        </form>
-        <p className="mt-3 text-xs text-stone-500">The scheduled job runs daily; this button processes another batch of up to 20 Square checkouts and 20 entries.</p>
+        <p className="mt-3 text-sm">Automatic payment-issue detection is disabled. These records are read-only history. Customers can submit a refund claim for administrator review.</p>
       </div>
       <div className="mt-6 overflow-x-auto rounded-2xl border border-stone-200 bg-white">
         <table className="min-w-full text-left text-sm">
@@ -51,7 +46,7 @@ export default async function AdminReconciliationPage() {
                 <td className="px-4 py-3"><span className="font-semibold">{issue.type}</span><br /><span className="text-stone-600">{issue.detail}</span></td>
                 <td className="px-4 py-3">{issue.entryId ? <Link href={`/admin/entries?entryId=${encodeURIComponent(issue.entryId)}`} className="underline">{issue.entryId}</Link> : issue.checkoutId ?? "—"}</td>
                 <td className="px-4 py-3">{issue.createdAt.toLocaleString()}</td>
-                <td className="px-4 py-3">{issue.customerNotifiedAt?.toLocaleString() || (issue.customerEmail ? "Pending if unresolved" : "Staff only")}</td>
+                <td className="px-4 py-3">{issue.customerNotifiedAt?.toLocaleString() || "Not sent — automatic notices disabled"}</td>
               </tr>
             ))}
             {!issues.length && <tr><td colSpan={5} className="px-4 py-8 text-center text-stone-500">No reconciliation issues recorded.</td></tr>}

@@ -1,6 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
 import { isAdminRequestAuthenticated } from "@/lib/admin-auth";
-import { runPaymentReconciliation } from "@/lib/payment-reconciliation";
 import { reconcileSquareRefunds } from "@/lib/refund-claims";
 import { deliverPaymentIssueCommunications } from "@/lib/refund-claim-email";
 import { deliverPrivacyRequestEmails } from "@/lib/privacy-request-email";
@@ -23,8 +22,10 @@ export async function GET(request: Request) {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
   try {
-    const payments = await runPaymentReconciliation();
-    const refunds = await reconcileSquareRefunds();
+    const refunds = await reconcileSquareRefunds().catch(error => {
+      console.error("Previously requested refund status updates will be retried.", error);
+      return { error: "Refund status updates pending retry." };
+    });
     const communications = await deliverPaymentIssueCommunications();
     const privacyCommunications = await deliverPrivacyRequestEmails().catch(caught => {
       console.error("Privacy request emails will be retried separately.", caught);
@@ -33,9 +34,9 @@ export async function GET(request: Request) {
     const holdCommunications = await deliverParticipationHoldEmails().catch(caught => {
       console.error("Participation-hold emails will be retried separately.", caught); return 0;
     });
-    return Response.json({ ...payments, refunds, communications, privacyCommunications, holdCommunications });
+    return Response.json({ refunds, communications, privacyCommunications, holdCommunications });
   } catch (error) {
-    console.error("Scheduled payment reconciliation failed.", error);
+    console.error("Scheduled claim notifications or refund updates failed.", error);
     return Response.json({ error: "Reconciliation failed." }, { status: 500 });
   }
 }
@@ -47,14 +48,13 @@ export async function POST(request: Request) {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
   try {
-    await runPaymentReconciliation();
-    await reconcileSquareRefunds();
+    await reconcileSquareRefunds().catch(error => console.error("Previously requested refund status updates will be retried.", error));
     await deliverPaymentIssueCommunications();
     await deliverPrivacyRequestEmails().catch(caught => console.error("Privacy request emails will be retried separately.", caught));
     await deliverParticipationHoldEmails().catch(caught => console.error("Participation-hold emails will be retried separately.", caught));
-    return Response.redirect(new URL("/admin/reconciliation", request.url), 303);
+    return Response.redirect(new URL("/admin/refunds", request.url), 303);
   } catch (error) {
-    console.error("Manual payment reconciliation failed.", error);
+    console.error("Manual claim notifications or refund updates failed.", error);
     return Response.json({ error: "Reconciliation failed." }, { status: 500 });
   }
 }

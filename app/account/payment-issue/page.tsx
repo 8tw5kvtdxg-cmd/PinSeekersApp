@@ -25,12 +25,13 @@ export default async function PaymentIssuePage({ searchParams }: { searchParams:
   return <main className="min-h-screen bg-[#f8f4ec] px-5 py-10 text-[#18211f]">
     <div className="mx-auto max-w-3xl">
       <Link href="/locations" className="text-sm font-semibold underline">Back to locations</Link>
-      <h1 className="mt-6 text-4xl font-black">Payment or refund claim</h1>
-      <p className="mt-3 text-stone-600">Tell us what happened. A late submission is flagged for review, not automatically denied. Please do not include card numbers or sensitive identity documents.</p>
-      {submitted && <p className="mt-5 rounded-lg bg-green-100 p-4 text-green-900">Claim {submitted} was submitted. You can check its status below.</p>}
+      <h1 className="mt-6 text-4xl font-black">Request a refund review</h1>
+      <p className="mt-3 text-stone-600">Select your payment and tell us why you believe a refund is appropriate. We will email you an acknowledgement and notify our team. An administrator will review your claim and any supporting evidence; submitting a claim does not guarantee a refund. Please do not include card numbers or sensitive identity documents.</p>
+      {submitted && <p className="mt-5 rounded-lg bg-green-100 p-4 text-green-900">Claim {submitted} was received and is awaiting administrator review. Notification emails are queued; your claim is saved even if email delivery is delayed. You can check its status below.</p>}
       {uploaded && <p className="mt-5 rounded-lg bg-green-100 p-4 text-green-900">Evidence {uploaded} was attached to your claim.</p>}
       {error && <p className="mt-5 rounded-lg bg-red-100 p-4 text-red-900">{error}</p>}
       {!prisma && <p className="mt-5 rounded-lg bg-red-100 p-4">Claims are temporarily unavailable. Contact pin2wingolf@outlook.com.</p>}
+      <p className="mt-4 text-sm">Your contact email: {player.email}</p>
       <form action="/api/account/payment-issues" method="post" encType="multipart/form-data" className="mt-8 space-y-4 rounded-2xl border bg-white p-6">
         <label className="block text-sm font-semibold">Payment record
           <select name="checkoutId" required className="mt-1 w-full rounded-lg border p-3">
@@ -43,13 +44,13 @@ export default async function PaymentIssuePage({ searchParams }: { searchParams:
         </label>
         <label className="block text-sm font-semibold">Venue or location <input name="venueName" maxLength={200} className="mt-1 w-full rounded-lg border p-3" /></label>
         <label className="block text-sm font-semibold">When did the issue happen? <input name="incidentAt" type="datetime-local" className="mt-1 w-full rounded-lg border p-3" /></label>
-        <label className="block text-sm font-semibold">What happened? <textarea name="narrative" required minLength={20} maxLength={4000} rows={6} className="mt-1 w-full rounded-lg border p-3" /></label>
+        <label className="block text-sm font-semibold">What happened, and why do you believe a refund is appropriate? <textarea name="narrative" required minLength={20} maxLength={4000} rows={6} className="mt-1 w-full rounded-lg border p-3" /></label>
         <label className="block text-sm font-semibold">Evidence reference or description <textarea name="evidenceReference" maxLength={1000} rows={3} className="mt-1 w-full rounded-lg border p-3" placeholder="Describe a screenshot, receipt, or venue confirmation; do not paste private document links." /></label>
         <label className="block text-sm font-semibold">Attach one screenshot or receipt (optional)
           <input name="evidenceFile" type="file" accept=".png,.jpg,.jpeg,.pdf,image/png,image/jpeg,application/pdf" className="mt-1 w-full rounded-lg border p-3" />
           <span className="mt-1 block text-xs font-normal text-stone-500">PNG, JPEG, or PDF only; maximum 3 MB. Do not upload payment-card numbers or identity documents.</span>
         </label>
-        <button disabled={!checkouts.length} className="rounded-lg bg-[#18211f] px-5 py-3 font-semibold text-white disabled:opacity-50">Submit claim</button>
+        <button disabled={!checkouts.length} className="rounded-lg bg-[#18211f] px-5 py-3 font-semibold text-white disabled:opacity-50">Submit refund claim</button>
         {!checkouts.length && <p className="text-sm text-stone-600">No Square checkout found on this account. For a charge not listed here, email pin2wingolf@outlook.com.</p>}
       </form>
       <section className="mt-8 rounded-2xl border bg-white p-6"><h2 className="text-xl font-bold">Your claims</h2>

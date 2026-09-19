@@ -27,9 +27,9 @@ export const dynamic = "force-dynamic";
 
 const quickActions = [
   {
-    href: "/admin/reconciliation",
-    title: "Reconcile payments",
-    text: "Review Square payment mismatches and confirmation retries.",
+    href: "/admin/refunds",
+    title: "Review refund claims",
+    text: "Review customer-submitted claims, evidence, and refund decisions.",
     icon: ReceiptText,
   },
   {
