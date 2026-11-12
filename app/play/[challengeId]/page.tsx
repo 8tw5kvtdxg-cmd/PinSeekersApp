@@ -7,6 +7,7 @@ import { findLikelyBookingMatch } from "@/lib/booking-verification-store";
 import { getCurrentPlayer } from "@/lib/player-auth";
 import { sendQrScanNotification } from "@/lib/qr-scan-notification-email";
 import { recordQrScan } from "@/lib/qr-scan-store";
+import { getPrismaClient } from "@/lib/prisma";
 
 export default async function ClubhouseChallengePage({
   params,
@@ -25,6 +26,23 @@ export default async function ClubhouseChallengePage({
   }>;
 }) {
   const { challengeId } = await params;
+  const query = await searchParams;
+
+  // The original Alamo posters identify Bay 1 by this bare legacy URL.
+  if (challengeId === "alamo-closest-pin-monthly" && Object.keys(query).length === 0) {
+    const posterBay = await getPrismaClient()?.bay.findFirst({
+      where: {
+        name: "Bay 1",
+        isActive: true,
+        location: { slug: "alamo-golf-den", isActive: true },
+      },
+      select: { id: true },
+    });
+    if (posterBay) {
+      redirect(`/play/bay?${new URLSearchParams({ id: posterBay.id })}`);
+    }
+  }
+
   const {
     bay,
     autoCheckout,
@@ -34,7 +52,7 @@ export default async function ClubhouseChallengePage({
     referenceId,
     squareCheckoutId,
     transactionId,
-  } = await searchParams;
+  } = query;
   const challenge = getClubhouseChallenge(challengeId);
 
   if (!challenge) {
