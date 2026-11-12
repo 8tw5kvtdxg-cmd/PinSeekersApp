@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AdminShell } from "@/app/admin/admin-shell";
 import { requireAdminSession } from "@/lib/admin-auth";
-import { clubhouseChallengeSlugs } from "@/lib/clubhouse";
+import { clubhouseChallenges, clubhouseChallengeSlugs } from "@/lib/clubhouse";
 import { getPrismaClient } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -9,12 +9,12 @@ export const dynamic = "force-dynamic";
 export default async function AdminWinnersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; run?: string }>;
 }) {
   await requireAdminSession("/admin/winners");
   const params = await searchParams;
   const prisma = getPrismaClient();
-  const slug = clubhouseChallengeSlugs.holeInOne;
+  const slug = clubhouseChallenges.find((challenge) => challenge.slug === params.run)?.slug ?? clubhouseChallengeSlugs.holeInOne;
   const [reports, chronology, setting] = prisma
     ? await Promise.all([
         prisma.holeInOneReport.findMany({
@@ -36,6 +36,11 @@ export default async function AdminWinnersPage({
       description="A player notice is only a potential result. Verification requires an authenticated simulator shot, a confirmed paid entry, evidence, and an individual administrator review. Prize claims and payouts are separate future steps."
       actions={<><Link href="/admin/verification" className="rounded-md border border-[#ded6c8] bg-white px-5 py-3 text-sm font-black">Confirm entry</Link><Link href="/admin/prize-claims" className="rounded-md border border-[#ded6c8] bg-white px-5 py-3 text-sm font-black">Prize claims</Link><Link href="/admin/challenges" className="rounded-md border border-[#ded6c8] bg-white px-5 py-3 text-sm font-black">Configure challenge period</Link></>}
     >
+      <nav className="mt-6 flex flex-wrap gap-4" aria-label="Challenge runs">
+        {clubhouseChallenges.map((challenge) => (
+          <Link key={challenge.slug} className="font-bold underline" aria-current={slug === challenge.slug ? "page" : undefined} href={`/admin/winners?run=${challenge.slug}`}>{challenge.name}</Link>
+        ))}
+      </nav>
       {params.error && <p className="mt-6 rounded-lg bg-[#fff2ed] p-4 text-sm font-bold text-[#8d2f1f]">{params.error}</p>}
       {params.message && <p className="mt-6 rounded-lg bg-[#eef4e7] p-4 text-sm font-bold text-[#2f6b3f]">{params.message}</p>}
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
@@ -71,6 +76,7 @@ export default async function AdminWinnersPage({
             {report.status === "Pending Review" && (
               <form method="post" action="/api/admin/hole-in-one/review" className="mt-6 border-t border-[#ece5d8] pt-5">
                 <input type="hidden" name="reportId" value={report.id} />
+                <input type="hidden" name="challengeSlug" value={slug} />
                 <label htmlFor={`note-${report.id}`} className="block text-sm font-black">Individual verifier note (minimum 20 characters)</label>
                 <textarea id={`note-${report.id}`} name="note" required minLength={20} maxLength={2000} className="mt-2 min-h-24 w-full rounded-md border border-[#ded6c8] p-3" placeholder="Document simulator records, entry match, configuration, evidence, and reason for your decision." />
                 <label className="mt-3 flex items-start gap-2 text-sm font-bold"><input type="checkbox" name="timestampReliable" className="mt-1" /> Simulator shot time is independently corroborated by reliable logs or evidence. Leave unchecked if chronology is uncertain.</label>

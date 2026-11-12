@@ -1,4 +1,4 @@
-import { clubhouseChallenges, getClubhouseChallenge } from "@/lib/clubhouse";
+import { clubhouseChallenges, clubhouseChallengeSlugs, getClubhouseChallenge } from "@/lib/clubhouse";
 import { Prisma } from "@/app/generated/prisma/client";
 import { getPrismaClient } from "@/lib/prisma";
 import { challengeConfigurationIssues, type ChallengeReadiness } from "./challenge-readiness-policy.ts";
@@ -97,6 +97,14 @@ export async function updateClubhouseChallengeSetting(input: {
         if (activeBays !== bayIds.length)
             throw new Error("Select only active bays at active locations.");
         if (data.salesState === 'Open') {
+            if (challenge.slug === clubhouseChallengeSlugs.alamoRun2) {
+                const originalReports = await tx.holeInOneReport.count({
+                    where: { challengeSlug: clubhouseChallengeSlugs.holeInOne, status: "Pending Review" },
+                });
+                if (originalReports)
+                    throw new Error("Resolve the original run's pending results before opening Run 2.");
+            }
+
             const issues = challengeConfigurationIssues(data);
             if (!bayIds.length)
                 issues.push("Assign at least one approved bay.");

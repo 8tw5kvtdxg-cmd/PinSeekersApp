@@ -15,6 +15,7 @@ export async function POST(request: Request) {
   const reportId = body.get("reportId");
   const challengeSlug = body.get("challengeSlug");
   const returnUrl = new URL("/admin/winners", request.url);
+  if (typeof challengeSlug === "string") returnUrl.searchParams.set("run", challengeSlug);
 
   try {
     if (action === "verify" || action === "reject") {

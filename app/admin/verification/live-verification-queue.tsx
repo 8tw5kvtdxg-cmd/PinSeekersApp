@@ -15,8 +15,7 @@ import {
 import type { ClubhouseEntryRecord } from "@/lib/clubhouse-entry-store";
 import {
   clubhouseChallenges,
-  clubhouseChallengeSlugs,
-  normalizeChallengeSlug,
+  getClubhouseChallenge,
 } from "@/lib/clubhouse";
 
 type LiveVerificationQueueProps = {
@@ -488,8 +487,7 @@ export function LiveVerificationQueue({
     () =>
       entries.filter(
         (entry) =>
-          normalizeChallengeSlug(entry.challengeSlug) ===
-          clubhouseChallengeSlugs.holeInOne,
+          getClubhouseChallenge(entry.challengeSlug)?.type === "HOLE_IN_ONE",
       ),
     [entries],
   );

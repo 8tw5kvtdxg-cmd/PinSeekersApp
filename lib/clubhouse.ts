@@ -46,6 +46,7 @@ export type VerificationRecord = ClubhouseEntry & {
 
 export const clubhouseChallengeSlugs = {
   holeInOne: "alamo-hole-in-one-challenge",
+  alamoRun2: "alamo-hole-in-one-challenge-run-2",
 } as const;
 
 const legacyChallengeSlugMap: Record<string, string> = {
@@ -56,8 +57,7 @@ const legacyChallengeSlugMap: Record<string, string> = {
   "alamo-hole-in-one-monthly": clubhouseChallengeSlugs.holeInOne,
 };
 
-export const clubhouseChallenges: ClubhouseChallenge[] = [
-  {
+const originalHoleInOne: ClubhouseChallenge = {
     slug: clubhouseChallengeSlugs.holeInOne,
     name: "Hole-in-One Challenge",
     type: "HOLE_IN_ONE",
@@ -89,7 +89,11 @@ export const clubhouseChallenges: ClubhouseChallenge[] = [
       "Results must match the Pin2Win player record, simulator display name, and play window.",
       "Results are verified against the simulator result record before final review.",
     ],
-  },
+};
+
+export const clubhouseChallenges: ClubhouseChallenge[] = [
+  originalHoleInOne,
+  { ...originalHoleInOne, slug: clubhouseChallengeSlugs.alamoRun2, name: "Alamo Hole-in-One Challenge — Run 2" },
 ];
 
 export const clubhouseEntries: ClubhouseEntry[] = [];
