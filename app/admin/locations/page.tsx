@@ -27,7 +27,6 @@ import {
 } from "@/lib/clubhouse-entry-store";
 import {
   getAppOrigin,
-  getQrEntryUrl,
   getQrImageUrl,
 } from "@/lib/location-utils";
 import { getPrismaClient } from "@/lib/prisma";
@@ -372,51 +371,29 @@ export default async function AdminLocationsPage({
                     </div>
 
                     <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                      {(location.bays.length ? location.bays : [null]).map(
-                        (bay) => (
-                          <div
-                            key={bay?.id ?? location.id}
-                            className="rounded-lg border border-[#ded6c8] bg-white p-4"
-                          >
+                      {location.bays.map((bay) => {
+                        const url = new URL("/play/bay", origin);
+                        url.searchParams.set("id", bay.id);
+                        const qrUrl = url.toString();
+
+                        return (
+                          <div key={bay.id} className="rounded-lg border border-[#ded6c8] bg-white p-4">
                             <div className="flex items-center gap-2">
                               <QrCode className="text-[#2f6b3f]" size={20} />
-                              <p className="font-black">
-                                {bay?.name ?? "General QR"}
-                              </p>
+                              <p className="font-black">{bay.name}</p>
                             </div>
-                            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                              {clubhouseChallenges.map((challenge) => {
-                                const qrUrl = getQrEntryUrl({
-                                  origin,
-                                  challengeSlug: challenge.slug,
-                                  locationSlug: location.slug,
-                                  bayName:
-                                    bay?.name === "General QR"
-                                      ? null
-                                      : bay?.name,
-                                });
-
-                                return (
-                                  <div key={challenge.slug}>
-                                    <p className="text-xs font-black uppercase tracking-[0.12em] text-[#59655f]">
-                                      {challenge.type.replaceAll("_", " ")}
-                                    </p>
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
-                                      alt={`${location.name} ${bay?.name ?? "general"} ${challenge.name} QR code`}
-                                      className="mt-2 aspect-square w-full rounded-md border border-[#ece4d6] bg-white p-2"
-                                      src={getQrImageUrl(qrUrl)}
-                                    />
-                                    <p className="mt-2 break-all font-mono text-[11px] leading-5 text-[#6b756f]">
-                                      {qrUrl}
-                                    </p>
-                                  </div>
-                                );
-                              })}
-                            </div>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              alt={`${location.name} ${bay.name} entry QR code`}
+                              className="mt-2 aspect-square w-full rounded-md border border-[#ece4d6] bg-white p-2"
+                              src={getQrImageUrl(qrUrl)}
+                            />
+                            <p className="mt-2 break-all font-mono text-[11px] leading-5 text-[#6b756f]">
+                              {qrUrl}
+                            </p>
                           </div>
-                        ),
-                      )}
+                        );
+                      })}
                     </div>
                     </Link>
                   );

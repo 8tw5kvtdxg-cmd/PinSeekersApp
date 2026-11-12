@@ -2,7 +2,7 @@ import { challengeSaleError } from "./challenge-readiness-policy.ts";
 import { Prisma } from "@/app/generated/prisma/client";
 import { getPrismaClient } from "@/lib/prisma";
 import { deriveWinnerChronology } from "@/lib/winner-chronology-policy";
-import { clubhouseChallengeSlugs } from "@/lib/clubhouse";
+import { getClubhouseChallenge } from "@/lib/clubhouse";
 
 function requiredPrisma() {
   const prisma = getPrismaClient();
@@ -45,7 +45,7 @@ export async function reportPlayerHoleInOne(input: {
     if (!entry || entry.archivedAt || entry.paymentStatus !== "Succeeded") {
       throw new Error("An active paid entry is required.");
     }
-    if (entry.challengeSlug !== clubhouseChallengeSlugs.holeInOne) throw new Error("This is not a hole-in-one entry.");
+    if (getClubhouseChallenge(entry.challengeSlug)?.type !== "HOLE_IN_ONE") throw new Error("This is not a hole-in-one entry.");
     const existing = await tx.holeInOneReport.findUnique({ where: { entryId: input.entryId } });
     if (existing) return existing;
     const report = await tx.holeInOneReport.create({
@@ -102,7 +102,7 @@ export async function reportSimulatorHoleInOne(input: {
     if (!entry || entry.archivedAt || entry.paymentStatus !== "Succeeded") {
       throw new Error("An active paid entry is required.");
     }
-    if (entry.challengeSlug !== clubhouseChallengeSlugs.holeInOne) throw new Error("This is not a hole-in-one entry.");
+    if (getClubhouseChallenge(entry.challengeSlug)?.type !== "HOLE_IN_ONE") throw new Error("This is not a hole-in-one entry.");
     if (entry.e6DisplayName.toLowerCase() !== playerAlias.toLowerCase()) {
       throw new Error("Simulator player alias does not match the entry.");
     }

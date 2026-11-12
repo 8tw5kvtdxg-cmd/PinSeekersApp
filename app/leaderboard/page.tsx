@@ -1,15 +1,13 @@
 import Link from "next/link";
 import { Trophy } from "lucide-react";
-import { clubhouseChallengeSlugs } from "@/lib/clubhouse";
+import { clubhouseChallenges } from "@/lib/clubhouse";
 import { getClubhouseLeaderboardRows } from "@/lib/clubhouse-entry-store";
 
-const leaderboards = [
-  {
-    title: "Hole-in-One Challenge",
-    resultLabel: "Result",
-    slug: clubhouseChallengeSlugs.holeInOne,
-  },
-];
+const leaderboards = clubhouseChallenges.map(({ name, slug }) => ({
+  title: name,
+  resultLabel: "Result",
+  slug,
+}));
 
 export const dynamic = "force-dynamic";
 
