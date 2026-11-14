@@ -9,7 +9,6 @@ import { getCurrentVerifiedPlayer } from "@/lib/player-auth";
 import { recordTransactionAuditEvent } from "@/lib/transaction-audit";
 import { consumeRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 import { rejectCrossSiteRequest } from "@/lib/request-security";
-import { getChallengeSalesState } from "@/lib/hole-in-one";
 import { getPrismaClient } from "@/lib/prisma";
 import { activeParticipationHold } from "@/lib/participation-holds";
 
@@ -48,9 +47,6 @@ export async function POST(request: Request) {
   if (!challenge) {
     return Response.json({ error: "Challenge not found." }, { status: 404 });
   }
-  if (await getChallengeSalesState(challenge.slug) !== "Open") {
-    return Response.json({ error: "This challenge is paused or closed to new entries." }, { status: 409 });
-  }
   if (await activeParticipationHold(player.id)) {
     return Response.json({ error: "This account is under eligibility review. Contact Pin2Win support before purchasing." }, { status: 409 });
   }
@@ -88,10 +84,6 @@ export async function POST(request: Request) {
       redirectPath: "/checkout/access",
       request,
     });
-    if (await getChallengeSalesState(challenge.slug) !== "Open") {
-      return Response.json({ error: "This challenge was paused before checkout could be issued." }, { status: 409 });
-    }
-    await resolveChallengeCheckout(challenge.slug, assignment.bay.location.slug, assignment.bay.name);
     const checkout = await createSquareCheckoutRecord({
       id: checkoutId,
       playerEmail: player.email,

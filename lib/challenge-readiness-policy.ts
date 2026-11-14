@@ -39,13 +39,17 @@ export function challengeConfigurationIssues(setting: ChallengeReadiness | null)
     return issues;
 }
 export function challengeSaleError(setting: ChallengeReadiness | null, now = new Date()) {
-    if (challengeConfigurationIssues(setting).length)
+    if (!setting || !setting.e6EventCode?.trim() || setting.e6EventCode === "E6-P2W-7429")
         return "This challenge is not yet ready for purchases.";
-    if (setting!.salesState !== "Open")
+    if (setting.salesState !== "Open")
         return "This challenge is paused or closed to new entries.";
-    if (now.getTime() < new Date(setting!.startsAt!).getTime())
+    const startsAt = new Date(setting.startsAt ?? "").getTime();
+    const endsAt = new Date(setting.endsAt ?? "").getTime();
+    if (!Number.isFinite(startsAt) || !Number.isFinite(endsAt) || startsAt >= endsAt)
+        return "This challenge does not have a valid sales window.";
+    if (now.getTime() < startsAt)
         return "This challenge has not opened yet.";
-    if (now.getTime() >= new Date(setting!.endsAt!).getTime())
+    if (now.getTime() >= endsAt)
         return "This challenge has ended.";
     return null;
 }
