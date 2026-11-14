@@ -1,5 +1,6 @@
 import { resolveChallengeCheckout } from "@/lib/challenge-checkout";
 import Link from "next/link";
+import { after } from "next/server";
 import { notFound, redirect } from "next/navigation";
 import { EntryFlow } from "@/app/play/[challengeId]/entry-flow";
 import { getClubhouseChallenge } from "@/lib/clubhouse";
@@ -65,33 +66,35 @@ export default async function ClubhouseChallengePage({
     try { const assignment = await resolveChallengeCheckout(challenge.slug, location || "", bay || ""); venueName = assignment.bay.location.name; }
     catch { return <main className="mx-auto max-w-xl p-8"><h1 className="text-3xl font-black">Challenge entry unavailable</h1><p className="my-6">This challenge is not currently open at this bay. Please use an approved onsite QR code when the challenge opens.</p><Link href="/rent" className="font-bold underline">Book simulator time with a partner</Link></main>; }
   }
-  const booking = location
-    ? await findLikelyBookingMatch({
+  if (location && !returning) {
+    after(async () => {
+      const booking = await findLikelyBookingMatch({
         bayName: bay,
         locationSlug: location,
-      })
-    : null;
+      }).catch((error) => {
+        console.error("QR booking lookup failed", error);
+        return undefined;
+      });
 
-  await recordQrScan({
-    bayName: bay,
-    bookingMatchStatus: location ? (booking ? "Matched" : "No Match") : undefined,
-    bookingVerificationId: booking?.id,
-    challengeSlug: challenge.slug,
-    locationSlug: location,
-  }).catch(() => null);
-
-  if (location) {
-    await sendQrScanNotification({
-      bayName: bay,
-      booking,
-      challengeName: challenge.name,
-      locationSlug: location,
-      scanUrl: `/play/${challenge.slug}?${new URLSearchParams({
-        ...(location ? { location } : {}),
-        ...(bay ? { bay } : {}),
-      }).toString()}`,
-    }).catch((error) => {
-      console.error("QR scan notification failed", error);
+      await Promise.allSettled([
+        recordQrScan({
+          bayName: bay,
+          bookingMatchStatus: booking === undefined ? undefined : booking ? "Matched" : "No Match",
+          bookingVerificationId: booking?.id,
+          challengeSlug: challenge.slug,
+          locationSlug: location,
+        }),
+        sendQrScanNotification({
+          bayName: bay,
+          booking: booking ?? null,
+          challengeName: challenge.name,
+          locationSlug: location,
+          scanUrl: `/play/${challenge.slug}?${new URLSearchParams({
+            location,
+            ...(bay ? { bay } : {}),
+          })}`,
+        }),
+      ]);
     });
   }
 
