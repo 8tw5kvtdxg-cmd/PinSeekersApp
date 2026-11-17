@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   UsersRound,
 } from "lucide-react";
+import { AlamoBayStatus } from "@/app/admin/alamo-bay-status";
 import { AdminShell } from "@/app/admin/admin-shell";
 import { requireAdminSession } from "@/lib/admin-auth";
 import { clubhouseChallenges, formatCurrency } from "@/lib/clubhouse";
@@ -35,7 +36,7 @@ const quickActions = [
   {
     href: "/admin/bookings",
     title: "Verify bookings",
-    text: "Add or review Alamo bookings that unlock the QR flow.",
+    text: "Add or review Alamo bookings for entry verification.",
     icon: MailCheck,
   },
   {
@@ -130,8 +131,8 @@ export default async function AdminDashboardPage() {
 
   return (
     <AdminShell
-      title="Operations dashboard"
-      description="A focused command center for Pin2Win operations: checkout activity, QR entries, event-code readiness, locations, and result review."
+      title="Today"
+      description="Check Alamo Bay 1 checkout readiness and review recent operations."
       actions={
         <>
           <Link
@@ -149,6 +150,7 @@ export default async function AdminDashboardPage() {
         </>
       }
     >
+      <AlamoBayStatus />
       <section className="mt-8 grid gap-4 md:grid-cols-5">
         {[
           {
