@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-const inactivityDurationMs = 60 * 60 * 1000;
+import { playerSessionDurationMs as inactivityDurationMs } from "@/lib/player-session-policy";
 const renewalIntervalMs = 5 * 60 * 1000;
 const activityStorageKey = "pin2win-player-last-activity";
 export const playerSessionStartedEvent = "pin2win:player-session-started";

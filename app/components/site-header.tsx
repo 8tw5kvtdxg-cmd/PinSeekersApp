@@ -51,6 +51,9 @@ function getInitials(account: PlayerAccount) {
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const onQrAccountPage = /^\/play\/[^/]+\/account\/?$/.test(pathname);
+  const onEntryPreview = pathname === "/admin/entry-preview";
+  const posterPath = "/play/alamo-closest-pin-monthly";
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [playerAccount, setPlayerAccount] = useState<PlayerAccount | null>(null);
@@ -191,11 +194,12 @@ export function SiteHeader() {
               <Building2 size={17} /> {partnerAction.label}
             </Link>
             <Link
-              href="/account#login"
+              href={onEntryPreview ? posterPath : "/account#login"}
+              prefetch={false}
               className={cn(
                 "inline-flex h-10 items-center justify-center gap-2 rounded-md px-3 text-sm font-black text-[#51615b] transition hover:bg-[#f6f8f5] hover:text-[#13201c]",
                 pathname === "/account" && "text-[#2f6b3f]",
-                playerAccount && "hidden",
+                (playerAccount || onQrAccountPage) && "hidden",
               )}
               onClick={closeMenus}
             >
@@ -300,10 +304,11 @@ export function SiteHeader() {
             {accountActions.map((item) => {
               const Icon = item.icon;
 
-              return playerAccount ? null : (
+              return playerAccount || onQrAccountPage || (onEntryPreview && item.label === "Create") ? null : (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={onEntryPreview ? posterPath : item.href}
+                  prefetch={false}
                   className={cn(
                     "inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#dfe6df] bg-white px-4 text-sm font-black text-[#13201c] transition hover:bg-[#f6f8f5]",
                     pathname === "/account" && "ring-1 ring-[#7aa35d]/70",

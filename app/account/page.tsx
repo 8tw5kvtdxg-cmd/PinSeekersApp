@@ -179,7 +179,7 @@ export default function AccountPage() {
           : !data.user.emailVerified
           ? data.verificationSent
             ? "Account created. Check your inbox to verify your email before entering a challenge."
-            : "Verify your account email before entering a challenge. Use the verification link above to request an email."
+            : "Verify your account email before entering a challenge. Use the verification link on your dashboard to request an email."
           : "",
       );
     } catch (error) {
@@ -207,7 +207,6 @@ export default function AccountPage() {
           <p className="text-sm font-black uppercase tracking-[0.16em] text-[#2f6b3f]">
             Pin2Win
           </p>
-          <Link href="/account/verify" className="block text-sm font-bold underline">Verify your account email</Link>
             <h1 className="mt-8 text-4xl font-black">Loading account...</h1>
         </div>
       </main>
@@ -460,6 +459,9 @@ export default function AccountPage() {
             {accountError}
           </p>
         ) : null}
+        {playerAccount && !playerAccount.emailVerified && (
+          <Link href="/account/verify" className="block text-sm font-bold underline">Verify your account email</Link>
+        )}
         {accountNotice ? (
           <p className="mt-6 rounded-md bg-[#eef7e9] px-4 py-3 text-sm font-bold text-[#2f6b3f]">
             {accountNotice}

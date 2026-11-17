@@ -104,6 +104,11 @@ export async function AlamoBayStatus({ preview = false }: { preview?: boolean })
       )}
 
       <div className="mt-5 flex flex-wrap gap-3">
+        {preview && readiness && (
+          <a href={`/play/${alamoPosterChallengeId}`} className="rounded-md bg-[#18211f] px-4 py-2 text-sm font-bold text-white">
+            Open live customer checkout
+          </a>
+        )}
         {preview ? (
           <a href={alamoPreviewPath} className="rounded-md bg-[#2f6b3f] px-4 py-2 text-sm font-bold text-white">Refresh readiness check</a>
         ) : (

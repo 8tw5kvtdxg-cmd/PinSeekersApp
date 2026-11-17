@@ -1,4 +1,4 @@
-export const playerSessionDurationSeconds = 60 * 60;
+export const playerSessionDurationSeconds = 14 * 24 * 60 * 60;
 export const playerSessionDurationMs = playerSessionDurationSeconds * 1000;
 export const playerSessionTouchIntervalMs = 5 * 60 * 1000;
 
