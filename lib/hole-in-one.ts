@@ -2,7 +2,7 @@ import { challengeConfigurationIssues, challengeSaleError } from "./challenge-re
 import { Prisma } from "@/app/generated/prisma/client";
 import { getPrismaClient } from "@/lib/prisma";
 import { deriveWinnerChronology } from "@/lib/winner-chronology-policy";
-import { getClubhouseChallenge } from "@/lib/clubhouse";
+import { clubhouseChallengeSlugs, getClubhouseChallenge } from "@/lib/clubhouse";
 
 function requiredPrisma() {
   const prisma = getPrismaClient();
@@ -176,7 +176,7 @@ export async function reviewHoleInOneReport(input: {
           simulatorShotId: string;
           timestampReliable: boolean;
           periodStartsAt: string;
-          periodEndsAt: string;
+          periodEndsAt: string | null;
           entryId: string;
           simulatorVenue: string;
           simulatorBay: string;
@@ -213,7 +213,7 @@ export async function reviewHoleInOneReport(input: {
           const setting = await tx.clubhouseChallengeSetting.findUnique({
             where: { challengeSlug: report.challengeSlug },
           });
-          if (!setting?.startsAt || !setting.endsAt || report.shotAt < setting.startsAt || report.shotAt > setting.endsAt) {
+          if (!setting?.startsAt || report.shotAt < setting.startsAt || (!setting.neverCloses && (!setting.endsAt || report.shotAt > setting.endsAt))) {
             throw new Error("The simulator shot must fall within the configured challenge period.");
           }
           verificationMetadata = {
@@ -221,7 +221,7 @@ export async function reviewHoleInOneReport(input: {
             simulatorShotId: report.simulatorShotId!,
             timestampReliable: input.timestampReliable,
             periodStartsAt: setting.startsAt.toISOString(),
-            periodEndsAt: setting.endsAt.toISOString(),
+            periodEndsAt: setting.endsAt?.toISOString() ?? null,
             entryId: report.entryId,
             simulatorVenue: report.simulatorVenue!,
             simulatorBay: report.simulatorBay!,
@@ -299,6 +299,7 @@ export async function resumeChallengeSales(input: {
   actorEmail: string;
   note: unknown;
 }) {
+  if (input.challengeSlug === clubhouseChallengeSlugs.holeInOne) throw new Error("This run is retired.");
   const note = boundedText(input.note, "Resume reason", 2000);
   const prisma = requiredPrisma();
   return prisma.$transaction(async (tx) => {

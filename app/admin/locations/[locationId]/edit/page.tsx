@@ -20,7 +20,7 @@ export default async function EditAdminLocationPage({
   }
 
   const location = await prisma.location.findUnique({
-    where: { id: locationId },
+    where: { id: locationId, archived: false },
     include: {
       bays: {
         where: { isActive: true },

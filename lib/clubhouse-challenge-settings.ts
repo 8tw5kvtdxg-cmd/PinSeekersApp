@@ -57,12 +57,12 @@ export async function updateClubhouseChallengeSetting(input: {
 }) {
     const challenge = getClubhouseChallenge(input.challengeSlug);
     const prisma = getPrismaClient();
-    if (!challenge || !prisma)
+    if (!challenge || challenge.slug === clubhouseChallengeSlugs.holeInOne || !prisma)
         throw new Error("Challenge configuration is unavailable.");
     const c = input.configuration || {};
     const bayIds = Array.isArray(c.bayIds) ? [...new Set(c.bayIds.filter((v): v is string => typeof v === "string"))] : [];
     const data = {
-        e6EventCode: text(input.e6EventCode, 100), startsAt: date(input.startsAt), endsAt: date(input.endsAt),
+        e6EventCode: text(input.e6EventCode, 100), startsAt: date(input.startsAt), neverCloses: c.neverCloses === true, endsAt: c.neverCloses === true ? null : date(input.endsAt),
         salesState: text(c.salesState) || "Draft", courseName: text(c.courseName),
         holeNumber: c.holeNumber === null || c.holeNumber === "" ? null : Number(c.holeNumber),
         teeName: text(c.teeName), pinPosition: text(c.pinPosition),
@@ -82,11 +82,13 @@ export async function updateClubhouseChallengeSetting(input: {
     await prisma.$transaction(async (tx) => {
         const previous = await tx.clubhouseChallengeSetting.findUnique({ where: { challengeSlug: challenge.slug } });
         const reports = await tx.holeInOneReport.count({ where: { challengeSlug: challenge.slug, status: { in: ['Pending Review', 'Verified'] } } });
-        const paid = previous?.startsAt && previous.endsAt ? await tx.squareCheckout.count({ where: { challengeSlug: challenge.slug, status: 'Succeeded', createdAt: { gte: previous.startsAt, lte: previous.endsAt } } }) : 0;
+        const paid = previous?.startsAt ? await tx.squareCheckout.count({ where: { challengeSlug: challenge.slug, status: 'Succeeded', createdAt: { gte: previous.startsAt, lte: previous.endsAt ?? undefined } } }) : 0;
         const currentAssignments = await tx.clubhouseChallengeBay.findMany({ where: { challengeSlug: challenge.slug } });
         if (previous && (reports || paid)) {
-            const material = ['e6EventCode', 'courseName', 'holeNumber', 'teeName', 'pinPosition', 'distanceYards', 'simulatorSettings', 'startsAt', 'endsAt'] as const;
-            if (material.some(key => String(previous[key] ?? '') !== String(data[key] ?? '')) ||
+            const material = ['e6EventCode', 'courseName', 'holeNumber', 'teeName', 'pinPosition', 'distanceYards', 'simulatorSettings', 'startsAt'] as const;
+            const closingChanged = previous.endsAt?.getTime() !== data.endsAt?.getTime() || previous.neverCloses !== data.neverCloses;
+            const extendingToNeverClose = data.neverCloses && !reports;
+            if ((closingChanged && !extendingToNeverClose) || material.some(key => String(previous[key] ?? '') !== String(data[key] ?? '')) ||
                 JSON.stringify(currentAssignments.map(a => a.bayId).sort()) !== JSON.stringify([...bayIds].sort())) {
                 throw new Error("Paid entries or unresolved results exist. Material challenge details and bay assignments are locked.");
             }
