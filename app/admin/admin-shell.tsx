@@ -13,7 +13,7 @@ import {
 import { AdminLogoutForm } from "@/app/admin/logout-form";
 
 const adminNavItems = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin", label: "Today", icon: LayoutDashboard },
   { href: "/admin/bookings", label: "Booking Emails", icon: MailCheck },
   { href: "/admin/funnel", label: "Analytics", icon: TrendingUp },
   { href: "/admin/costs", label: "Costs", icon: DollarSign },
