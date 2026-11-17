@@ -1,3 +1,4 @@
+import { alamoPosterChallengeId } from "@/lib/bay-entry";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -9,7 +10,6 @@ import {
   ShieldCheck,
   Trophy,
 } from "lucide-react";
-import { clubhouseChallengeSlugs } from "@/lib/clubhouse";
 
 const steps = [
   {
@@ -95,7 +95,7 @@ export default async function PlayPage() {
             </div>
 
             <Link
-              href={`/play/${clubhouseChallengeSlugs.holeInOne}`}
+              href={`/play/${alamoPosterChallengeId}`}
               className="mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#b7d37c] px-6 text-sm font-black text-[#13201c] transition hover:bg-[#cbe892]"
             >
               Open QR registration <ArrowRight size={18} />

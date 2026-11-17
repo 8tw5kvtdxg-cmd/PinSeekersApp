@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Trophy } from "lucide-react";
-import { clubhouseChallenges } from "@/lib/clubhouse";
+import { clubhouseChallenges, clubhouseChallengeSlugs } from "@/lib/clubhouse";
 import { getClubhouseLeaderboardRows } from "@/lib/clubhouse-entry-store";
 
-const leaderboards = clubhouseChallenges.map(({ name, slug }) => ({
+const leaderboards = clubhouseChallenges.filter(challenge => challenge.slug !== clubhouseChallengeSlugs.holeInOne).map(({ name, slug }) => ({
   title: name,
   resultLabel: "Result",
   slug,

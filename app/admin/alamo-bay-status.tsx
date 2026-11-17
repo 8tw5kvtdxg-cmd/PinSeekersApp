@@ -56,8 +56,8 @@ export async function AlamoBayStatus({ preview = false }: { preview?: boolean })
         <div>
           <dt className="text-sm font-bold">Sales window · San Antonio time</dt>
           <dd className="mt-1 text-sm">
-            {current?.setting.startsAt && current.setting.endsAt
-              ? `${sanAntonioTime.format(current.setting.startsAt)} – ${sanAntonioTime.format(current.setting.endsAt)}`
+            {current?.setting.startsAt && (current.setting.neverCloses || current.setting.endsAt)
+              ? `${sanAntonioTime.format(current.setting.startsAt)} – ${current.setting.neverCloses ? "Never Close" : sanAntonioTime.format(current.setting.endsAt!)}`
               : "No open sales window selected"}
           </dd>
         </div>

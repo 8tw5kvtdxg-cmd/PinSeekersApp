@@ -91,7 +91,7 @@ export default async function AdminDashboardPage() {
       getClubhouseLocationRevenueSummaries(),
       prisma ? prisma.user.count() : Promise.resolve(0),
       prisma
-        ? prisma.location.count()
+        ? prisma.location.count({ where: { archived: false } })
         : Promise.resolve(0),
     ]);
   const registeredEntries = entries.filter(

@@ -140,6 +140,7 @@ export default async function AdminLocationsPage({
   const [dbLocations, activeEventCode] = await Promise.all([
     prisma
       ? prisma.location.findMany({
+          where: { archived: false },
           orderBy: { createdAt: "desc" },
           include: {
             bays: {

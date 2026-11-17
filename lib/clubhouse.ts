@@ -92,8 +92,8 @@ const originalHoleInOne: ClubhouseChallenge = {
 };
 
 export const clubhouseChallenges: ClubhouseChallenge[] = [
-  originalHoleInOne,
   { ...originalHoleInOne, slug: clubhouseChallengeSlugs.alamoRun2, name: "Alamo Hole-in-One Challenge — Run 2" },
+  originalHoleInOne,
 ];
 
 export const clubhouseEntries: ClubhouseEntry[] = [];

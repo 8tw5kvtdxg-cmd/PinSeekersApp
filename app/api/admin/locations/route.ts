@@ -217,7 +217,7 @@ export async function PATCH(request: Request) {
   try {
     const location = await prisma.$transaction(async (transaction) => {
       const updatedLocation = await transaction.location.update({
-        where: { id: locationId },
+        where: { id: locationId, archived: false },
         data: {
           isActive,
           name,

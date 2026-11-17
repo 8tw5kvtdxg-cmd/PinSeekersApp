@@ -14,7 +14,7 @@ export default async function AdminWinnersPage({
   await requireAdminSession("/admin/winners");
   const params = await searchParams;
   const prisma = getPrismaClient();
-  const slug = clubhouseChallenges.find((challenge) => challenge.slug === params.run)?.slug ?? clubhouseChallengeSlugs.holeInOne;
+  const slug = clubhouseChallenges.find((challenge) => challenge.slug === params.run)?.slug ?? clubhouseChallengeSlugs.alamoRun2;
   const [reports, chronology, setting] = prisma
     ? await Promise.all([
         prisma.holeInOneReport.findMany({
@@ -48,7 +48,7 @@ export default async function AdminWinnersPage({
         <div className="rounded-lg border border-[#ded6c8] bg-white p-5"><p className="text-xs font-black uppercase text-[#87908a]">Review queue</p><p className="mt-2 text-xl font-black">{pendingCount} pending · {verifiedCount} verified</p></div>
         <div className="rounded-lg border border-[#ded6c8] bg-white p-5"><p className="text-xs font-black uppercase text-[#87908a]">Chronology</p><p className="mt-2 text-xl font-black">{chronology?.status ?? "No Verified Result"}</p><p className="mt-1 text-sm text-[#59655f]">{chronology?.provisionalReportId ? `Provisional report: ${chronology.provisionalReportId}` : "No prize winner determined"}</p></div>
       </div>
-      <p className="mt-5 text-sm text-[#59655f]">Configured period: {setting?.startsAt?.toLocaleString() ?? "Not set"} – {setting?.endsAt?.toLocaleString() ?? "Not set"}. Verification is blocked until valid dates are configured.</p>
+      <p className="mt-5 text-sm text-[#59655f]">Configured period: {setting?.startsAt?.toLocaleString() ?? "Not set"} – {setting?.neverCloses ? "Never Close" : setting?.endsAt?.toLocaleString() ?? "Not set"}. Verification is blocked until valid dates are configured.</p>
       {setting?.salesState === "Paused" && pendingCount === 0 && verifiedCount === 0 && (
         <form method="post" action="/api/admin/hole-in-one/review" className="mt-6 rounded-lg border border-[#ded6c8] bg-white p-5">
           <input type="hidden" name="action" value="resume" /><input type="hidden" name="challengeSlug" value={slug} />

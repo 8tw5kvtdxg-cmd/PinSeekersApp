@@ -290,6 +290,7 @@ model PasswordResetToken {
 }
 
 model Location {
+  archived Boolean @default(false)
   id        String   @id @default(cuid())
   name      String
   slug      String   @unique
@@ -663,6 +664,7 @@ model ClubhouseChallengeSetting {
   challengeSlug String  @unique
   e6EventCode String?
   salesState  String   @default("Draft")
+  neverCloses Boolean @default(false)
   salesHoldReason String?
   salesHeldAt DateTime?
   startsAt    DateTime?
