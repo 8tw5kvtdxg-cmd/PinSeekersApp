@@ -1,5 +1,4 @@
 "use client";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { ClubhouseChallenge } from "@/lib/clubhouse";
 import type { ClubhouseChallengeSettingView } from "@/lib/clubhouse-challenge-settings";
@@ -29,7 +28,6 @@ export function ChallengeAdminCard({ challenge, setting, bays }: {
     setting: ClubhouseChallengeSettingView;
     bays: BayOption[];
 }) {
-    const router = useRouter();
     const [form, setForm] = useState(setting);
     const [opens, setOpens] = useState(localTime(setting.startsAt));
     const [closes, setCloses] = useState(localTime(setting.endsAt));
@@ -46,14 +44,10 @@ export function ChallengeAdminCard({ challenge, setting, bays }: {
             const data = await response.json();
             if (!response.ok)
                 throw new Error(data.error || "Could not save challenge.");
-            setForm(data);
-            setMessage("Challenge settings saved.");
-            router.refresh();
+            window.location.replace("/admin");
         }
         catch (error) {
             setMessage(error instanceof Error ? error.message : "Could not save challenge.");
-        }
-        finally {
             setSaving(false);
         }
     }
