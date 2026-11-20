@@ -24,7 +24,7 @@ const adminNavItems = [
   { href: "/admin/prize-claims", label: "Prize Claims", icon: ClipboardCheck },
   { href: "/admin/verification", label: "Review", icon: ClipboardCheck },
   { href: "/admin/challenges", label: "Challenge Setup", icon: KeyRound },
-  { href: "/admin/locations", label: "Locations", icon: MapPin },
+  { href: "/admin/locations", label: "Venues & QR Codes", icon: MapPin },
   { href: "/admin/users", label: "Users", icon: UsersRound },
   { href: "/admin/eligibility", label: "Eligibility", icon: ClipboardCheck },
 ];
