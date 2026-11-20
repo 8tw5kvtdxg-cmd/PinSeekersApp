@@ -1,3 +1,5 @@
+import { bayEntryPath, resolveBayEntry } from "@/lib/bay-entry";
+import { BayQrActions } from "./bay-qr-actions";
 import Link from "next/link";
 import {
   AlertCircle,
@@ -175,6 +177,10 @@ export default async function AdminLocationsPage({
         })),
       })),
   ];
+  const bayRuns = new Map(await Promise.all(locations.flatMap(location => location.bays.map(async bay => {
+    const entry = await resolveBayEntry(bay.id);
+    return [bay.id, entry.current?.challenge.name ?? entry.blockers.join(" ")] as const;
+  }))));
   const revenueSummaryMap = await getClubhouseLocationRevenueSummaries();
   const trackingReady = Boolean(prisma?.bookingLinkClick && prisma?.qrScan);
   const eventCodeReady = Boolean(activeEventCode);
@@ -210,7 +216,7 @@ export default async function AdminLocationsPage({
               Partner locations
             </p>
             <h1 className="mt-4 text-4xl font-black sm:text-5xl">
-              Partner QR and revenue log
+              Venues &amp; QR Codes
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-[#53605a]">
               Create partner venues, generate bay-specific QR entry links, and
@@ -280,9 +286,8 @@ export default async function AdminLocationsPage({
                   const readyCount = readinessItems.filter((item) => item.ready).length;
 
                   return (
-                    <Link
+                    <div
                       key={location.id}
-                      href={`/admin/locations?location=${encodeURIComponent(location.slug)}`}
                       className={`block rounded-lg border p-5 transition hover:border-[#2f6b3f] hover:bg-[#f4f8ef] ${
                         location.slug === selectedLocationSlug
                           ? "border-[#2f6b3f] bg-[#eef7e9]"
@@ -361,9 +366,9 @@ export default async function AdminLocationsPage({
 
                     <div className="mt-4">
                       {location.isEditable ? (
-                        <span className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#18211f] px-4 text-sm font-black text-white">
+                        <Link href={`/admin/locations?location=${encodeURIComponent(location.slug)}`} className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#18211f] px-4 text-sm font-black text-white">
                           <PencilLine size={16} /> Select to edit below
-                        </span>
+                        </Link>
                       ) : (
                         <span className="inline-flex h-10 items-center justify-center rounded-md border border-[#ded6c8] bg-white px-4 text-sm font-black text-[#59655f]">
                           Built-in location
@@ -373,9 +378,7 @@ export default async function AdminLocationsPage({
 
                     <div className="mt-5 grid gap-4 lg:grid-cols-2">
                       {location.bays.map((bay) => {
-                        const url = new URL("/play/bay", origin);
-                        url.searchParams.set("id", bay.id);
-                        const qrUrl = url.toString();
+                        const qrUrl = new URL(bayEntryPath(bay.id), origin).href;
 
                         return (
                           <div key={bay.id} className="rounded-lg border border-[#ded6c8] bg-white p-4">
@@ -389,14 +392,14 @@ export default async function AdminLocationsPage({
                               className="mt-2 aspect-square w-full rounded-md border border-[#ece4d6] bg-white p-2"
                               src={getQrImageUrl(qrUrl)}
                             />
-                            <p className="mt-2 break-all font-mono text-[11px] leading-5 text-[#6b756f]">
-                              {qrUrl}
-                            </p>
+                            <p className="my-2 text-sm"><strong>Current challenge</strong> · {bayRuns.get(bay.id)}</p>
+                            <BayQrActions permanentUrl={qrUrl} venueSlug={location.slug} bayName={bay.name} />
+
                           </div>
                         );
                       })}
                     </div>
-                    </Link>
+                    </div>
                   );
                 })}
               </div>
